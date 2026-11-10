@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/paw_background.dart';
+
 import '../../editor_foto/presentation/editor_foto_page.dart';
 
 import '../../../app/servicios.dart';
@@ -83,71 +85,73 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Nuevo recuerdo')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: AspectRatio(
-              aspectRatio: 3 / 4,
-              child: FotoRecuerdo(path: _foto),
+      body: PawBackground(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: AspectRatio(
+                aspectRatio: 3 / 4,
+                child: FotoRecuerdo(path: _foto),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: OutlinedButton.icon(
-              onPressed: _guardando ? null : _decorar,
-              icon: const Icon(Icons.auto_awesome),
-              label: const Text('Decorar ✨'),
+            const SizedBox(height: 12),
+            Center(
+              child: OutlinedButton.icon(
+                onPressed: _guardando ? null : _decorar,
+                icon: const Icon(Icons.auto_awesome),
+                label: const Text('Decorar ✨'),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Center(
-            child: Text(
-              '¿Qué tan michi-bonita quedó?',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: CalificacionHuellitas(
-              valor: _calificacion,
-              tamano: 40,
-              mostrarEtiqueta: true,
-              onChanged: (v) => setState(() => _calificacion = v),
-            ),
-          ),
-          if (_michis.isNotEmpty) ...[
             const SizedBox(height: 20),
-            SelectorMichi(
-              michis: _michis,
-              seleccionado: _michiId,
-              onChanged: (id) => setState(() => _michiId = id),
+            Center(
+              child: Text(
+                '¿Qué tan michi-bonita quedó?',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: CalificacionHuellitas(
+                valor: _calificacion,
+                tamano: 40,
+                mostrarEtiqueta: true,
+                onChanged: (v) => setState(() => _calificacion = v),
+              ),
+            ),
+            if (_michis.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              SelectorMichi(
+                michis: _michis,
+                seleccionado: _michiId,
+                onChanged: (id) => setState(() => _michiId = id),
+              ),
+            ],
+            const SizedBox(height: 20),
+            TextField(
+              controller: _nota,
+              maxLength: 120,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Nota (opcional)',
+                hintText: 'Ej. Siesta con Pelusa',
+                prefixIcon: Icon(Icons.edit_note),
+              ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: _calificacion == 0 || _guardando ? null : _guardar,
+              icon: _guardando
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.favorite),
+              label: const Text('Guardar recuerdo'),
             ),
           ],
-          const SizedBox(height: 20),
-          TextField(
-            controller: _nota,
-            maxLength: 120,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Nota (opcional)',
-              hintText: 'Ej. Siesta con Pelusa',
-              prefixIcon: Icon(Icons.edit_note),
-            ),
-          ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _calificacion == 0 || _guardando ? null : _guardar,
-            icon: _guardando
-                ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.favorite),
-            label: const Text('Guardar recuerdo'),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/paw_background.dart';
+
 import '../../../app/servicios.dart';
 import '../../michis/domain/michi.dart';
 import '../domain/recuerdo.dart';
@@ -142,71 +144,73 @@ class _RecuerdoDetallePageState extends State<RecuerdoDetallePage> {
             ),
           ],
         ),
-        body: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: FotoRecuerdo(
-                path: _recuerdo.imagePath,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (_recuerdo.nota.isNotEmpty)
-              Text(
-                _recuerdo.nota,
-                textAlign: TextAlign.center,
-                style: textTheme.titleLarge,
-              ),
-            Text(
-              formatearFecha(_recuerdo.fecha),
-              textAlign: TextAlign.center,
-              style: textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: CalificacionHuellitas(
-                valor: _recuerdo.calificacion,
-                mostrarEtiqueta: true,
-                onChanged: _calificar,
-              ),
-            ),
-            if (_michis.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              SelectorMichi(
-                michis: _michis,
-                seleccionado: _recuerdo.michiId,
-                onChanged: _etiquetar,
-              ),
-            ],
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _ocupado ? null : _guardarEnGaleria,
-                    icon: const Icon(Icons.download),
-                    label: const Text('Guardar en galería'),
-                  ),
+        body: PawBackground(
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: FotoRecuerdo(
+                  path: _recuerdo.imagePath,
+                  fit: BoxFit.contain,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: _ocupado ? null : _compartir,
-                    icon: const Icon(Icons.share),
-                    label: const Text('Compartir'),
-                  ),
+              ),
+              const SizedBox(height: 16),
+              if (_recuerdo.nota.isNotEmpty)
+                Text(
+                  _recuerdo.nota,
+                  textAlign: TextAlign.center,
+                  style: textTheme.titleLarge,
+                ),
+              Text(
+                formatearFecha(_recuerdo.fecha),
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: CalificacionHuellitas(
+                  valor: _recuerdo.calificacion,
+                  mostrarEtiqueta: true,
+                  onChanged: _calificar,
+                ),
+              ),
+              if (_michis.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                SelectorMichi(
+                  michis: _michis,
+                  seleccionado: _recuerdo.michiId,
+                  onChanged: _etiquetar,
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Comparte por WhatsApp o cualquier otra app 💬',
-              textAlign: TextAlign.center,
-              style: textTheme.bodySmall,
-            ),
-          ],
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _ocupado ? null : _guardarEnGaleria,
+                      icon: const Icon(Icons.download),
+                      label: const Text('Guardar en galería'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _ocupado ? null : _compartir,
+                      icon: const Icon(Icons.share),
+                      label: const Text('Compartir'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Comparte por WhatsApp o cualquier otra app 💬',
+                textAlign: TextAlign.center,
+                style: textTheme.bodySmall,
+              ),
+            ],
+          ),
         ),
       ),
     );

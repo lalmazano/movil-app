@@ -3,6 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 /// Fondo decorativo con huellitas de gato.
+///
+/// Las huellitas se dibujan detrás de la barra de navegación del sistema,
+/// pero el contenido ([child]) se mantiene fuera de ella para que el último
+/// elemento de una lista no quede tapado.
 class PawBackground extends StatelessWidget {
   const PawBackground({super.key, required this.child});
 
@@ -11,7 +15,10 @@ class PawBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.primary.withValues(alpha: 0.08);
-    return CustomPaint(painter: _PawPainter(color), child: child);
+    return CustomPaint(
+      painter: _PawPainter(color),
+      child: SafeArea(top: false, child: child),
+    );
   }
 }
 
