@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/home/presentation/home_page.dart';
 import '../../app/servicios.dart';
+import '../../features/michis/presentation/michis_page.dart';
 import '../../features/recuerdos/presentation/recuerdos_page.dart';
 import '../widgets/not_found_page.dart';
 
@@ -9,6 +10,7 @@ import '../widgets/not_found_page.dart';
 abstract final class AppRoutes {
   static const String home = '/';
   static const String recuerdos = '/recuerdos';
+  static const String michis = '/michis';
 }
 
 /// Generador de rutas centralizado.
@@ -24,6 +26,14 @@ abstract final class AppRouter {
         return MaterialPageRoute(
           builder: (_) =>
               RecuerdosPage(repository: AppServicios.instancia.recuerdos),
+          settings: settings,
+        );
+      case AppRoutes.michis:
+        return MaterialPageRoute(
+          builder: (_) => MichisPage(
+            repository: AppServicios.instancia.michis,
+            recuerdoRepository: AppServicios.instancia.recuerdos,
+          ),
           settings: settings,
         );
       default:

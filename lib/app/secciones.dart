@@ -18,6 +18,7 @@ class Seccion {
 /// Secciones que aparecen en el inicio. Para agregar una funcionalidad al
 /// menú, registra su ruta en `app_router.dart` y añádela aquí.
 const secciones = <Seccion>[
+  Seccion(titulo: 'Mis michis', icono: Icons.pets, ruta: AppRoutes.michis),
   Seccion(
     titulo: 'Foto con mi michi',
     icono: Icons.photo_camera,
