@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../features/home/presentation/home_page.dart';
+import '../../features/recuerdos/data/local_recuerdo_repository.dart';
+import '../../features/recuerdos/presentation/recuerdos_page.dart';
 import '../widgets/not_found_page.dart';
 
 /// Nombres de rutas de la aplicación.
 abstract final class AppRoutes {
   static const String home = '/';
+  static const String recuerdos = '/recuerdos';
 }
 
 /// Generador de rutas centralizado.
@@ -15,6 +18,11 @@ abstract final class AppRouter {
       case AppRoutes.home:
         return MaterialPageRoute(
           builder: (_) => const HomePage(),
+          settings: settings,
+        );
+      case AppRoutes.recuerdos:
+        return MaterialPageRoute(
+          builder: (_) => RecuerdosPage(repository: LocalRecuerdoRepository()),
           settings: settings,
         );
       default:

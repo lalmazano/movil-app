@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Para tomarte fotos con tu michi y guardarlas como recuerdos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Para elegir fotos de tu michi desde la galería.</string>
 </dict>
 </plist>

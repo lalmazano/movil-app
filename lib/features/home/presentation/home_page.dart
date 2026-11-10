@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../data/local_michi_fact_repository.dart';
 import '../domain/michi_fact.dart';
@@ -101,6 +102,13 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                FilledButton.tonalIcon(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.recuerdos),
+                  icon: const Icon(Icons.photo_camera),
+                  label: const Text('Foto con mi michi'),
                 ),
               ],
             ),

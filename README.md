@@ -2,6 +2,13 @@
 
 Aplicación móvil con tema de michis 🐱, desarrollada con [Flutter](https://flutter.dev) (Android, iOS y Web).
 
+## Funciones
+
+- **Inicio:** michi interactivo y datos curiosos de gatos.
+- **Recuerdos:** tómate una foto con tu michi (selfie, cámara trasera o galería),
+  califícala de 1 a 5 huellitas 🐾 y guárdala con una nota. Las fotos se guardan
+  en la carpeta privada de la app (solo Android e iOS).
+
 ## Requisitos
 
 - Flutter SDK (canal `stable`, 3.x) — `flutter --version`
@@ -28,6 +35,7 @@ lib/
 │   ├── theme/                # Tema claro/oscuro (Material 3)
 │   └── widgets/              # Widgets reutilizables
 └── features/
+    ├── recuerdos/            # Fotos con el michi y su calificación
     └── home/                 # Un módulo por funcionalidad
         ├── data/             # Fuentes de datos, modelos, repositorios
         ├── domain/           # Entidades y lógica de negocio
