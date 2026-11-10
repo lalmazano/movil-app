@@ -23,4 +23,6 @@ const secciones = <Seccion>[
     icono: Icons.photo_camera,
     ruta: AppRoutes.recuerdos,
   ),
+  Seccion(titulo: 'Peso', icono: Icons.monitor_weight, ruta: AppRoutes.peso),
+  Seccion(titulo: 'Logros', icono: Icons.emoji_events, ruta: AppRoutes.logros),
 ];
