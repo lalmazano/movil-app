@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/servicios.dart';
+import '../../michis/domain/michi.dart';
 import '../domain/recuerdo.dart';
 import '../domain/recuerdo_acciones.dart';
 import 'widgets/calificacion_huellitas.dart';
 import 'widgets/foto_recuerdo.dart';
+import 'widgets/selector_michi.dart';
 
 /// Ver un recuerdo, cambiar su calificación o borrarlo.
 ///
@@ -14,11 +17,15 @@ class RecuerdoDetallePage extends StatefulWidget {
     required this.recuerdo,
     required this.repository,
     required this.acciones,
+    this.michiRepository,
   });
 
   final Recuerdo recuerdo;
   final RecuerdoRepository repository;
   final RecuerdoAcciones acciones;
+
+  /// Michis para etiquetar. Por defecto `AppServicios.instancia.michis`.
+  final MichiRepository? michiRepository;
 
   @override
   State<RecuerdoDetallePage> createState() => _RecuerdoDetallePageState();
@@ -28,6 +35,16 @@ class _RecuerdoDetallePageState extends State<RecuerdoDetallePage> {
   late Recuerdo _recuerdo = widget.recuerdo;
   bool _cambio = false;
   bool _ocupado = false;
+  List<Michi> _michis = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    cargarMichisSeguro(widget.michiRepository ?? AppServicios.instancia.michis)
+        .then((michis) {
+          if (mounted) setState(() => _michis = michis);
+        });
+  }
 
   void _aviso(String texto) {
     if (!mounted) return;
@@ -67,6 +84,15 @@ class _RecuerdoDetallePageState extends State<RecuerdoDetallePage> {
 
   Future<void> _calificar(int valor) async {
     final actualizado = _recuerdo.copyWith(calificacion: valor);
+    setState(() {
+      _recuerdo = actualizado;
+      _cambio = true;
+    });
+    await widget.repository.update(actualizado);
+  }
+
+  Future<void> _etiquetar(String? michiId) async {
+    final actualizado = _recuerdo.copyWith(michiId: () => michiId);
     setState(() {
       _recuerdo = actualizado;
       _cambio = true;
@@ -146,6 +172,14 @@ class _RecuerdoDetallePageState extends State<RecuerdoDetallePage> {
                 onChanged: _calificar,
               ),
             ),
+            if (_michis.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              SelectorMichi(
+                michis: _michis,
+                seleccionado: _recuerdo.michiId,
+                onChanged: _etiquetar,
+              ),
+            ],
             const SizedBox(height: 24),
             Row(
               children: [

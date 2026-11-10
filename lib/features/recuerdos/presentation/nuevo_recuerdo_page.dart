@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/servicios.dart';
+import '../../michis/domain/michi.dart';
 import '../domain/recuerdo.dart';
 import 'widgets/calificacion_huellitas.dart';
 import 'widgets/foto_recuerdo.dart';
+import 'widgets/selector_michi.dart';
 
 /// Vista previa de la foto recién tomada: se califica y se guarda.
 class NuevoRecuerdoPage extends StatefulWidget {
@@ -10,10 +13,14 @@ class NuevoRecuerdoPage extends StatefulWidget {
     super.key,
     required this.fotoPath,
     required this.repository,
+    this.michiRepository,
   });
 
   final String fotoPath;
   final RecuerdoRepository repository;
+
+  /// Michis para etiquetar. Por defecto `AppServicios.instancia.michis`.
+  final MichiRepository? michiRepository;
 
   @override
   State<NuevoRecuerdoPage> createState() => _NuevoRecuerdoPageState();
@@ -23,6 +30,17 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
   final _nota = TextEditingController();
   int _calificacion = 0;
   bool _guardando = false;
+  List<Michi> _michis = const [];
+  String? _michiId;
+
+  @override
+  void initState() {
+    super.initState();
+    cargarMichisSeguro(widget.michiRepository ?? AppServicios.instancia.michis)
+        .then((michis) {
+          if (mounted) setState(() => _michis = michis);
+        });
+  }
 
   @override
   void dispose() {
@@ -37,6 +55,7 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
         sourcePath: widget.fotoPath,
         calificacion: _calificacion,
         nota: _nota.text.trim(),
+        michiId: _michiId,
       );
       if (mounted) Navigator.of(context).pop(recuerdo);
     } catch (e) {
@@ -78,6 +97,14 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
               onChanged: (v) => setState(() => _calificacion = v),
             ),
           ),
+          if (_michis.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            SelectorMichi(
+              michis: _michis,
+              seleccionado: _michiId,
+              onChanged: (id) => setState(() => _michiId = id),
+            ),
+          ],
           const SizedBox(height: 20),
           TextField(
             controller: _nota,

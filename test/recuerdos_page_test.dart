@@ -5,6 +5,8 @@ import 'package:movil_app/features/recuerdos/domain/recuerdo.dart';
 import 'package:movil_app/features/recuerdos/domain/recuerdo_acciones.dart';
 import 'package:movil_app/features/recuerdos/presentation/recuerdos_page.dart';
 
+import 'support/michis_fakes.dart';
+
 class _RepoEnMemoria implements RecuerdoRepository {
   final _datos = <Recuerdo>[];
 
@@ -68,6 +70,7 @@ void main() {
         theme: AppTheme.light,
         home: RecuerdosPage(
           repository: repo,
+          michiRepository: MichiRepoEnMemoria(),
           selectorFoto: (_, _) async => '/no/existe/michi.jpg',
           acciones: acciones,
         ),

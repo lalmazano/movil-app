@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../app/servicios.dart';
 import '../../features/juego/presentation/juego_page.dart';
+import '../../features/michis/presentation/michis_page.dart';
 import '../../features/recuerdos/presentation/recuerdos_page.dart';
 import '../../features/peso/presentation/peso_page.dart';
 import '../../features/logros/presentation/logros_page.dart';
@@ -21,6 +22,7 @@ abstract final class AppRoutes {
   static const String juego = '/juego';
   static const String recordatorios = '/recordatorios';
   static const String salud = '/salud';
+  static const String michis = '/michis';
 }
 
 /// Generador de rutas centralizado.
@@ -71,6 +73,14 @@ abstract final class AppRouter {
             repository: LocalSaludRepository(),
             michis: AppServicios.instancia.michis,
             recordatorios: servicioRecordatorios,
+          ),
+          settings: settings,
+        );
+      case AppRoutes.michis:
+        return MaterialPageRoute(
+          builder: (_) => MichisPage(
+            repository: AppServicios.instancia.michis,
+            recuerdoRepository: AppServicios.instancia.recuerdos,
           ),
           settings: settings,
         );
