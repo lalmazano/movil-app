@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.igss.movil_app"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications y androidx.core requieren API 37 o superior.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
