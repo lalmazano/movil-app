@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../editor_foto/presentation/editor_foto_page.dart';
+
 import '../../../app/servicios.dart';
 import '../../michis/domain/michi.dart';
 import '../domain/recuerdo.dart';
@@ -30,6 +32,9 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
   final _nota = TextEditingController();
   int _calificacion = 0;
   bool _guardando = false;
+
+  /// Foto actual: la original o la versión decorada en el editor.
+  late String _foto = widget.fotoPath;
   List<Michi> _michis = const [];
   String? _michiId;
 
@@ -52,7 +57,7 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
     setState(() => _guardando = true);
     try {
       final recuerdo = await widget.repository.add(
-        sourcePath: widget.fotoPath,
+        sourcePath: _foto,
         calificacion: _calificacion,
         nota: _nota.text.trim(),
         michiId: _michiId,
@@ -67,6 +72,13 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
     }
   }
 
+  Future<void> _decorar() async {
+    final decorada = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => EditorFotoPage(fotoPath: _foto)),
+    );
+    if (decorada != null && mounted) setState(() => _foto = decorada);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +90,15 @@ class _NuevoRecuerdoPageState extends State<NuevoRecuerdoPage> {
             borderRadius: BorderRadius.circular(24),
             child: AspectRatio(
               aspectRatio: 3 / 4,
-              child: FotoRecuerdo(path: widget.fotoPath),
+              child: FotoRecuerdo(path: _foto),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: OutlinedButton.icon(
+              onPressed: _guardando ? null : _decorar,
+              icon: const Icon(Icons.auto_awesome),
+              label: const Text('Decorar ✨'),
             ),
           ),
           const SizedBox(height: 20),

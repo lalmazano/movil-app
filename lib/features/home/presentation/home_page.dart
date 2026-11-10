@@ -9,6 +9,8 @@ import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../michis/domain/michi.dart';
 import '../../michis/presentation/widgets/michi_avatar.dart';
+import '../../sonidos/domain/servicio_sonidos.dart';
+import '../../sonidos/presentation/boton_sonido.dart';
 import '../data/local_michi_fact_repository.dart';
 import '../domain/michi_fact.dart';
 
@@ -17,6 +19,7 @@ class HomePage extends StatefulWidget {
     super.key,
     this.repository = const LocalMichiFactRepository(),
     this.michiRepository,
+    this.sonidos,
     this.hoy,
   });
 
@@ -24,6 +27,9 @@ class HomePage extends StatefulWidget {
 
   /// Michis de la casa. Por defecto `AppServicios.instancia.michis`.
   final MichiRepository? michiRepository;
+
+  /// Efectos de sonido. Por defecto `AppServicios.instancia.sonidos`.
+  final ServicioSonidos? sonidos;
 
   /// Fecha de hoy (para pruebas). Por defecto `DateTime.now()`.
   final DateTime? hoy;
@@ -40,6 +46,9 @@ class _HomePageState extends State<HomePage> {
   int _caricias = 0;
   MichiFact? _fact;
   List<Michi> _misMichis = const [];
+
+  ServicioSonidos get _sonidos =>
+      widget.sonidos ?? AppServicios.instancia.sonidos;
 
   MichiRepository get _michiRepository =>
       widget.michiRepository ?? AppServicios.instancia.michis;
@@ -75,6 +84,8 @@ class _HomePageState extends State<HomePage> {
       _caricias++;
       _michiIndex = (_michiIndex + 1) % _michis.length;
     });
+    _sonidos.maullar();
+    if (_caricias % 5 == 0) _sonidos.ronronear();
   }
 
   void _nuevoDato() {
@@ -87,7 +98,10 @@ class _HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('🐾 ${AppConstants.appName} 🐾')),
+      appBar: AppBar(
+        title: const Text('🐾 ${AppConstants.appName} 🐾'),
+        actions: [BotonSonido(sonidos: _sonidos)],
+      ),
       body: PawBackground(
         child: Center(
           child: SingleChildScrollView(
