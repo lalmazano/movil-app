@@ -1,6 +1,6 @@
 # Movil App
 
-Aplicación móvil desarrollada con [Flutter](https://flutter.dev) (Android, iOS y Web).
+Aplicación móvil con tema de michis 🐱, desarrollada con [Flutter](https://flutter.dev) (Android, iOS y Web).
 
 ## Requisitos
 
