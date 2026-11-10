@@ -23,6 +23,16 @@ const secciones = <Seccion>[
     icono: Icons.photo_camera,
     ruta: AppRoutes.recuerdos,
   ),
+  Seccion(
+    titulo: 'Recordatorios',
+    icono: Icons.alarm,
+    ruta: AppRoutes.recordatorios,
+  ),
+  Seccion(
+    titulo: 'Salud',
+    icono: Icons.medical_services,
+    ruta: AppRoutes.salud,
+  ),
   Seccion(titulo: 'Peso', icono: Icons.monitor_weight, ruta: AppRoutes.peso),
   Seccion(titulo: 'Logros', icono: Icons.emoji_events, ruta: AppRoutes.logros),
   Seccion(
