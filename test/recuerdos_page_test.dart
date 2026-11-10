@@ -16,6 +16,7 @@ class _RepoEnMemoria implements RecuerdoRepository {
     required String sourcePath,
     required int calificacion,
     String nota = '',
+    String? michiId,
   }) async {
     final r = Recuerdo(
       id: '${_datos.length}',
@@ -23,6 +24,7 @@ class _RepoEnMemoria implements RecuerdoRepository {
       fecha: DateTime(2026, 11, 10),
       calificacion: calificacion,
       nota: nota,
+      michiId: michiId,
     );
     _datos.add(r);
     return r;

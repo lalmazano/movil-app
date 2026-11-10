@@ -38,6 +38,7 @@ class LocalRecuerdoRepository implements RecuerdoRepository {
           fecha: DateTime.parse(d['fecha'] as String),
           calificacion: d['calificacion'] as int,
           nota: d['nota'] as String? ?? '',
+          michiId: d['michiId'] as String?,
         ),
     ];
   }
@@ -51,6 +52,7 @@ class LocalRecuerdoRepository implements RecuerdoRepository {
           'fecha': r.fecha.toIso8601String(),
           'calificacion': r.calificacion,
           'nota': r.nota,
+          'michiId': r.michiId,
         },
     ];
     await (await _indice()).writeAsString(jsonEncode(datos), flush: true);
@@ -65,6 +67,7 @@ class LocalRecuerdoRepository implements RecuerdoRepository {
     required String sourcePath,
     required int calificacion,
     String nota = '',
+    String? michiId,
   }) async {
     final fecha = DateTime.now();
     final id = fecha.microsecondsSinceEpoch.toString();
@@ -79,6 +82,7 @@ class LocalRecuerdoRepository implements RecuerdoRepository {
       fecha: fecha,
       calificacion: calificacion,
       nota: nota,
+      michiId: michiId,
     );
     await _escribir([...await _leer(), recuerdo]);
     return recuerdo;

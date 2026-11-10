@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../core/routes/app_router.dart';
+import '../../../app/secciones.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../data/local_michi_fact_repository.dart';
 import '../domain/michi_fact.dart';
@@ -104,11 +104,19 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                FilledButton.tonalIcon(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.recuerdos),
-                  icon: const Icon(Icons.photo_camera),
-                  label: const Text('Foto con mi michi'),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    for (final seccion in secciones)
+                      FilledButton.tonalIcon(
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed(seccion.ruta),
+                        icon: Icon(seccion.icono),
+                        label: Text(seccion.titulo),
+                      ),
+                  ],
                 ),
               ],
             ),

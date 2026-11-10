@@ -6,6 +6,7 @@ class Recuerdo {
     required this.fecha,
     required this.calificacion,
     this.nota = '',
+    this.michiId,
   }) : assert(calificacion >= 1 && calificacion <= 5);
 
   final String id;
@@ -16,12 +17,20 @@ class Recuerdo {
   final int calificacion;
   final String nota;
 
-  Recuerdo copyWith({int? calificacion, String? nota}) => Recuerdo(
+  /// Michi que sale en la foto (id de `Michi`), o null si no se indicó.
+  final String? michiId;
+
+  Recuerdo copyWith({
+    int? calificacion,
+    String? nota,
+    String? Function()? michiId,
+  }) => Recuerdo(
     id: id,
     imagePath: imagePath,
     fecha: fecha,
     calificacion: calificacion ?? this.calificacion,
     nota: nota ?? this.nota,
+    michiId: michiId != null ? michiId() : this.michiId,
   );
 }
 
@@ -35,6 +44,7 @@ abstract interface class RecuerdoRepository {
     required String sourcePath,
     required int calificacion,
     String nota = '',
+    String? michiId,
   });
 
   Future<void> update(Recuerdo recuerdo);

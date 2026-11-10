@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/home/presentation/home_page.dart';
-import '../../features/recuerdos/data/local_recuerdo_repository.dart';
+import '../../app/servicios.dart';
 import '../../features/recuerdos/presentation/recuerdos_page.dart';
 import '../widgets/not_found_page.dart';
 
@@ -22,7 +22,8 @@ abstract final class AppRouter {
         );
       case AppRoutes.recuerdos:
         return MaterialPageRoute(
-          builder: (_) => RecuerdosPage(repository: LocalRecuerdoRepository()),
+          builder: (_) =>
+              RecuerdosPage(repository: AppServicios.instancia.recuerdos),
           settings: settings,
         );
       default:
