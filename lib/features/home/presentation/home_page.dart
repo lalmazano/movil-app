@@ -208,7 +208,10 @@ class _HomePageState extends State<HomePage> {
     if (_misMichis.isEmpty) {
       return [
         Card(
-          color: theme.colorScheme.secondary.withValues(alpha: 0.25),
+          color: Color.alphaBlend(
+            theme.colorScheme.secondary.withValues(alpha: 0.25),
+            theme.colorScheme.surface,
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
