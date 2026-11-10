@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../app/servicios.dart';
 import '../../features/recuerdos/presentation/recuerdos_page.dart';
+import '../../features/peso/presentation/peso_page.dart';
+import '../../features/logros/presentation/logros_page.dart';
 import '../widgets/not_found_page.dart';
 
 /// Nombres de rutas de la aplicación.
 abstract final class AppRoutes {
   static const String home = '/';
   static const String recuerdos = '/recuerdos';
+  static const String peso = '/peso';
+  static const String logros = '/logros';
 }
 
 /// Generador de rutas centralizado.
@@ -24,6 +28,23 @@ abstract final class AppRouter {
         return MaterialPageRoute(
           builder: (_) =>
               RecuerdosPage(repository: AppServicios.instancia.recuerdos),
+          settings: settings,
+        );
+      case AppRoutes.peso:
+        return MaterialPageRoute(
+          builder: (_) => PesoPage(
+            michis: AppServicios.instancia.michis,
+            pesos: AppServicios.instancia.peso,
+          ),
+          settings: settings,
+        );
+      case AppRoutes.logros:
+        return MaterialPageRoute(
+          builder: (_) => LogrosPage(
+            michis: AppServicios.instancia.michis,
+            recuerdos: AppServicios.instancia.recuerdos,
+            pesos: AppServicios.instancia.peso,
+          ),
           settings: settings,
         );
       default:

@@ -1,5 +1,7 @@
 import '../features/michis/data/local_michi_repository.dart';
 import '../features/michis/domain/michi.dart';
+import '../features/peso/data/local_peso_repository.dart';
+import '../features/peso/domain/registro_peso.dart';
 import '../features/recuerdos/data/local_recuerdo_repository.dart';
 import '../features/recuerdos/domain/recuerdo.dart';
 
@@ -15,4 +17,5 @@ class AppServicios {
 
   final MichiRepository michis = LocalMichiRepository();
   final RecuerdoRepository recuerdos = LocalRecuerdoRepository();
+  final PesoRepository peso = LocalPesoRepository();
 }
