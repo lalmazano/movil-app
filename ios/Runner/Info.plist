@@ -68,6 +68,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Para tomarte fotos con tu michi y guardarlas como recuerdos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Para guardar tus fotos con tu michi en la galería.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Para elegir fotos de tu michi desde la galería.</string>
 </dict>

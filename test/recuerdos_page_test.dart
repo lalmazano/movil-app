@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movil_app/core/theme/app_theme.dart';
 import 'package:movil_app/features/recuerdos/domain/recuerdo.dart';
+import 'package:movil_app/features/recuerdos/domain/recuerdo_acciones.dart';
 import 'package:movil_app/features/recuerdos/presentation/recuerdos_page.dart';
 
 class _RepoEnMemoria implements RecuerdoRepository {
@@ -37,18 +38,36 @@ class _RepoEnMemoria implements RecuerdoRepository {
   Future<void> delete(String id) async => _datos.removeWhere((r) => r.id == id);
 }
 
+class _AccionesFalsas implements RecuerdoAcciones {
+  final guardados = <String>[];
+  final compartidos = <String>[];
+  bool negarPermiso = false;
+
+  @override
+  Future<void> guardarEnGaleria(Recuerdo recuerdo) async {
+    if (negarPermiso) throw const PermisoGaleriaDenegado();
+    guardados.add(recuerdo.id);
+  }
+
+  @override
+  Future<void> compartir(Recuerdo recuerdo) async =>
+      compartidos.add(textoParaCompartir(recuerdo));
+}
+
 void main() {
   testWidgets('tomar foto, calificarla y guardarla', (tester) async {
     tester.view.physicalSize = const Size(400, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final repo = _RepoEnMemoria();
+    final acciones = _AccionesFalsas();
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light,
         home: RecuerdosPage(
           repository: repo,
           selectorFoto: (_, _) async => '/no/existe/michi.jpg',
+          acciones: acciones,
         ),
       ),
     );
@@ -86,6 +105,23 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Calificar 2 de 5'));
     await tester.pumpAndSettle();
     expect(repo._datos.single.calificacion, 2);
+
+    // Guardar en galería y compartir.
+    await tester.tap(find.text('Guardar en galería'));
+    await tester.pumpAndSettle();
+    expect(acciones.guardados, ['0']);
+    expect(find.textContaining('álbum "Michis"'), findsOneWidget);
+
+    acciones.negarPermiso = true;
+    await tester.tap(find.text('Guardar en galería'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Necesito permiso'), findsOneWidget);
+
+    await tester.tap(find.text('Compartir'));
+    await tester.pumpAndSettle();
+    expect(acciones.compartidos.single, contains('Con Pelusa'));
+    expect(acciones.compartidos.single, contains('🐾🐾 Meh-au'));
+
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(find.textContaining('promedio 2.0'), findsOneWidget);

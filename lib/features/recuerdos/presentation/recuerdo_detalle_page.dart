@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../domain/recuerdo.dart';
+import '../domain/recuerdo_acciones.dart';
 import 'widgets/calificacion_huellitas.dart';
 import 'widgets/foto_recuerdo.dart';
 
@@ -12,10 +13,12 @@ class RecuerdoDetallePage extends StatefulWidget {
     super.key,
     required this.recuerdo,
     required this.repository,
+    required this.acciones,
   });
 
   final Recuerdo recuerdo;
   final RecuerdoRepository repository;
+  final RecuerdoAcciones acciones;
 
   @override
   State<RecuerdoDetallePage> createState() => _RecuerdoDetallePageState();
@@ -24,6 +27,43 @@ class RecuerdoDetallePage extends StatefulWidget {
 class _RecuerdoDetallePageState extends State<RecuerdoDetallePage> {
   late Recuerdo _recuerdo = widget.recuerdo;
   bool _cambio = false;
+  bool _ocupado = false;
+
+  void _aviso(String texto) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(texto)));
+  }
+
+  Future<void> _ejecutar(Future<void> Function() accion) async {
+    if (_ocupado) return;
+    setState(() => _ocupado = true);
+    try {
+      await accion();
+    } finally {
+      if (mounted) setState(() => _ocupado = false);
+    }
+  }
+
+  Future<void> _guardarEnGaleria() => _ejecutar(() async {
+    try {
+      await widget.acciones.guardarEnGaleria(_recuerdo);
+      _aviso('Guardada en tu galería, álbum "Michis" 😸');
+    } on PermisoGaleriaDenegado {
+      _aviso('Necesito permiso para guardar en tu galería 😿');
+    } catch (_) {
+      _aviso('No se pudo guardar en la galería 😿');
+    }
+  });
+
+  Future<void> _compartir() => _ejecutar(() async {
+    try {
+      await widget.acciones.compartir(_recuerdo);
+    } catch (_) {
+      _aviso('No se pudo compartir 😿');
+    }
+  });
 
   Future<void> _calificar(int valor) async {
     final actualizado = _recuerdo.copyWith(calificacion: valor);
@@ -105,6 +145,32 @@ class _RecuerdoDetallePageState extends State<RecuerdoDetallePage> {
                 mostrarEtiqueta: true,
                 onChanged: _calificar,
               ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _ocupado ? null : _guardarEnGaleria,
+                    icon: const Icon(Icons.download),
+                    label: const Text('Guardar en galería'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _ocupado ? null : _compartir,
+                    icon: const Icon(Icons.share),
+                    label: const Text('Compartir'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Comparte por WhatsApp o cualquier otra app 💬',
+              textAlign: TextAlign.center,
+              style: textTheme.bodySmall,
             ),
           ],
         ),

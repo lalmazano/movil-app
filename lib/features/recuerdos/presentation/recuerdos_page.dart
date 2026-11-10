@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/widgets/paw_background.dart';
+import '../data/dispositivo_recuerdo_acciones.dart';
 import '../domain/recuerdo.dart';
+import '../domain/recuerdo_acciones.dart';
 import 'nuevo_recuerdo_page.dart';
 import 'recuerdo_detalle_page.dart';
 import 'widgets/calificacion_huellitas.dart';
@@ -34,9 +36,11 @@ class RecuerdosPage extends StatefulWidget {
     super.key,
     required this.repository,
     this.selectorFoto = _selectorPorDefecto,
+    this.acciones = const DispositivoRecuerdoAcciones(),
   });
 
   final RecuerdoRepository repository;
+  final RecuerdoAcciones acciones;
   final SelectorFoto selectorFoto;
 
   @override
@@ -131,6 +135,7 @@ class _RecuerdosPageState extends State<RecuerdosPage> {
         builder: (_) => RecuerdoDetallePage(
           recuerdo: recuerdo,
           repository: widget.repository,
+          acciones: widget.acciones,
         ),
       ),
     );

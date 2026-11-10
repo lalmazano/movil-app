@@ -6,7 +6,8 @@ Aplicación móvil con tema de michis 🐱, desarrollada con [Flutter](https://f
 
 - **Inicio:** michi interactivo y datos curiosos de gatos.
 - **Recuerdos:** tómate una foto con tu michi (selfie, cámara trasera o galería),
-  califícala de 1 a 5 huellitas 🐾 y guárdala con una nota. Las fotos se guardan
+  califícala de 1 a 5 huellitas 🐾 y guárdala con una nota. Puedes guardarla en la
+  galería (álbum "Michis") o compartirla por WhatsApp. Las fotos se guardan
   en la carpeta privada de la app (solo Android e iOS).
 
 ## Requisitos
