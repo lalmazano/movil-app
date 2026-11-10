@@ -23,4 +23,9 @@ const secciones = <Seccion>[
     icono: Icons.photo_camera,
     ruta: AppRoutes.recuerdos,
   ),
+  Seccion(
+    titulo: 'Juego para michi',
+    icono: Icons.sports_esports,
+    ruta: AppRoutes.juego,
+  ),
 ];
