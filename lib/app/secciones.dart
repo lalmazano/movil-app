@@ -25,4 +25,9 @@ const secciones = <Seccion>[
   ),
   Seccion(titulo: 'Peso', icono: Icons.monitor_weight, ruta: AppRoutes.peso),
   Seccion(titulo: 'Logros', icono: Icons.emoji_events, ruta: AppRoutes.logros),
+  Seccion(
+    titulo: 'Juego para michi',
+    icono: Icons.sports_esports,
+    ruta: AppRoutes.juego,
+  ),
 ];

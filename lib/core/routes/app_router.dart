@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/home/presentation/home_page.dart';
 import '../../app/servicios.dart';
+import '../../features/juego/presentation/juego_page.dart';
 import '../../features/recuerdos/presentation/recuerdos_page.dart';
 import '../../features/peso/presentation/peso_page.dart';
 import '../../features/logros/presentation/logros_page.dart';
@@ -13,6 +14,7 @@ abstract final class AppRoutes {
   static const String recuerdos = '/recuerdos';
   static const String peso = '/peso';
   static const String logros = '/logros';
+  static const String juego = '/juego';
 }
 
 /// Generador de rutas centralizado.
@@ -45,6 +47,11 @@ abstract final class AppRouter {
             recuerdos: AppServicios.instancia.recuerdos,
             pesos: AppServicios.instancia.peso,
           ),
+          settings: settings,
+        );
+      case AppRoutes.juego:
+        return MaterialPageRoute(
+          builder: (_) => JuegoPage(sonidos: AppServicios.instancia.sonidos),
           settings: settings,
         );
       default:
