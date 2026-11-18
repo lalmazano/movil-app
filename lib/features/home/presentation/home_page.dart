@@ -50,17 +50,17 @@ class _HomePageState extends State<HomePage> {
     final textTheme = Theme.of(context).textTheme;
     final usuario = auth?.actual;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🫘 ${AppConstants.appName}'),
-        actions: [
-          if (auth case final auth?) _MenuUsuario(auth: auth, usuario: usuario),
-        ],
-      ),
+      appBar: AppBar(title: const Text('🫘 ${AppConstants.appName}')),
       body: PawBackground(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            const Center(child: ClubLogo()),
+            Center(
+              child: switch (auth) {
+                final auth? => _FotoPerfil(auth: auth, usuario: usuario),
+                null => const ClubLogo(),
+              },
+            ),
             const SizedBox(height: 12),
             Text(
               usuario == null
@@ -117,36 +117,73 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _MenuUsuario extends StatelessWidget {
-  const _MenuUsuario({required this.auth, required this.usuario});
+/// Foto de perfil de Google en el círculo central. Al tocarla se abre la
+/// cuenta (correo y cerrar sesión). Sin foto, muestra el logo del club.
+class _FotoPerfil extends StatelessWidget {
+  const _FotoPerfil({required this.auth, required this.usuario});
 
   final AuthService auth;
   final Usuario? usuario;
 
+  static const _radio = 64.0;
+
+  /// Google entrega la foto a 96 px; se pide más grande para que no se vea
+  /// borrosa en el círculo.
+  static String _enAltaResolucion(String url) =>
+      url.replaceFirst(RegExp(r'=s\d+-c$'), '=s400-c');
+
+  void _abrirCuenta(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.account_circle),
+              title: Text(usuario?.nombre ?? 'Cuenta'),
+              subtitle: usuario?.correo == null ? null : Text(usuario!.correo!),
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Cerrar sesión'),
+              onTap: () {
+                Navigator.pop(sheet);
+                auth.salir();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final foto = usuario?.fotoUrl;
-    return PopupMenuButton<void>(
-      tooltip: 'Cuenta',
-      icon: CircleAvatar(
-        radius: 16,
-        backgroundImage: foto == null ? null : NetworkImage(foto),
-        child: foto == null ? const Icon(Icons.person, size: 18) : null,
+    final color = Theme.of(context).colorScheme.secondary;
+    return Tooltip(
+      message: 'Cuenta',
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => _abrirCuenta(context),
+        child: foto == null
+            ? const ClubLogo(radio: _radio)
+            : CircleAvatar(
+                radius: _radio,
+                backgroundColor: color.withValues(alpha: 0.35),
+                child: ClipOval(
+                  child: Image.network(
+                    _enAltaResolucion(foto),
+                    width: _radio * 2,
+                    height: _radio * 2,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => const ClubLogo(radio: _radio),
+                  ),
+                ),
+              ),
       ),
-      itemBuilder: (_) => [
-        PopupMenuItem<void>(
-          enabled: false,
-          child: Text(usuario?.correo ?? usuario?.nombre ?? ''),
-        ),
-        PopupMenuItem<void>(
-          onTap: auth.salir,
-          child: const ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Cerrar sesión'),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-      ],
     );
   }
 }
