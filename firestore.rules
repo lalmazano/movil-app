@@ -1,0 +1,17 @@
+rules_version = '2';
+
+// Reglas de Cloud Firestore para El Club del Frijol.
+// Solo usuarios que abrieron la app (sesión anónima de Firebase Auth) pueden
+// leer y escribir las listas del club.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /clubs/{clubId}/{lista}/{itemId} {
+      allow read, delete: if request.auth != null;
+      allow create, update: if request.auth != null
+        && lista in ['peliculas', 'deseos', 'planes']
+        && request.resource.data.titulo is string
+        && request.resource.data.titulo.size() > 0
+        && request.resource.data.titulo.size() <= 200;
+    }
+  }
+}

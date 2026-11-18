@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../features/home/presentation/home_page.dart';
+import '../../features/listas/domain/item_lista.dart';
+import '../../features/listas/presentation/lista_page.dart';
 import '../../features/recuerdos/data/local_recuerdo_repository.dart';
 import '../../features/recuerdos/presentation/recuerdos_page.dart';
 import '../widgets/not_found_page.dart';
@@ -9,27 +11,32 @@ import '../widgets/not_found_page.dart';
 abstract final class AppRoutes {
   static const String home = '/';
   static const String recuerdos = '/recuerdos';
+
+  /// Recibe un [TipoLista] como argumento.
+  static const String lista = '/lista';
 }
 
 /// Generador de rutas centralizado.
-abstract final class AppRouter {
-  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case AppRoutes.home:
-        return MaterialPageRoute(
-          builder: (_) => const HomePage(),
-          settings: settings,
-        );
-      case AppRoutes.recuerdos:
-        return MaterialPageRoute(
-          builder: (_) => RecuerdosPage(repository: LocalRecuerdoRepository()),
-          settings: settings,
-        );
-      default:
-        return MaterialPageRoute(
-          builder: (_) => const NotFoundPage(),
-          settings: settings,
-        );
-    }
+class AppRouter {
+  const AppRouter(this.repository);
+
+  final ListaRepository repository;
+
+  Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    final args = settings.arguments;
+    return MaterialPageRoute(
+      settings: settings,
+      builder: (_) => switch (settings.name) {
+        AppRoutes.home => HomePage(repository: repository),
+        AppRoutes.lista when args is TipoLista => ListaPage(
+          tipo: args,
+          repository: repository,
+        ),
+        AppRoutes.recuerdos => RecuerdosPage(
+          repository: LocalRecuerdoRepository(),
+        ),
+        _ => const NotFoundPage(),
+      },
+    );
   }
 }

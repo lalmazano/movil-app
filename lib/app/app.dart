@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import '../core/constants/app_constants.dart';
 import '../core/routes/app_router.dart';
 import '../core/theme/app_theme.dart';
+import '../features/listas/domain/item_lista.dart';
 
-class MovilApp extends StatelessWidget {
-  const MovilApp({super.key});
+class ClubDelFrijolApp extends StatelessWidget {
+  const ClubDelFrijolApp({super.key, required this.repository});
+
+  final ListaRepository repository;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +19,7 @@ class MovilApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
       initialRoute: AppRoutes.home,
-      onGenerateRoute: AppRouter.onGenerateRoute,
+      onGenerateRoute: AppRouter(repository).onGenerateRoute,
     );
   }
 }

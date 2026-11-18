@@ -1,8 +1,14 @@
-# Movil App
+# El Club del Frijol 🫘
 
-Aplicación móvil con tema de michis 🐱, desarrollada con [Flutter](https://flutter.dev) (Android, iOS y Web).
+Aplicación para dos, con tema de michis 🐱, desarrollada con [Flutter](https://flutter.dev) (Android, iOS y Web).
 
 ## Funciones
+
+- **Películas 🎬:** lista de películas por ver, por categorías (Princesas, Clásicos,
+  Pixar, Navideñas...). El botón ✨ carga el reto Disney completo.
+- **Deseos 🌠** y **Hacer juntos 💞:** listas de deseos y planes en pareja.
+- En todas se puede agregar, editar, borrar y **marcar como hecho** (guarda la fecha).
+  Se sincronizan en tiempo real entre teléfonos con **Cloud Firestore**.
 
 - **Inicio:** michi interactivo y datos curiosos de gatos.
 - **Recuerdos:** tómate una foto con tu michi (selfie, cámara trasera o galería),
@@ -24,6 +30,34 @@ flutter test         # pruebas
 flutter analyze      # análisis estático
 ```
 
+## Firebase (plan gratuito Spark)
+
+Se usa **Cloud Firestore** (gratis: 1 GiB, 50 000 lecturas y 20 000 escrituras al día)
+y **Firebase Auth anónimo** para que solo la app pueda leer/escribir.
+Los datos quedan en `clubs/club-del-frijol/{peliculas|deseos|planes}`.
+
+1. Crea un proyecto en <https://console.firebase.google.com> (plan Spark, sin tarjeta).
+2. Activa **Firestore Database** y en *Authentication → Método de acceso* activa **Anónimo**.
+3. En la raíz del proyecto:
+   ```bash
+   dart pub global activate flutterfire_cli
+   flutterfire configure        # reemplaza lib/firebase_options.dart
+   ```
+4. Copia `firestore.rules` en *Firestore → Reglas* y publica
+   (o `firebase deploy --only firestore:rules`).
+
+Sin este paso la app funciona en **modo local** (los datos no se guardan).
+
+## Icono (Gato con Botas)
+
+Reemplaza `assets/icon/app_icon.png` por tu imagen cuadrada de 1024×1024 y ejecuta:
+
+```bash
+dart run flutter_launcher_icons
+```
+
+La misma imagen se usa como logo en la pantalla de inicio.
+
 ## Estructura
 
 ```
@@ -36,6 +70,7 @@ lib/
 │   ├── theme/                # Tema claro/oscuro (Material 3)
 │   └── widgets/              # Widgets reutilizables
 └── features/
+    ├── listas/               # Películas, deseos y planes (Firestore)
     ├── recuerdos/            # Fotos con el michi y su calificación
     └── home/                 # Un módulo por funcionalidad
         ├── data/             # Fuentes de datos, modelos, repositorios
