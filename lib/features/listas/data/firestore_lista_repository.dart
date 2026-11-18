@@ -23,43 +23,56 @@ class FirestoreListaRepository implements ListaRepository {
 
   @override
   Future<void> inicializar() async {
+    final errores = <String>[];
+
+    // 1. Configuración por defecto (si no existe).
     final config = _db.collection('config').doc('app');
-    final club = _db.collection('clubs').doc(clubId);
-    // La transacción garantiza que solo un teléfono crea los datos iniciales.
-    final clubNuevo = await _db.runTransaction((tx) async {
-      final configSnap = await tx.get(config);
-      final clubSnap = await tx.get(club);
-      if (!configSnap.exists) {
+    try {
+      await _db.runTransaction((tx) async {
+        if ((await tx.get(config)).exists) return;
         tx.set(config, {
           'peliculas': true,
           'deseos': true,
           'planes': true,
           'registroAbierto': true,
         });
-      }
-      if (clubSnap.exists) return false;
-      tx.set(club, {
-        'nombre': 'El Club del Frijol',
-        'creadoEn': FieldValue.serverTimestamp(),
       });
-      return true;
-    });
-    if (!clubNuevo) return;
-
-    final lote = _db.batch();
-    final base = DateTime.now().millisecondsSinceEpoch;
-    var i = 0;
-    for (final MapEntry(key: tipo, value: items) in datosIniciales.entries) {
-      for (final item in items) {
-        lote.set(_col(tipo).doc(), {
-          ..._nuevo(item),
-          // Orden estable: cada elemento un milisegundo después del anterior.
-          'creadoEn': Timestamp.fromMillisecondsSinceEpoch(base + i++),
-        });
-      }
+    } catch (e) {
+      errores.add('config/app: ${_mensaje(e)}');
     }
-    await lote.commit();
+
+    // 2. Club + datos iniciales, todo junto: o se crea todo o nada, y solo
+    //    un teléfono lo hace aunque entren los dos a la vez.
+    final club = _db.collection('clubs').doc(clubId);
+    try {
+      await _db.runTransaction((tx) async {
+        if ((await tx.get(club)).exists) return;
+        tx.set(club, {
+          'nombre': 'El Club del Frijol',
+          'creadoEn': FieldValue.serverTimestamp(),
+        });
+        final base = DateTime.now().millisecondsSinceEpoch;
+        var i = 0;
+        for (final MapEntry(key: tipo, value: items)
+            in datosIniciales.entries) {
+          for (final item in items) {
+            tx.set(_col(tipo).doc(), {
+              ..._nuevo(item),
+              // Orden estable: cada elemento 1 ms después del anterior.
+              'creadoEn': Timestamp.fromMillisecondsSinceEpoch(base + i++),
+            });
+          }
+        }
+      });
+    } catch (e) {
+      errores.add('clubs/$clubId: ${_mensaje(e)}');
+    }
+
+    if (errores.isNotEmpty) throw InicializacionException(errores);
   }
+
+  static String _mensaje(Object e) =>
+      e is FirebaseException ? '${e.code} — ${e.message}' : '$e';
 
   @override
   Stream<ConfigClub> watchConfig() => _db
@@ -129,4 +142,14 @@ class FirestoreListaRepository implements ListaRepository {
 
   @override
   Future<void> delete(TipoLista tipo, String id) => _col(tipo).doc(id).delete();
+}
+
+/// No se pudo crear parte de la estructura inicial del club.
+class InicializacionException implements Exception {
+  const InicializacionException(this.errores);
+
+  final List<String> errores;
+
+  @override
+  String toString() => errores.join('\n');
 }

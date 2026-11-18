@@ -23,13 +23,23 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final _config = widget.repository.watchConfig();
 
+  Object? _errorInicial;
+
   @override
   void initState() {
     super.initState();
-    // La primera vez crea la configuración, el club y los datos iniciales.
-    widget.repository.inicializar().catchError((Object e) {
+    _inicializar();
+  }
+
+  /// La primera vez crea la configuración, el club y los datos iniciales.
+  Future<void> _inicializar() async {
+    if (_errorInicial != null) setState(() => _errorInicial = null);
+    try {
+      await widget.repository.inicializar();
+    } catch (e) {
       debugPrint('No se pudo inicializar el club: $e');
-    });
+      if (mounted) setState(() => _errorInicial = e);
+    }
   }
 
   ListaRepository get repository => widget.repository;
@@ -64,6 +74,10 @@ class _HomePageState extends State<HomePage> {
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge,
             ),
+            if (_errorInicial case final error?) ...[
+              const SizedBox(height: 12),
+              _AvisoError(error: error, onReintentar: _inicializar),
+            ],
             if (!repository.enLaNube) ...[
               const SizedBox(height: 12),
               const _AvisoModoLocal(),
@@ -223,6 +237,44 @@ class _AvisoModoLocal extends StatelessWidget {
           '☁️ Modo local: Firebase no está configurado, así que los cambios '
           'no se guardan en la nube.',
           style: TextStyle(color: scheme.onErrorContainer),
+        ),
+      ),
+    );
+  }
+}
+
+class _AvisoError extends StatelessWidget {
+  const _AvisoError({required this.error, required this.onReintentar});
+
+  final Object error;
+  final VoidCallback onReintentar;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final estilo = TextStyle(color: scheme.onErrorContainer);
+    return Card(
+      color: scheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '⚠️ No se pudo preparar el club. Revisa que las reglas de '
+              'Firestore estén publicadas.',
+              style: estilo.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            SelectableText('$error', style: estilo.copyWith(fontSize: 12)),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: onReintentar,
+                child: const Text('Reintentar'),
+              ),
+            ),
+          ],
         ),
       ),
     );
