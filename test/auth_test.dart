@@ -25,6 +25,11 @@ class _AuthFalso implements AuthService {
     return true;
   }
 
+  bool registroAbierto = true;
+
+  @override
+  Future<bool> asegurarRegistro() async => registroAbierto;
+
   @override
   Future<void> salir() async {
     actual = null;
@@ -51,6 +56,27 @@ void main() {
     await tester.tap(find.byTooltip('Cuenta'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Cerrar sesión'));
+    await tester.pumpAndSettle();
+    expect(find.text('Entrar con Google'), findsOneWidget);
+  });
+
+  testWidgets('Con registro cerrado avisa y no muestra las listas', (
+    tester,
+  ) async {
+    final auth = _AuthFalso()..registroAbierto = false;
+    await tester.pumpWidget(
+      ClubDelFrijolApp(repository: MemoriaListaRepository(), auth: auth),
+    );
+    await tester.pump();
+    await tester.tap(find.text('Entrar con Google'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('registro del club está cerrado'),
+      findsOneWidget,
+    );
+    expect(find.text('Películas'), findsNothing);
+
+    await tester.tap(find.text('Usar otra cuenta'));
     await tester.pumpAndSettle();
     expect(find.text('Entrar con Google'), findsOneWidget);
   });

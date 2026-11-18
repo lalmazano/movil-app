@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movil_app/app/app.dart';
 import 'package:movil_app/features/listas/data/memoria_lista_repository.dart';
+import 'package:movil_app/features/listas/domain/config_club.dart';
 import 'package:movil_app/features/listas/domain/item_lista.dart';
 
 void main() {
@@ -74,5 +75,21 @@ void main() {
     final items = await repo.watch(TipoLista.peliculas).first;
     expect(items.length, greaterThan(80));
     expect(find.text('Princesas'), findsWidgets);
+  });
+
+  testWidgets('Las listas ocultas en la configuración no aparecen', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ClubDelFrijolApp(
+        repository: MemoriaListaRepository(
+          config: const ConfigClub(deseos: false),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Películas'), findsOneWidget);
+    expect(find.text('Deseos'), findsNothing);
+    expect(find.text('Hacer juntos'), findsOneWidget);
   });
 }

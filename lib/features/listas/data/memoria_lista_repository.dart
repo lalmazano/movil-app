@@ -1,11 +1,16 @@
 import 'dart:async';
 
+import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
 
 /// Repositorio en memoria: para pruebas o cuando Firebase no está configurado.
 class MemoriaListaRepository implements ListaRepository {
-  MemoriaListaRepository({DateTime Function()? reloj})
-    : _reloj = reloj ?? DateTime.now;
+  MemoriaListaRepository({
+    DateTime Function()? reloj,
+    this.config = const ConfigClub(),
+  }) : _reloj = reloj ?? DateTime.now;
+
+  final ConfigClub config;
 
   final DateTime Function() _reloj;
   final _datos = {for (final t in TipoLista.values) t: <ItemLista>[]};
@@ -14,6 +19,9 @@ class MemoriaListaRepository implements ListaRepository {
 
   @override
   bool get enLaNube => false;
+
+  @override
+  Stream<ConfigClub> watchConfig() => Stream.value(config);
 
   @override
   Stream<List<ItemLista>> watch(TipoLista tipo) async* {

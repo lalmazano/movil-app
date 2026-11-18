@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
 
 /// Guarda las listas en Cloud Firestore:
@@ -18,6 +19,13 @@ class FirestoreListaRepository implements ListaRepository {
 
   @override
   bool get enLaNube => true;
+
+  @override
+  Stream<ConfigClub> watchConfig() => _db
+      .collection('config')
+      .doc('app')
+      .snapshots()
+      .map((doc) => ConfigClub.fromMap(doc.data()));
 
   @override
   Stream<List<ItemLista>> watch(TipoLista tipo) =>

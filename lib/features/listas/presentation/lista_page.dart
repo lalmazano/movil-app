@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/widgets/paw_background.dart';
 import '../data/catalogo_disney.dart';
+import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
 import 'widgets/item_form_sheet.dart';
 
@@ -22,6 +23,7 @@ class _ListaPageState extends State<ListaPage> {
   late final Stream<List<ItemLista>> _items = widget.repository.watch(
     widget.tipo,
   );
+  late final Stream<ConfigClub> _config = widget.repository.watchConfig();
   _Filtro _filtro = _Filtro.pendientes;
   String? _categoria;
   List<ItemLista> _ultimos = const [];
@@ -164,23 +166,38 @@ class _ListaPageState extends State<ListaPage> {
         label: const Text('Agregar'),
       ),
       body: PawBackground(
-        child: StreamBuilder<List<ItemLista>>(
-          stream: _items,
-          builder: (context, snap) {
-            if (snap.hasError) {
-              return _Mensaje(
-                emoji: '😿',
-                texto: 'No se pudo cargar la lista.\n${snap.error}',
+        child: StreamBuilder<ConfigClub>(
+          stream: _config,
+          builder: (context, config) {
+            if (config.data?.esVisible(_tipo) == false) {
+              return const _Mensaje(
+                emoji: '🙈',
+                texto: 'Esta lista está oculta por ahora.',
               );
             }
-            if (!snap.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            _ultimos = snap.data!;
-            return _contenido(context, _ultimos);
+            return _lista(context);
           },
         ),
       ),
+    );
+  }
+
+  Widget _lista(BuildContext context) {
+    return StreamBuilder<List<ItemLista>>(
+      stream: _items,
+      builder: (context, snap) {
+        if (snap.hasError) {
+          return _Mensaje(
+            emoji: '😿',
+            texto: 'No se pudo cargar la lista.\n${snap.error}',
+          );
+        }
+        if (!snap.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        _ultimos = snap.data!;
+        return _contenido(context, _ultimos);
+      },
     );
   }
 

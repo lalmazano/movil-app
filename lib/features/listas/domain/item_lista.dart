@@ -1,3 +1,5 @@
+import 'config_club.dart';
+
 /// Las tres listas del club.
 enum TipoLista {
   peliculas(
@@ -130,6 +132,9 @@ typedef NuevoItem = ({String titulo, String categoria, String nota});
 abstract interface class ListaRepository {
   /// `true` si los datos se sincronizan con la nube (Firebase).
   bool get enLaNube;
+
+  /// Configuración del club (listas visibles y registro), en tiempo real.
+  Stream<ConfigClub> watchConfig();
 
   /// Elementos de la lista, del más antiguo al más reciente, en tiempo real.
   Stream<List<ItemLista>> watch(TipoLista tipo);

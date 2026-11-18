@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movil_app/features/listas/data/catalogo_disney.dart';
 import 'package:movil_app/features/listas/data/memoria_lista_repository.dart';
+import 'package:movil_app/features/listas/domain/config_club.dart';
 import 'package:movil_app/features/listas/domain/item_lista.dart';
 
 void main() {
@@ -68,5 +69,12 @@ void main() {
     expect(copia.titulo, 'Picnic');
     expect(copia.hecho, isTrue);
     expect(copia.hechoEn, DateTime(2026, 2, 1));
+  });
+
+  test('ConfigClub: campos ausentes valen true', () {
+    final c = ConfigClub.fromMap({'deseos': false, 'registroAbierto': false});
+    expect(c.listasVisibles, [TipoLista.peliculas, TipoLista.planes]);
+    expect(c.registroAbierto, isFalse);
+    expect(ConfigClub.fromMap(null).listasVisibles, TipoLista.values);
   });
 }

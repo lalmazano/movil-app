@@ -1,20 +1,62 @@
 rules_version = '2';
 
 // Reglas de Cloud Firestore para El Club del Frijol.
-// Solo usuarios que entraron con Google pueden leer y escribir las listas.
-// Para limitarlo a ustedes dos, cambia `estaDentro()` por:
-//   request.auth.token.email in ['correo1@gmail.com', 'correo2@gmail.com']
+//
+// config/app            → configuración (solo se edita desde la consola):
+//     peliculas: bool        lista de películas visible
+//     deseos: bool           lista de deseos visible
+//     planes: bool           lista "Hacer juntos" visible
+//     registroAbierto: bool  si alguien nuevo puede unirse al club
+//   Si el documento o un campo no existe, vale true.
+//
+// usuarios/{uid}        → miembros del club (se crean al entrar con Google
+//                         mientras el registro está abierto).
+//
+// clubs/{clubId}/{lista}/{itemId} → elementos de las listas.
 service cloud.firestore {
   match /databases/{database}/documents {
-    function estaDentro() {
+
+    function conGoogle() {
       return request.auth != null
         && request.auth.token.firebase.sign_in_provider == 'google.com';
     }
 
+    function config() {
+      let ruta = /databases/$(database)/documents/config/app;
+      return exists(ruta) ? get(ruta).data : {};
+    }
+
+    function esMiembro() {
+      return conGoogle()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function listaVisible(lista) {
+      return lista in ['peliculas', 'deseos', 'planes']
+        && config().get(lista, true) == true;
+    }
+
+    // Configuración: cualquiera con sesión la lee; nadie la cambia desde la app.
+    match /config/{doc} {
+      allow read: if conGoogle();
+      allow write: if false;
+    }
+
+    // Miembros: cada quien ve y crea solo su propio registro.
+    match /usuarios/{uid} {
+      allow get: if conGoogle() && request.auth.uid == uid;
+      allow create: if conGoogle()
+        && request.auth.uid == uid
+        && config().get('registroAbierto', true) == true
+        && request.resource.data.keys().hasOnly(['nombre', 'correo', 'creadoEn']);
+      allow update, delete: if false;
+    }
+
+    // Listas: solo miembros y solo si la lista está visible.
     match /clubs/{clubId}/{lista}/{itemId} {
-      allow read, delete: if estaDentro();
-      allow create, update: if estaDentro()
-        && lista in ['peliculas', 'deseos', 'planes']
+      allow read, delete: if esMiembro() && listaVisible(lista);
+      allow create, update: if esMiembro()
+        && listaVisible(lista)
         && request.resource.data.titulo is string
         && request.resource.data.titulo.size() > 0
         && request.resource.data.titulo.size() <= 200;

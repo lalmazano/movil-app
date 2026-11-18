@@ -21,5 +21,9 @@ abstract interface class AuthService {
   /// Devuelve false si la persona canceló.
   Future<bool> entrarConGoogle();
 
+  /// Registra al usuario en el club si aún no lo está.
+  /// Devuelve false si no está registrado y el registro está cerrado.
+  Future<bool> asegurarRegistro();
+
   Future<void> salir();
 }

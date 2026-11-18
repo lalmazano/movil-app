@@ -5,15 +5,26 @@ import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../auth/domain/auth_service.dart';
+import '../../listas/domain/config_club.dart';
 import '../../listas/domain/item_lista.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.repository, this.auth});
 
   final ListaRepository repository;
 
   /// null = modo local, sin sesión.
   final AuthService? auth;
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final _config = widget.repository.watchConfig();
+
+  ListaRepository get repository => widget.repository;
+  AuthService? get auth => widget.auth;
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +60,33 @@ class HomePage extends StatelessWidget {
               const _AvisoModoLocal(),
             ],
             const SizedBox(height: 16),
-            for (final tipo in TipoLista.values)
-              _TarjetaLista(tipo: tipo, repository: repository),
+            StreamBuilder<ConfigClub>(
+              stream: _config,
+              builder: (context, snap) {
+                // Mientras carga (o si falla) se muestran todas las listas.
+                final visibles = snap.data?.listasVisibles ?? TipoLista.values;
+                if (visibles.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      'No hay listas visibles por ahora 🫘',
+                      textAlign: TextAlign.center,
+                      style: textTheme.titleMedium,
+                    ),
+                  );
+                }
+                return Column(
+                  children: [
+                    for (final tipo in visibles)
+                      _TarjetaLista(
+                        key: ValueKey(tipo),
+                        tipo: tipo,
+                        repository: repository,
+                      ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -93,7 +129,11 @@ class _MenuUsuario extends StatelessWidget {
 }
 
 class _TarjetaLista extends StatefulWidget {
-  const _TarjetaLista({required this.tipo, required this.repository});
+  const _TarjetaLista({
+    super.key,
+    required this.tipo,
+    required this.repository,
+  });
 
   final TipoLista tipo;
   final ListaRepository repository;

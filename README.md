@@ -39,7 +39,18 @@ Los datos quedan en `clubs/club-del-frijol/{peliculas|deseos|planes}`.
 3. **Android:** descarga `google-services.json` (app `com.almazan.josue`) y
    colócalo en `android/app/google-services.json`. **No se versiona** (está en
    `.gitignore`). Para iOS/Web: `flutterfire configure`.
-4. Copia `firestore.rules` en *Firestore → Reglas* y publica
+4. Crea en Firestore la colección **`config`** con el documento **`app`**:
+
+   | Campo | Tipo | Para qué |
+   |---|---|---|
+   | `peliculas` | boolean | Mostrar la lista de películas |
+   | `deseos` | boolean | Mostrar la lista de deseos |
+   | `planes` | boolean | Mostrar "Hacer juntos" |
+   | `registroAbierto` | boolean | Permitir que alguien nuevo se una al club |
+
+   Si falta el documento o un campo, vale `true`. Los miembros quedan en
+   `usuarios/{uid}`; cuando ya estén los dos, pon `registroAbierto` en `false`.
+5. Copia `firestore.rules` en *Firestore → Reglas* y publica
    (o `firebase deploy --only firestore:rules`).
 
 Sin este paso la app funciona en **modo local** (los datos no se guardan).
