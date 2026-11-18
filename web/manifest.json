@@ -3,7 +3,7 @@
     "short_name": "Club del Frijol",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#F28C38",
+    "background_color": "#20222E",
     "theme_color": "#F28C38",
     "description": "Películas, deseos y planes para hacer juntos.",
     "orientation": "portrait-primary",
