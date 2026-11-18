@@ -1,0 +1,374 @@
+[
+  {
+    "titulo": "Blancanieves y los siete enanos",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "La Cenicienta",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "La Bella Durmiente",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "La Sirenita",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "La Bella y la Bestia",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Aladdín",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Pocahontas",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Mulán",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "La princesa y el sapo",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Enredados",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Valiente",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Frozen",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Frozen II",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Moana",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Raya y el último dragón",
+    "categoria": "Princesas"
+  },
+  {
+    "titulo": "Pinocho",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Fantasía",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Dumbo",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Bambi",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Alicia en el país de las maravillas",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Peter Pan",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "La dama y el vagabundo",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "101 dálmatas",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "El libro de la selva",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Los aristogatos",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Robin Hood",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Las aventuras de Winnie Pooh",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Bernardo y Bianca en Cangurolandia",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "El Rey León",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Hércules",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Tarzán",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "Mary Poppins",
+    "categoria": "Clásicos"
+  },
+  {
+    "titulo": "La espada en la piedra",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Maléfica",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Las crónicas de Narnia",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Abracadabra (Hocus Pocus)",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Mi amigo el dragón",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Mi amigo el gigante",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "El cascanueces y los cuatro reinos",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Tinker Bell",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Tinker Bell y el tesoro perdido",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Tron",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Cruella",
+    "categoria": "Mágicas / Fantasía"
+  },
+  {
+    "titulo": "Toy Story",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Toy Story 2",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Toy Story 3",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Toy Story 4",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Monsters Inc.",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Buscando a Nemo",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Los Increíbles",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Cars",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Cars 2",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Cars 3",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Ratatouille",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Wall-E",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Up",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Intensamente",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Un gran dinosaurio",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Buscando a Dory",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Coco",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Unidos",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Soul",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Red",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Elementos",
+    "categoria": "Pixar"
+  },
+  {
+    "titulo": "Zootopia",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Las locuras del emperador",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Lilo & Stitch",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Bolt",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "El gran ratón detective",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Atlantis: el imperio perdido",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "El planeta del tesoro",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Hermano oso",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Hermano oso 2",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Vacas vaqueras",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "La familia del futuro",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Mickey, Donald y Goofy: Los tres mosqueteros",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Ralph, el demoledor",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Big Hero 6",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Christopher Robin",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Big Red",
+    "categoria": "Aventura"
+  },
+  {
+    "titulo": "Santa Cláusula",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "Noelle",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "Mi pobre angelito (Disney)",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "Operación regalo",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "Mickey: Había una vez una Navidad",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "Los fantasmas de Scrooge",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "Los Muppets en Cuento de Navidad",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "El extraño mundo de Jack",
+    "categoria": "Navideñas"
+  },
+  {
+    "titulo": "El Gato con Botas",
+    "categoria": "Otras"
+  },
+  {
+    "titulo": "El Gato con Botas: El último deseo",
+    "categoria": "Otras"
+  },
+  {
+    "titulo": "Spirit: el corcel indomable",
+    "categoria": "Otras"
+  },
+  {
+    "titulo": "Minions",
+    "categoria": "Otras"
+  },
+  {
+    "titulo": "Minions: Nace un villano",
+    "categoria": "Otras"
+  }
+]

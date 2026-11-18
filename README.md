@@ -39,7 +39,18 @@ Los datos quedan en `clubs/club-del-frijol/{peliculas|deseos|planes}`.
 3. **Android:** descarga `google-services.json` (app `com.almazan.josue`) y
    colócalo en `android/app/google-services.json`. **No se versiona** (está en
    `.gitignore`). Para iOS/Web: `flutterfire configure`.
-4. Crea en Firestore la colección **`config`** con el documento **`app`**:
+4. Carga las colecciones y datos básicos (una vez; se puede repetir sin
+   duplicar ni sobrescribir):
+   ```bash
+   # Consola → Configuración del proyecto → Cuentas de servicio →
+   # "Generar nueva clave privada" → guárdala como tool/seed/serviceAccountKey.json
+   cd tool/seed && npm install && npm run seed
+   ```
+   Crea `config/app`, `clubs/club-del-frijol` y sus listas (93 películas del
+   reto Disney + ejemplos de deseos y planes). `usuarios` se llena solo al entrar.
+   Si cambias el catálogo: `dart run tool/exportar_catalogo.dart`.
+
+   El documento **`config/app`** tiene:
 
    | Campo | Tipo | Para qué |
    |---|---|---|
