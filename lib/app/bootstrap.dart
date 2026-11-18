@@ -13,9 +13,14 @@ import '../firebase_options.dart';
 /// configurado o falla, usa un repositorio local en memoria.
 Future<ListaRepository> crearRepositorio() async {
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      // Android toma la configuración de android/app/google-services.json.
+      await Firebase.initializeApp();
+    } else {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
     final auth = FirebaseAuth.instance;
     if (auth.currentUser == null) await auth.signInAnonymously();
     return FirestoreListaRepository(

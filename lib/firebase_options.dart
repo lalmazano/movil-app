@@ -5,6 +5,7 @@
 //   dart pub global activate flutterfire_cli
 //   flutterfire configure
 //
+// En Android no hace falta: se usa android/app/google-services.json.
 // Mientras no exista la configuración real, la app funciona en "modo local"
 // (los datos no se guardan en la nube).
 import 'package:firebase_core/firebase_core.dart';

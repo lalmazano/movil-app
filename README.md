@@ -38,11 +38,9 @@ Los datos quedan en `clubs/club-del-frijol/{peliculas|deseos|planes}`.
 
 1. Crea un proyecto en <https://console.firebase.google.com> (plan Spark, sin tarjeta).
 2. Activa **Firestore Database** y en *Authentication → Método de acceso* activa **Anónimo**.
-3. En la raíz del proyecto:
-   ```bash
-   dart pub global activate flutterfire_cli
-   flutterfire configure        # reemplaza lib/firebase_options.dart
-   ```
+3. **Android:** descarga `google-services.json` (app `com.almazan.josue`) y
+   colócalo en `android/app/google-services.json`. **No se versiona** (está en
+   `.gitignore`). Para iOS/Web: `flutterfire configure`.
 4. Copia `firestore.rules` en *Firestore → Reglas* y publica
    (o `firebase deploy --only firestore:rules`).
 
