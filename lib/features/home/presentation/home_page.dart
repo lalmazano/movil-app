@@ -69,11 +69,6 @@ class _HomePageState extends State<HomePage> {
               textAlign: TextAlign.center,
               style: textTheme.headlineSmall,
             ),
-            Text(
-              'Lo que queremos ver, desear y hacer juntos',
-              textAlign: TextAlign.center,
-              style: textTheme.bodyLarge,
-            ),
             if (_errorInicial case final error?) ...[
               const SizedBox(height: 12),
               _AvisoError(error: error, onReintentar: _inicializar),
