@@ -6,8 +6,8 @@ const Map<TipoLista, List<NuevoItem>> datosIniciales = {
   TipoLista.peliculas: [
     (titulo: 'Tierra de osos', categoria: 'Aventura', nota: ''),
   ],
-  TipoLista.deseos: [
-    (titulo: 'Ir al IRTRA', categoria: 'Viajes', nota: ''),
+  TipoLista.deseos: [(titulo: 'Ir al IRTRA', categoria: 'Viajes', nota: '')],
+  TipoLista.planes: [
+    (titulo: 'Desayunar juntos', categoria: 'Citas', nota: ''),
   ],
-  TipoLista.planes: [(titulo: 'Desayunar juntos', categoria: 'Citas', nota: '')],
 };
