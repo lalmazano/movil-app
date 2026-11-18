@@ -1,43 +1,31 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/paw_background.dart';
+import '../../auth/domain/auth_service.dart';
 import '../../listas/domain/item_lista.dart';
-import '../data/local_michi_fact_repository.dart';
-import '../domain/michi_fact.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({
-    super.key,
-    required this.repository,
-    this.facts = const LocalMichiFactRepository(),
-  });
+class HomePage extends StatelessWidget {
+  const HomePage({super.key, required this.repository, this.auth});
 
   final ListaRepository repository;
-  final MichiFactRepository facts;
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final _random = Random();
-  MichiFact? _fact;
-
-  void _nuevoDato() {
-    final facts = widget.facts.getAll();
-    setState(() => _fact = facts[_random.nextInt(facts.length)]);
-  }
+  /// null = modo local, sin sesión.
+  final AuthService? auth;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final usuario = auth?.actual;
     return Scaffold(
-      appBar: AppBar(title: const Text('🫘 ${AppConstants.appName}')),
+      appBar: AppBar(
+        title: const Text('🫘 ${AppConstants.appName}'),
+        actions: [
+          if (auth case final auth?) _MenuUsuario(auth: auth, usuario: usuario),
+        ],
+      ),
       body: PawBackground(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -45,7 +33,9 @@ class _HomePageState extends State<HomePage> {
             const Center(child: ClubLogo()),
             const SizedBox(height: 12),
             Text(
-              'Bienvenidos al club',
+              usuario == null
+                  ? 'Bienvenidos al club'
+                  : '¡Hola, ${usuario.nombreCorto}!',
               textAlign: TextAlign.center,
               style: textTheme.headlineSmall,
             ),
@@ -54,37 +44,50 @@ class _HomePageState extends State<HomePage> {
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge,
             ),
-            if (!widget.repository.enLaNube) ...[
+            if (!repository.enLaNube) ...[
               const SizedBox(height: 12),
               const _AvisoModoLocal(),
             ],
             const SizedBox(height: 16),
             for (final tipo in TipoLista.values)
-              _TarjetaLista(tipo: tipo, repository: widget.repository),
-            const SizedBox(height: 8),
-            Card(
-              child: ListTile(
-                leading: const Text('📸', style: TextStyle(fontSize: 32)),
-                title: const Text('Recuerdos con el michi'),
-                subtitle: const Text('Fotos calificadas con huellitas'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () =>
-                    Navigator.of(context).pushNamed(AppRoutes.recuerdos),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: const Text('🐱', style: TextStyle(fontSize: 32)),
-                title: const Text('Dato michi'),
-                subtitle: Text(
-                  _fact?.text ?? 'Toca para un dato curioso sobre gatos.',
-                ),
-                onTap: _nuevoDato,
-              ),
-            ),
+              _TarjetaLista(tipo: tipo, repository: repository),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _MenuUsuario extends StatelessWidget {
+  const _MenuUsuario({required this.auth, required this.usuario});
+
+  final AuthService auth;
+  final Usuario? usuario;
+
+  @override
+  Widget build(BuildContext context) {
+    final foto = usuario?.fotoUrl;
+    return PopupMenuButton<void>(
+      tooltip: 'Cuenta',
+      icon: CircleAvatar(
+        radius: 16,
+        backgroundImage: foto == null ? null : NetworkImage(foto),
+        child: foto == null ? const Icon(Icons.person, size: 18) : null,
+      ),
+      itemBuilder: (_) => [
+        PopupMenuItem<void>(
+          enabled: false,
+          child: Text(usuario?.correo ?? usuario?.nombre ?? ''),
+        ),
+        PopupMenuItem<void>(
+          onTap: auth.salir,
+          child: const ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('Cerrar sesión'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -169,7 +172,7 @@ class _AvisoModoLocal extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Text(
           '☁️ Modo local: Firebase no está configurado, así que los cambios '
-          'no se guardan en la nube. Ejecuta `flutterfire configure`.',
+          'no se guardan en la nube.',
           style: TextStyle(color: scheme.onErrorContainer),
         ),
       ),

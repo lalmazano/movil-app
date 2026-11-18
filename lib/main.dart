@@ -5,6 +5,8 @@ import 'app/bootstrap.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final repository = await crearRepositorio();
-  runApp(ClubDelFrijolApp(repository: repository));
+  final servicios = await crearServicios();
+  runApp(
+    ClubDelFrijolApp(repository: servicios.repository, auth: servicios.auth),
+  );
 }

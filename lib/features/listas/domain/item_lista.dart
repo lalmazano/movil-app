@@ -30,7 +30,7 @@ enum TipoLista {
   ),
   planes(
     titulo: 'Hacer juntos',
-    emoji: '💞',
+    emoji: '🧺',
     coleccion: 'planes',
     hechos: 'hechos',
     accionHecho: 'Hecho',
