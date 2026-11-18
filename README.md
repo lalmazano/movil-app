@@ -40,8 +40,8 @@ Los datos quedan en `clubs/club-del-frijol/{peliculas|deseos|planes}`.
    colócalo en `android/app/google-services.json`. **No se versiona** (está en
    `.gitignore`). Para iOS/Web: `flutterfire configure`.
 4. No hace falta crear nada: la primera vez que alguien entra, la app crea
-   `config/app`, `clubs/club-del-frijol` y los datos iniciales (93 películas del
-   reto Disney + ejemplos de deseos y planes). `usuarios` se llena al entrar.
+   `config/app`, `clubs/club-del-frijol` y los datos iniciales (una película, un deseo y
+   un plan; el resto del reto Disney se carga con el botón ✨). `usuarios` se llena al entrar.
 
    El documento **`config/app`** tiene:
 

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movil_app/features/listas/data/catalogo_disney.dart';
+import 'package:movil_app/features/listas/data/datos_iniciales.dart';
 import 'package:movil_app/features/listas/data/memoria_lista_repository.dart';
 import 'package:movil_app/features/listas/domain/config_club.dart';
 import 'package:movil_app/features/listas/domain/item_lista.dart';
@@ -76,5 +77,17 @@ void main() {
     expect(c.listasVisibles, [TipoLista.peliculas, TipoLista.planes]);
     expect(c.registroAbierto, isFalse);
     expect(ConfigClub.fromMap(null).listasVisibles, TipoLista.values);
+  });
+
+  test('Datos iniciales: uno por lista, con categoría válida', () {
+    for (final tipo in TipoLista.values) {
+      final items = datosIniciales[tipo]!;
+      expect(items, hasLength(1));
+      expect(tipo.categorias, contains(items.single.categoria));
+    }
+    expect(
+      datosIniciales[TipoLista.peliculas]!.single.titulo,
+      'Tierra de osos',
+    );
   });
 }
