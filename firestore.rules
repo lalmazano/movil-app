@@ -2,7 +2,8 @@ rules_version = '2';
 
 // Reglas de Cloud Firestore para El Club del Frijol.
 //
-// config/app            → configuración (solo se edita desde la consola):
+// config/app            → configuración (la app la crea con todo en true si no
+//                         existe; solo se edita desde la consola):
 //     peliculas: bool        lista de películas visible
 //     deseos: bool           lista de deseos visible
 //     planes: bool           lista "Hacer juntos" visible
@@ -12,6 +13,8 @@ rules_version = '2';
 // usuarios/{uid}        → miembros del club (se crean al entrar con Google
 //                         mientras el registro está abierto).
 //
+// clubs/{clubId}        → club; la app lo crea la primera vez junto con los
+//                         datos iniciales de las listas.
 // clubs/{clubId}/{lista}/{itemId} → elementos de las listas.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -36,10 +39,28 @@ service cloud.firestore {
         && config().get(lista, true) == true;
     }
 
-    // Configuración: cualquiera con sesión la lee; nadie la cambia desde la app.
+    // Configuración: cualquiera con sesión la lee. La app solo puede crearla
+    // (si no existe) con los valores por defecto; cambiarla, solo en la consola.
     match /config/{doc} {
       allow read: if conGoogle();
-      allow write: if false;
+      allow create: if esMiembro()
+        && doc == 'app'
+        && request.resource.data == {
+          'peliculas': true,
+          'deseos': true,
+          'planes': true,
+          'registroAbierto': true
+        };
+      allow update, delete: if false;
+    }
+
+    // Documento del club: lo crea el primer miembro (marca que ya se
+    // cargaron los datos iniciales); no se modifica.
+    match /clubs/{clubId} {
+      allow read: if esMiembro();
+      allow create: if esMiembro()
+        && request.resource.data.keys().hasOnly(['nombre', 'creadoEn']);
+      allow update, delete: if false;
     }
 
     // Miembros: cada quien ve y crea solo su propio registro.

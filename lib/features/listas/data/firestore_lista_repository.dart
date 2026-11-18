@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/config_club.dart';
+import 'datos_iniciales.dart';
 import '../domain/item_lista.dart';
 
 /// Guarda las listas en Cloud Firestore:
@@ -19,6 +20,46 @@ class FirestoreListaRepository implements ListaRepository {
 
   @override
   bool get enLaNube => true;
+
+  @override
+  Future<void> inicializar() async {
+    final config = _db.collection('config').doc('app');
+    final club = _db.collection('clubs').doc(clubId);
+    // La transacción garantiza que solo un teléfono crea los datos iniciales.
+    final clubNuevo = await _db.runTransaction((tx) async {
+      final configSnap = await tx.get(config);
+      final clubSnap = await tx.get(club);
+      if (!configSnap.exists) {
+        tx.set(config, {
+          'peliculas': true,
+          'deseos': true,
+          'planes': true,
+          'registroAbierto': true,
+        });
+      }
+      if (clubSnap.exists) return false;
+      tx.set(club, {
+        'nombre': 'El Club del Frijol',
+        'creadoEn': FieldValue.serverTimestamp(),
+      });
+      return true;
+    });
+    if (!clubNuevo) return;
+
+    final lote = _db.batch();
+    final base = DateTime.now().millisecondsSinceEpoch;
+    var i = 0;
+    for (final MapEntry(key: tipo, value: items) in datosIniciales.entries) {
+      for (final item in items) {
+        lote.set(_col(tipo).doc(), {
+          ..._nuevo(item),
+          // Orden estable: cada elemento un milisegundo después del anterior.
+          'creadoEn': Timestamp.fromMillisecondsSinceEpoch(base + i++),
+        });
+      }
+    }
+    await lote.commit();
+  }
 
   @override
   Stream<ConfigClub> watchConfig() => _db

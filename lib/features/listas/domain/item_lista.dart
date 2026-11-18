@@ -133,6 +133,10 @@ abstract interface class ListaRepository {
   /// `true` si los datos se sincronizan con la nube (Firebase).
   bool get enLaNube;
 
+  /// Crea lo que falte la primera vez (configuración, club y datos
+  /// iniciales). No toca nada que ya exista.
+  Future<void> inicializar();
+
   /// Configuración del club (listas visibles y registro), en tiempo real.
   Stream<ConfigClub> watchConfig();
 

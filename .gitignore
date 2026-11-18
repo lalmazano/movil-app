@@ -50,7 +50,3 @@ app.*.map.json
 # Configuración de Firebase (no se versiona)
 google-services.json
 GoogleService-Info.plist
-
-# Script de carga de datos
-tool/seed/node_modules/
-serviceAccountKey.json

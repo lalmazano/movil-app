@@ -23,6 +23,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final _config = widget.repository.watchConfig();
 
+  @override
+  void initState() {
+    super.initState();
+    // La primera vez crea la configuración, el club y los datos iniciales.
+    widget.repository.inicializar().catchError((Object e) {
+      debugPrint('No se pudo inicializar el club: $e');
+    });
+  }
+
   ListaRepository get repository => widget.repository;
   AuthService? get auth => widget.auth;
 

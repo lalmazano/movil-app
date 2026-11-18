@@ -21,6 +21,9 @@ class MemoriaListaRepository implements ListaRepository {
   bool get enLaNube => false;
 
   @override
+  Future<void> inicializar() async {}
+
+  @override
   Stream<ConfigClub> watchConfig() => Stream.value(config);
 
   @override
