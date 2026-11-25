@@ -90,4 +90,12 @@ void main() {
       'Tierra de osos',
     );
   });
+
+  test('ConfigClub: banderas de funciones (ausentes valen true)', () {
+    final c = ConfigClub.fromMap({'fotos': false, 'ruleta': false});
+    expect(c.fotos, isFalse);
+    expect(c.ruleta, isFalse);
+    expect(c.calificaciones && c.autores && c.buscar, isTrue);
+    expect(c.posters && c.contador && c.widget, isTrue);
+  });
 }

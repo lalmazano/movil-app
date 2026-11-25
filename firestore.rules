@@ -8,7 +8,10 @@ rules_version = '2';
 //     deseos: bool           lista de deseos visible
 //     planes: bool           lista "Hacer juntos" visible
 //     registroAbierto: bool  si alguien nuevo puede unirse al club
-//   Si el documento o un campo no existe, vale true.
+//     calificaciones, autores, ruleta, buscar, fotos, posters, contador,
+//     widget: bool        funciones de la app (fotos también se aplica aquí)
+//     aniversario: timestamp  fecha del contador (opcional)
+//   Si el documento o un campo booleano no existe, vale true.
 //
 // categorias/{lista}    → categorías de cada lista: campo `nombres` (arreglo).
 //
@@ -117,6 +120,7 @@ service cloud.firestore {
         allow read, delete: if esMiembro() && listaVisible(lista);
         allow create: if esMiembro()
           && listaVisible(lista)
+          && config().get('fotos', true) == true
           && request.resource.data.datos is bytes
           && request.resource.data.datos.size() <= 921600;
         allow update: if false;
