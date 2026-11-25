@@ -144,6 +144,14 @@ void main() {
       );
       expect(ocultas[ClavesWidget.pelicula], isNull);
       expect(ocultas[ClavesWidget.aniversario], isNull);
+
+      final sinContador = datosWidget(
+        peliculas: const [],
+        planes: const [],
+        config: ConfigClub(aniversario: DateTime(2024, 1, 1), contador: false),
+        hoy: DateTime(2024, 1, 11),
+      );
+      expect(sinContador[ClavesWidget.aniversario], isNull);
       expect(ocultas[ClavesWidget.plan], '🧺 Próximo plan: ¡Nada pendiente!');
     });
 
@@ -181,6 +189,21 @@ void main() {
       await tester.tap(find.byKey(const Key('contador-aniversario')));
       await tester.pump();
       expect(find.textContaining('Llevamos 1 año'), findsOneWidget);
+    });
+
+    testWidgets('no aparece con la bandera contador en false', (tester) async {
+      await tester.pumpWidget(
+        app(
+          MemoriaListaRepository(
+            config: ConfigClub(
+              aniversario: DateTime(2023, 2, 14),
+              contador: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byKey(const Key('contador-aniversario')), findsNothing);
     });
 
     testWidgets('no aparece sin fecha de aniversario', (tester) async {

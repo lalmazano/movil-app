@@ -34,7 +34,7 @@ Map<String, String?> datosWidget({
     return pendientes.isEmpty ? '¡Nada pendiente!' : pendientes.first.titulo;
   }
 
-  final aniversario = config.aniversario;
+  final aniversario = config.contador ? config.aniversario : null;
   String dosDigitos(int n) => n.toString().padLeft(2, '0');
   return {
     ClavesWidget.listo: 'si',
@@ -115,6 +115,8 @@ class WidgetInicio {
   }
 
   Future<void> _enviar() async {
+    // Con la bandera `widget` en false se deja de actualizar.
+    if (!_config.widget) return;
     final datos = datosWidget(
       peliculas: _peliculas,
       planes: _planes,

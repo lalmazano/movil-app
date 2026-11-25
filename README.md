@@ -65,6 +65,22 @@ Los datos quedan en `clubs/club-del-frijol/{peliculas|deseos|planes}`.
 
 Sin este paso la app funciona en **modo local** (los datos no se guardan).
 
+## Funciones y banderas (`config/app`)
+
+Cada función se activa o desactiva con un campo booleano en `config/app`
+(si falta, vale `true`):
+
+| Campo | Función |
+|---|---|
+| `calificaciones` | 🐾 de 1 a 5 y comentario al marcar como hecho |
+| `autores` | Quién agregó y quién marcó cada elemento |
+| `ruleta` | 🎲 "¿Qué vemos/hacemos hoy?" |
+| `buscar` | 🔍 Búsqueda por título o nota |
+| `fotos` | 📷 Fotos de recuerdos (dentro de Firestore, < 900 KB c/u) |
+| `posters` | 🎞️ Pósters y datos de TMDB (requiere `config/tmdb.apiKey`) |
+| `contador` | Contador de aniversario (requiere `aniversario`, timestamp) |
+| `widget` | Widget de la pantalla de inicio de Android |
+
 ## Icono (Gato con Botas)
 
 Reemplaza `assets/icon/app_icon.png` por tu imagen cuadrada de 1024×1024 y ejecuta:

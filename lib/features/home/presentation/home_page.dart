@@ -90,7 +90,10 @@ class _HomePageState extends State<HomePage> {
                   textAlign: TextAlign.center,
                   style: textTheme.headlineSmall,
                 ),
-                if (snap.data?.aniversario case final aniversario?) ...[
+                if (snap.data case ConfigClub(
+                  contador: true,
+                  :final aniversario?,
+                )) ...[
                   const SizedBox(height: 8),
                   ContadorAniversario(desde: aniversario, reloj: widget.reloj),
                 ],
