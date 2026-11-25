@@ -49,17 +49,22 @@ class FirestoreListaRepository implements ListaRepository {
   Future<void> inicializar() async {
     final errores = <String>[];
 
-    // 1. Configuración por defecto (si no existe).
+    // 1. Configuración: crea el documento o solo las banderas que falten,
+    //    todas en true. Nunca cambia las que ya existen.
     final config = _db.collection('config').doc('app');
     try {
       await _db.runTransaction((tx) async {
-        if ((await tx.get(config)).exists) return;
-        tx.set(config, {
-          'peliculas': true,
-          'deseos': true,
-          'planes': true,
-          'registroAbierto': true,
-        });
+        final actual = await tx.get(config);
+        final faltantes = {
+          for (final b in ConfigClub.banderas)
+            if (!(actual.data()?.containsKey(b) ?? false)) b: true,
+        };
+        if (faltantes.isEmpty) return;
+        if (actual.exists) {
+          tx.update(config, faltantes);
+        } else {
+          tx.set(config, faltantes);
+        }
       });
     } catch (e) {
       errores.add('config/app: ${_mensaje(e)}');

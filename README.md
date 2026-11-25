@@ -67,8 +67,9 @@ Sin este paso la app funciona en **modo local** (los datos no se guardan).
 
 ## Funciones y banderas (`config/app`)
 
-Cada función se activa o desactiva con un campo booleano en `config/app`
-(si falta, vale `true`):
+Cada función se activa o desactiva con un campo booleano en `config/app`.
+Al abrir la app se crean las banderas que falten (en `true`); las que ya
+existen no se cambian:
 
 | Campo | Función |
 |---|---|

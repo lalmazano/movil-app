@@ -47,6 +47,23 @@ class ConfigClub {
     );
   }
 
+  /// Todos los campos booleanos de `config/app`. La app crea los que falten
+  /// con `true` (sin cambiar los que ya existen).
+  static const banderas = [
+    'peliculas',
+    'deseos',
+    'planes',
+    'registroAbierto',
+    'calificaciones',
+    'autores',
+    'ruleta',
+    'buscar',
+    'fotos',
+    'posters',
+    'contador',
+    'widget',
+  ];
+
   final bool peliculas;
   final bool deseos;
   final bool planes;

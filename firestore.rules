@@ -42,6 +42,26 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
     }
 
+    function banderas() {
+      return ['peliculas', 'deseos', 'planes', 'registroAbierto',
+              'calificaciones', 'autores', 'ruleta', 'buscar', 'fotos',
+              'posters', 'contador', 'widget'];
+    }
+
+    // Cada bandera que no existía en [antes] debe agregarse en true.
+    function nuevaEnTrue(antes, k) {
+      return k in antes || request.resource.data.get(k, true) == true;
+    }
+
+    function soloAgregaBanderasEnTrue(antes) {
+      return nuevaEnTrue(antes, 'peliculas') && nuevaEnTrue(antes, 'deseos')
+        && nuevaEnTrue(antes, 'planes') && nuevaEnTrue(antes, 'registroAbierto')
+        && nuevaEnTrue(antes, 'calificaciones') && nuevaEnTrue(antes, 'autores')
+        && nuevaEnTrue(antes, 'ruleta') && nuevaEnTrue(antes, 'buscar')
+        && nuevaEnTrue(antes, 'fotos') && nuevaEnTrue(antes, 'posters')
+        && nuevaEnTrue(antes, 'contador') && nuevaEnTrue(antes, 'widget');
+    }
+
     function listaVisible(lista) {
       return lista in ['peliculas', 'deseos', 'planes']
         && config().get(lista, true) == true;
@@ -58,15 +78,20 @@ service cloud.firestore {
     // (si no existe) con los valores por defecto; cambiarla, solo en la consola.
     match /config/{doc} {
       allow read: if conGoogle() && doc != 'tmdb';
+      // La app crea el documento con todas las banderas en true...
       allow create: if esMiembro()
         && doc == 'app'
-        && request.resource.data == {
-          'peliculas': true,
-          'deseos': true,
-          'planes': true,
-          'registroAbierto': true
-        };
-      allow update, delete: if false;
+        && request.resource.data.keys().hasOnly(banderas())
+        && soloAgregaBanderasEnTrue({});
+      // ...o agrega las que falten (en true), sin cambiar ninguna existente.
+      allow update: if esMiembro()
+        && doc == 'app'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(banderas())
+        && request.resource.data.diff(resource.data).changedKeys().size() == 0
+        && request.resource.data.diff(resource.data).removedKeys().size() == 0
+        && soloAgregaBanderasEnTrue(resource.data);
+      allow delete: if false;
     }
 
     // Categorías de cada lista: categorias/{peliculas|deseos|planes} con el
