@@ -61,9 +61,15 @@ class _ListaPageState extends State<ListaPage> {
       context,
       tipo: _tipo,
       categorias: _categorias,
+      // Solo películas; sin clave no se muestra la búsqueda en TMDB.
+      claveTmdb: _tipo == TipoLista.peliculas
+          ? widget.repository.tmdbApiKey()
+          : null,
     );
     if (nuevo == null || !mounted) return;
-    _escribir(() => widget.repository.add(_tipo, nuevo));
+    _escribir(
+      () => widget.repository.add(_tipo, nuevo.item, pelicula: nuevo.pelicula),
+    );
   }
 
   Future<void> _editar(ItemLista item) async {
@@ -72,15 +78,20 @@ class _ListaPageState extends State<ListaPage> {
       tipo: _tipo,
       categorias: _categorias,
       inicial: item,
+      // Solo películas; sin clave no se muestra la búsqueda en TMDB.
+      claveTmdb: _tipo == TipoLista.peliculas
+          ? widget.repository.tmdbApiKey()
+          : null,
     );
     if (cambios == null || !mounted) return;
     _escribir(
       () => widget.repository.update(
         _tipo,
         item.copyWith(
-          titulo: cambios.titulo,
-          categoria: cambios.categoria,
-          nota: cambios.nota,
+          titulo: cambios.item.titulo,
+          categoria: cambios.item.categoria,
+          nota: cambios.item.nota,
+          pelicula: () => cambios.pelicula,
         ),
       ),
     );

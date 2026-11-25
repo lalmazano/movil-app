@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/item_lista.dart';
+import 'buscador_tmdb.dart';
 
-/// Hoja para crear o editar un elemento. Devuelve el [NuevoItem] o null.
-Future<NuevoItem?> mostrarFormularioItem(
+/// Lo que devuelve el formulario: el elemento y, en películas, los datos de
+/// TMDB vinculados (null si no tiene o se desvinculó).
+typedef FormularioItem = ({NuevoItem item, InfoPelicula? pelicula});
+
+/// Hoja para crear o editar un elemento. Devuelve un [FormularioItem] o null.
+///
+/// En películas, si [claveTmdb] trae una clave, se puede buscar en TMDB
+/// para vincular póster y datos. Sin clave no aparece nada de TMDB.
+Future<FormularioItem?> mostrarFormularioItem(
   BuildContext context, {
   required TipoLista tipo,
   required List<String> categorias,
   ItemLista? inicial,
-}) => showModalBottomSheet<NuevoItem>(
+  Future<String?>? claveTmdb,
+}) => showModalBottomSheet<FormularioItem>(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
   showDragHandle: true,
-  builder: (_) =>
-      _ItemFormSheet(tipo: tipo, categorias: categorias, inicial: inicial),
+  builder: (_) => _ItemFormSheet(
+    tipo: tipo,
+    categorias: categorias,
+    inicial: inicial,
+    claveTmdb: tipo == TipoLista.peliculas ? claveTmdb : null,
+  ),
 );
 
 class _ItemFormSheet extends StatefulWidget {
@@ -22,11 +35,13 @@ class _ItemFormSheet extends StatefulWidget {
     required this.tipo,
     required this.categorias,
     this.inicial,
+    this.claveTmdb,
   });
 
   final TipoLista tipo;
   final List<String> categorias;
   final ItemLista? inicial;
+  final Future<String?>? claveTmdb;
 
   @override
   State<_ItemFormSheet> createState() => _ItemFormSheetState();
@@ -45,6 +60,66 @@ class _ItemFormSheetState extends State<_ItemFormSheet> {
   ];
   late String _categoria = widget.inicial?.categoria ?? _opciones.last;
 
+  /// Clave de TMDB (null mientras carga o si no hay).
+  String? _clave;
+
+  /// Película de TMDB vinculada y el título con el que se mostró.
+  late InfoPelicula? _pelicula = widget.inicial?.pelicula;
+  late String _tituloTmdb = widget.inicial?.titulo ?? '';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.claveTmdb
+        ?.then((clave) {
+          final c = clave?.trim();
+          if (mounted && c != null && c.isNotEmpty) {
+            setState(() => _clave = c);
+          }
+        })
+        .catchError((Object _) {});
+  }
+
+  Future<void> _buscarTmdb() async {
+    final clave = _clave;
+    if (clave == null) return;
+    final seleccion = await mostrarBuscadorTmdb(
+      context,
+      apiKey: clave,
+      consulta: _titulo.text.trim(),
+    );
+    if (seleccion == null || !mounted) return;
+    final actual = _titulo.text.trim();
+    var usarTitulo = actual.isEmpty;
+    if (!usarTitulo && actual.toLowerCase() != seleccion.titulo.toLowerCase()) {
+      usarTitulo =
+          await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('¿Usar el título de TMDB?'),
+              content: Text('Cambiar «$actual» por «${seleccion.titulo}».'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Dejar el mío'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Usar el de TMDB'),
+                ),
+              ],
+            ),
+          ) ??
+          false;
+      if (!mounted) return;
+    }
+    setState(() {
+      if (usarTitulo) _titulo.text = seleccion.titulo;
+      _pelicula = seleccion.info;
+      _tituloTmdb = seleccion.titulo;
+    });
+  }
+
   @override
   void dispose() {
     _titulo.dispose();
@@ -55,8 +130,11 @@ class _ItemFormSheetState extends State<_ItemFormSheet> {
   void _guardar() {
     final titulo = _titulo.text.trim();
     if (titulo.isEmpty) return;
-    Navigator.of(context)
-        .pop((titulo: titulo, categoria: _categoria, nota: _nota.text.trim()));
+    final FormularioItem resultado = (
+      item: (titulo: titulo, categoria: _categoria, nota: _nota.text.trim()),
+      pelicula: _pelicula,
+    );
+    Navigator.of(context).pop(resultado);
   }
 
   @override
@@ -91,8 +169,35 @@ class _ItemFormSheetState extends State<_ItemFormSheet> {
                   labelText: 'Título',
                   hintText: widget.tipo.pista,
                   isDense: true,
+                  suffixIcon: _clave == null
+                      ? null
+                      : IconButton(
+                          key: const Key('boton-buscar-tmdb'),
+                          tooltip: 'Buscar en TMDB',
+                          icon: const Icon(Icons.travel_explore),
+                          onPressed: _buscarTmdb,
+                        ),
                 ),
               ),
+              if (_pelicula case final p?)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: InputChip(
+                      key: const Key('chip-tmdb'),
+                      label: Text(
+                        '🎞️ $_tituloTmdb${p.anio == null ? '' : ' (${p.anio})'}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      labelStyle: textTheme.bodySmall,
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      deleteButtonTooltipMessage: 'Desvincular de TMDB',
+                      onDeleted: () => setState(() => _pelicula = null),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 12),
               Text('Categoría', style: textTheme.labelLarge),
               const SizedBox(height: 6),
