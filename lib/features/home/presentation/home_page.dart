@@ -7,14 +7,19 @@ import '../../../core/widgets/paw_background.dart';
 import '../../auth/domain/auth_service.dart';
 import '../../listas/domain/config_club.dart';
 import '../../listas/domain/item_lista.dart';
+import '../data/widget_inicio.dart';
+import 'contador_aniversario.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.repository, this.auth});
+  const HomePage({super.key, required this.repository, this.auth, this.reloj});
 
   final ListaRepository repository;
 
   /// null = modo local, sin sesión.
   final AuthService? auth;
+
+  /// Para pruebas: qué día es "hoy" en el contador del aniversario.
+  final DateTime Function()? reloj;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -23,12 +28,22 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final _config = widget.repository.watchConfig();
 
+  /// Mantiene al día el widget de Android (no hace nada en otras plataformas).
+  late final _widgetInicio = WidgetInicio(widget.repository);
+
   Object? _errorInicial;
 
   @override
   void initState() {
     super.initState();
     _inicializar();
+    _widgetInicio.iniciar();
+  }
+
+  @override
+  void dispose() {
+    _widgetInicio.dispose();
+    super.dispose();
   }
 
   /// La primera vez crea la configuración, el club y los datos iniciales.
@@ -52,60 +67,61 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('🫘 ${AppConstants.appName}')),
       body: PawBackground(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Center(
-              child: switch (auth) {
-                final auth? => _FotoPerfil(auth: auth, usuario: usuario),
-                null => const ClubLogo(),
-              },
-            ),
-            const SizedBox(height: 12),
-            Text(
-              usuario == null
-                  ? 'Bienvenidos al club'
-                  : '¡Hola, ${usuario.nombreCorto}!',
-              textAlign: TextAlign.center,
-              style: textTheme.headlineSmall,
-            ),
-            if (_errorInicial case final error?) ...[
-              const SizedBox(height: 12),
-              _AvisoError(error: error, onReintentar: _inicializar),
-            ],
-            if (!repository.enLaNube) ...[
-              const SizedBox(height: 12),
-              const _AvisoModoLocal(),
-            ],
-            const SizedBox(height: 16),
-            StreamBuilder<ConfigClub>(
-              stream: _config,
-              builder: (context, snap) {
-                // Mientras carga (o si falla) se muestran todas las listas.
-                final visibles = snap.data?.listasVisibles ?? TipoLista.values;
-                if (visibles.isEmpty) {
-                  return Padding(
+        // Una sola suscripción a la configuración para el contador y las listas.
+        child: StreamBuilder<ConfigClub>(
+          stream: _config,
+          builder: (context, snap) {
+            // Mientras carga (o si falla) se muestran todas las listas.
+            final visibles = snap.data?.listasVisibles ?? TipoLista.values;
+            return ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Center(
+                  child: switch (auth) {
+                    final auth? => _FotoPerfil(auth: auth, usuario: usuario),
+                    null => const ClubLogo(),
+                  },
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  usuario == null
+                      ? 'Bienvenidos al club'
+                      : '¡Hola, ${usuario.nombreCorto}!',
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineSmall,
+                ),
+                if (snap.data?.aniversario case final aniversario?) ...[
+                  const SizedBox(height: 8),
+                  ContadorAniversario(desde: aniversario, reloj: widget.reloj),
+                ],
+                if (_errorInicial case final error?) ...[
+                  const SizedBox(height: 12),
+                  _AvisoError(error: error, onReintentar: _inicializar),
+                ],
+                if (!repository.enLaNube) ...[
+                  const SizedBox(height: 12),
+                  const _AvisoModoLocal(),
+                ],
+                const SizedBox(height: 16),
+                if (visibles.isEmpty)
+                  Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
                       'No hay listas visibles por ahora 🫘',
                       textAlign: TextAlign.center,
                       style: textTheme.titleMedium,
                     ),
-                  );
-                }
-                return Column(
-                  children: [
-                    for (final tipo in visibles)
-                      _TarjetaLista(
-                        key: ValueKey(tipo),
-                        tipo: tipo,
-                        repository: repository,
-                      ),
-                  ],
-                );
-              },
-            ),
-          ],
+                  )
+                else
+                  for (final tipo in visibles)
+                    _TarjetaLista(
+                      key: ValueKey(tipo),
+                      tipo: tipo,
+                      repository: repository,
+                    ),
+              ],
+            );
+          },
         ),
       ),
     );
