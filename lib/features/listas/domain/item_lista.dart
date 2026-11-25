@@ -11,6 +11,8 @@ enum TipoLista {
     pista: 'Ej. El Gato con Botas',
     vacio: 'Aún no hay películas.\n¡Agrega la primera o carga la lista Disney!',
     categorias: [
+      'Disney',
+      'DreamWorks',
       'Princesas',
       'Clásicos',
       'Mágicas / Fantasía',
@@ -63,9 +65,10 @@ enum TipoLista {
   final String accionHecho;
   final String pista;
   final String vacio;
-  final List<String> categorias;
 
-  String get categoriaPorDefecto => categorias.last;
+  /// Categorías por defecto. Las que usa la app vienen de Firestore
+  /// (`categorias/{coleccion}`); estas son la carga inicial y el respaldo.
+  final List<String> categorias;
 }
 
 /// Un elemento de cualquiera de las listas (película, deseo o plan).
@@ -136,6 +139,9 @@ abstract interface class ListaRepository {
   /// Crea lo que falte la primera vez (configuración, club y datos
   /// iniciales). No toca nada que ya exista.
   Future<void> inicializar();
+
+  /// Categorías de la lista, en tiempo real (de la base de datos).
+  Stream<List<String>> watchCategorias(TipoLista tipo);
 
   /// Configuración del club (listas visibles y registro), en tiempo real.
   Stream<ConfigClub> watchConfig();

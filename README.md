@@ -43,6 +43,12 @@ Los datos quedan en `clubs/club-del-frijol/{peliculas|deseos|planes}`.
    `config/app`, `clubs/club-del-frijol` y los datos iniciales (una película, un deseo y
    un plan; el resto del reto Disney se carga con el botón ✨). `usuarios` se llena al entrar.
 
+   Las **categorías** de cada lista están en `categorias/{peliculas|deseos|planes}`,
+   campo `nombres` (arreglo de textos, en el orden en que se muestran). La app las
+   crea la primera vez con las de por defecto (películas: Disney, DreamWorks,
+   Princesas, Clásicos, Mágicas / Fantasía, Pixar, Aventura, Navideñas, Otras);
+   para agregar o quitar, edita el arreglo desde la consola.
+
    El documento **`config/app`** tiene:
 
    | Campo | Tipo | Para qué |

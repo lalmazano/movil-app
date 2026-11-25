@@ -41,7 +41,20 @@ class FirestoreListaRepository implements ListaRepository {
       errores.add('config/app: ${_mensaje(e)}');
     }
 
-    // 2. Club + datos iniciales, todo junto: o se crea todo o nada, y solo
+    // 2. Categorías de cada lista (si no existen), con las de la app.
+    for (final tipo in TipoLista.values) {
+      final ref = _categorias(tipo);
+      try {
+        await _db.runTransaction((tx) async {
+          if ((await tx.get(ref)).exists) return;
+          tx.set(ref, {'nombres': tipo.categorias});
+        });
+      } catch (e) {
+        errores.add('categorias/${tipo.coleccion}: ${_mensaje(e)}');
+      }
+    }
+
+    // 3. Club + datos iniciales, todo junto: o se crea todo o nada, y solo
     //    un teléfono lo hace aunque entren los dos a la vez.
     final club = _db.collection('clubs').doc(clubId);
     try {
@@ -73,6 +86,19 @@ class FirestoreListaRepository implements ListaRepository {
 
   static String _mensaje(Object e) =>
       e is FirebaseException ? '${e.code} — ${e.message}' : '$e';
+
+  DocumentReference<Map<String, dynamic>> _categorias(TipoLista tipo) =>
+      _db.collection('categorias').doc(tipo.coleccion);
+
+  @override
+  Stream<List<String>> watchCategorias(TipoLista tipo) =>
+      _categorias(tipo).snapshots().map((doc) {
+        final nombres = [
+          for (final n in (doc.data()?['nombres'] as List?) ?? const [])
+            if (n is String && n.trim().isNotEmpty) n.trim(),
+        ];
+        return nombres.isEmpty ? tipo.categorias : nombres;
+      });
 
   @override
   Stream<ConfigClub> watchConfig() => _db

@@ -10,6 +10,8 @@ rules_version = '2';
 //     registroAbierto: bool  si alguien nuevo puede unirse al club
 //   Si el documento o un campo no existe, vale true.
 //
+// categorias/{lista}    → categorías de cada lista: campo `nombres` (arreglo).
+//
 // usuarios/{uid}        → miembros del club (se crean al entrar con Google
 //                         mientras el registro está abierto).
 //
@@ -51,6 +53,20 @@ service cloud.firestore {
           'planes': true,
           'registroAbierto': true
         };
+      allow update, delete: if false;
+    }
+
+    // Categorías de cada lista: categorias/{peliculas|deseos|planes} con el
+    // campo `nombres` (arreglo de textos, en orden). La app las crea la
+    // primera vez; se editan desde la consola.
+    match /categorias/{lista} {
+      allow read: if conGoogle();
+      allow create: if esMiembro()
+        && lista in ['peliculas', 'deseos', 'planes']
+        && request.resource.data.keys().hasOnly(['nombres'])
+        && request.resource.data.nombres is list
+        && request.resource.data.nombres.size() > 0
+        && request.resource.data.nombres.size() <= 50;
       allow update, delete: if false;
     }
 

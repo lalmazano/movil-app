@@ -92,4 +92,35 @@ void main() {
     expect(find.text('Deseos'), findsNothing);
     expect(find.text('Hacer juntos'), findsOneWidget);
   });
+
+  testWidgets('El formulario usa las categorías de la base de datos', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ClubDelFrijolApp(
+        repository: MemoriaListaRepository(
+          categorias: {
+            TipoLista.peliculas: ['Disney', 'DreamWorks', 'Terror'],
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text('Películas'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Agregar'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(ChoiceChip, 'Terror'), findsOneWidget);
+    expect(find.widgetWithText(ChoiceChip, 'DreamWorks'), findsOneWidget);
+    expect(find.widgetWithText(ChoiceChip, 'Princesas'), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('campo-titulo')), 'Shrek');
+    await tester.tap(find.widgetWithText(ChoiceChip, 'DreamWorks'));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('boton-guardar-item')));
+    await tester.pumpAndSettle();
+    expect(find.text('Shrek'), findsOneWidget);
+    expect(find.text('DreamWorks'), findsWidgets);
+  });
 }

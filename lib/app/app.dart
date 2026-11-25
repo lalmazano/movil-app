@@ -24,6 +24,12 @@ class ClubDelFrijolApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       initialRoute: AppRoutes.home,
       onGenerateRoute: AppRouter(repository, auth: auth).onGenerateRoute,
+      // Respeta el tamaño de letra del teléfono, pero sin pasar de 1.15x
+      // para que botones y filtros no se corten.
+      builder: (context, child) => MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.15,
+        child: child!,
+      ),
     );
   }
 }

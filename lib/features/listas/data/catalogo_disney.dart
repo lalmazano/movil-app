@@ -103,13 +103,12 @@ const Map<String, List<String>> catalogoDisney = {
     'Los Muppets en Cuento de Navidad',
     'El extraño mundo de Jack',
   ],
-  'Otras': [
+  'DreamWorks': [
     'El Gato con Botas',
     'El Gato con Botas: El último deseo',
     'Spirit: el corcel indomable',
-    'Minions',
-    'Minions: Nace un villano',
   ],
+  'Otras': ['Minions', 'Minions: Nace un villano'],
 };
 
 /// Películas del catálogo que aún no están en [actuales] (sin repetir títulos).

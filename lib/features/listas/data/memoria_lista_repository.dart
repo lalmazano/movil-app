@@ -8,9 +8,13 @@ class MemoriaListaRepository implements ListaRepository {
   MemoriaListaRepository({
     DateTime Function()? reloj,
     this.config = const ConfigClub(),
+    this.categorias = const {},
   }) : _reloj = reloj ?? DateTime.now;
 
   final ConfigClub config;
+
+  /// Categorías por lista; si falta una, se usan las de la app.
+  final Map<TipoLista, List<String>> categorias;
 
   final DateTime Function() _reloj;
   final _datos = {for (final t in TipoLista.values) t: <ItemLista>[]};
@@ -22,6 +26,10 @@ class MemoriaListaRepository implements ListaRepository {
 
   @override
   Future<void> inicializar() async {}
+
+  @override
+  Stream<List<String>> watchCategorias(TipoLista tipo) =>
+      Stream.value(categorias[tipo] ?? tipo.categorias);
 
   @override
   Stream<ConfigClub> watchConfig() => Stream.value(config);

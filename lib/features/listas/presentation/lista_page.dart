@@ -24,6 +24,9 @@ class _ListaPageState extends State<ListaPage> {
     widget.tipo,
   );
   late final Stream<ConfigClub> _config = widget.repository.watchConfig();
+  late final Stream<List<String>> _categoriasStream = widget.repository
+      .watchCategorias(widget.tipo);
+  late List<String> _categorias = widget.tipo.categorias;
   _Filtro _filtro = _Filtro.pendientes;
   String? _categoria;
   List<ItemLista> _ultimos = const [];
@@ -42,7 +45,11 @@ class _ListaPageState extends State<ListaPage> {
   }
 
   Future<void> _agregar() async {
-    final nuevo = await mostrarFormularioItem(context, tipo: _tipo);
+    final nuevo = await mostrarFormularioItem(
+      context,
+      tipo: _tipo,
+      categorias: _categorias,
+    );
     if (nuevo == null || !mounted) return;
     _escribir(() => widget.repository.add(_tipo, nuevo));
   }
@@ -51,6 +58,7 @@ class _ListaPageState extends State<ListaPage> {
     final cambios = await mostrarFormularioItem(
       context,
       tipo: _tipo,
+      categorias: _categorias,
       inicial: item,
     );
     if (cambios == null || !mounted) return;
@@ -183,6 +191,16 @@ class _ListaPageState extends State<ListaPage> {
   }
 
   Widget _lista(BuildContext context) {
+    return StreamBuilder<List<String>>(
+      stream: _categoriasStream,
+      builder: (context, cats) {
+        if (cats.data case final c?) _categorias = c;
+        return _listaItems(context);
+      },
+    );
+  }
+
+  Widget _listaItems(BuildContext context) {
     return StreamBuilder<List<ItemLista>>(
       stream: _items,
       builder: (context, snap) {
@@ -207,11 +225,11 @@ class _ListaPageState extends State<ListaPage> {
     }
     final hechos = items.where((i) => i.hecho).length;
     final categorias = [
-      for (final c in _tipo.categorias)
+      for (final c in _categorias)
         if (items.any((i) => i.categoria == c)) c,
       ...{
         for (final i in items)
-          if (!_tipo.categorias.contains(i.categoria)) i.categoria,
+          if (!_categorias.contains(i.categoria)) i.categoria,
       },
     ];
     final categoria = categorias.contains(_categoria) ? _categoria : null;
@@ -243,36 +261,43 @@ class _ListaPageState extends State<ListaPage> {
               segments: [
                 ButtonSegment(
                   value: _Filtro.pendientes,
-                  label: Text('Pendientes (${items.length - hechos})'),
+                  label: _Etiqueta('Pendientes ${items.length - hechos}'),
                 ),
                 ButtonSegment(
                   value: _Filtro.hechos,
-                  label: Text('${_tipo.accionHecho}s ($hechos)'),
+                  label: _Etiqueta('${_tipo.accionHecho}s $hechos'),
                 ),
-                const ButtonSegment(value: _Filtro.todos, label: Text('Todo')),
+                ButtonSegment(
+                  value: _Filtro.todos,
+                  label: _Etiqueta('Todo ${items.length}'),
+                ),
               ],
               selected: {_filtro},
               showSelectedIcon: false,
+              style: const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               onSelectionChanged: (s) => setState(() => _filtro = s.first),
             ),
           ),
         ),
         if (categorias.length > 1)
           SliverToBoxAdapter(
-            child: SizedBox(
-              height: 56,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
                 children: [
                   for (final c in [null, ...categorias])
                     Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.only(right: 6),
                       child: ChoiceChip(
                         label: Text(c ?? 'Todas'),
+                        labelStyle: Theme.of(context).textTheme.bodySmall,
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        showCheckmark: false,
                         selected: c == categoria,
                         onSelected: (_) => setState(() => _categoria = c),
                       ),
@@ -347,7 +372,7 @@ class _Progreso extends StatelessWidget {
     final avance = total == 0 ? 0.0 : hechos / total;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -356,19 +381,19 @@ class _Progreso extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '$hechos de $total $etiqueta',
-                    style: textTheme.titleMedium,
+                    style: textTheme.titleSmall,
                   ),
                 ),
                 Text(
                   '${(avance * 100).round()} %',
-                  style: textTheme.titleMedium,
+                  style: textTheme.titleSmall,
                 ),
               ],
             ),
             const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(value: avance, minHeight: 10),
+              child: LinearProgressIndicator(value: avance, minHeight: 8),
             ),
           ],
         ),
@@ -398,8 +423,9 @@ class _TarjetaItem extends StatelessWidget {
       if (item.hecho && item.hechoEn != null) '✓ ${_fecha(item.hechoEn!)}',
     ].join(' · ');
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
       child: ListTile(
+        visualDensity: VisualDensity.compact,
         contentPadding: const EdgeInsets.only(left: 8, right: 4),
         leading: Checkbox(
           value: item.hecho,
@@ -459,4 +485,17 @@ class _Mensaje extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Texto de un filtro: una sola línea que se encoge si no cabe.
+class _Etiqueta extends StatelessWidget {
+  const _Etiqueta(this.texto);
+
+  final String texto;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Text(texto, maxLines: 1, softWrap: false),
+  );
 }
