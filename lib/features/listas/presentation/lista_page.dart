@@ -6,6 +6,7 @@ import '../../../core/widgets/paw_background.dart';
 import '../data/catalogo_disney.dart';
 import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
+import 'config_scope.dart';
 import 'item_detalle_page.dart';
 import 'widgets/campo_busqueda.dart';
 import 'widgets/dialogo_calificar.dart';
@@ -62,7 +63,8 @@ class _ListaPageState extends State<ListaPage> {
       tipo: _tipo,
       categorias: _categorias,
       // Solo películas; sin clave no se muestra la búsqueda en TMDB.
-      claveTmdb: _tipo == TipoLista.peliculas
+      claveTmdb:
+          _tipo == TipoLista.peliculas && ConfigClubScope.of(context).posters
           ? widget.repository.tmdbApiKey()
           : null,
     );
@@ -79,7 +81,8 @@ class _ListaPageState extends State<ListaPage> {
       categorias: _categorias,
       inicial: item,
       // Solo películas; sin clave no se muestra la búsqueda en TMDB.
-      claveTmdb: _tipo == TipoLista.peliculas
+      claveTmdb:
+          _tipo == TipoLista.peliculas && ConfigClubScope.of(context).posters
           ? widget.repository.tmdbApiKey()
           : null,
     );
@@ -152,7 +155,8 @@ class _ListaPageState extends State<ListaPage> {
           ),
         );
       // Con sesión iniciada, pregunta qué tal estuvo (en modo local no).
-      if (widget.repository.autorActual != null) {
+      if (widget.repository.autorActual != null &&
+          ConfigClubScope.of(context).calificaciones) {
         calificarItem(
           context,
           repository: widget.repository,
@@ -258,16 +262,18 @@ class _ListaPageState extends State<ListaPage> {
               ),
         actions: [
           if (busqueda == null) ...[
-            IconButton(
-              tooltip: 'Buscar',
-              icon: const Icon(Icons.search),
-              onPressed: _abrirBusqueda,
-            ),
-            IconButton(
-              tooltip: tituloRuleta(_tipo),
-              icon: const Icon(Icons.casino_outlined),
-              onPressed: _ruleta,
-            ),
+            if (ConfigClubScope.of(context).buscar)
+              IconButton(
+                tooltip: 'Buscar',
+                icon: const Icon(Icons.search),
+                onPressed: _abrirBusqueda,
+              ),
+            if (ConfigClubScope.of(context).ruleta)
+              IconButton(
+                tooltip: tituloRuleta(_tipo),
+                icon: const Icon(Icons.casino_outlined),
+                onPressed: _ruleta,
+              ),
             if (_tipo == TipoLista.peliculas)
               IconButton(
                 tooltip: 'Cargar lista Disney',

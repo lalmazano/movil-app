@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../config_scope.dart';
 import '../../domain/item_lista.dart';
 import 'comprimir_foto.dart';
 import 'visor_foto.dart';
@@ -104,6 +105,7 @@ class _SeccionFotosState extends State<SeccionFotos> {
 
   @override
   Widget build(BuildContext context) {
+    if (!ConfigClubScope.of(context).fotos) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
     return Card(
       child: Padding(

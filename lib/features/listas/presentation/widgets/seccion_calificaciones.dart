@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config_scope.dart';
 import '../../domain/item_lista.dart';
 import 'dialogo_calificar.dart';
 import 'huellitas.dart';
@@ -21,21 +22,27 @@ class SeccionCalificaciones extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final config = ConfigClubScope.of(context);
+    if (!config.calificaciones && !config.autores) {
+      return const SizedBox.shrink();
+    }
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final autor = repository.autorActual;
+    final autor = config.calificaciones ? repository.autorActual : null;
     final calificaciones = item.calificaciones.values.toList()
       ..sort(
         (a, b) =>
             (a.fecha ?? item.creadoEn).compareTo(b.fecha ?? item.creadoEn),
       );
-    final promedio = item.promedioHuellitas;
+    final promedio = config.calificaciones ? item.promedioHuellitas : null;
     final procedencia = [
-      if (item.creadoPor case final p?)
-        'Agregado por ${p.nombreCorto} el ${fechaCorta(item.creadoEn)}',
-      if (item.hecho && item.hechoPor != null)
-        '${tipo.accionHecho} por ${item.hechoPor!.nombreCorto}'
-            '${item.hechoEn == null ? '' : ' el ${fechaCorta(item.hechoEn!)}'}',
+      if (config.autores) ...[
+        if (item.creadoPor case final p?)
+          'Agregado por ${p.nombreCorto} el ${fechaCorta(item.creadoEn)}',
+        if (item.hecho && item.hechoPor != null)
+          '${tipo.accionHecho} por ${item.hechoPor!.nombreCorto}'
+              '${item.hechoEn == null ? '' : ' el ${fechaCorta(item.hechoEn!)}'}',
+      ],
     ];
     final yaCalifico =
         autor != null && item.calificaciones.containsKey(autor.uid);
@@ -51,7 +58,10 @@ class SeccionCalificaciones extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text('Calificaciones', style: textTheme.titleSmall),
+                    child: Text(
+                      config.calificaciones ? 'Calificaciones' : 'Historial',
+                      style: textTheme.titleSmall,
+                    ),
                   ),
                   if (promedio != null)
                     Text(
@@ -66,7 +76,9 @@ class SeccionCalificaciones extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(linea, style: textTheme.bodySmall),
               ),
-            if (calificaciones.isEmpty)
+            if (!config.calificaciones)
+              const SizedBox(height: 4)
+            else if (calificaciones.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config_scope.dart';
 import '../../domain/item_lista.dart';
 
 /// Póster pequeño de la película en la tarjeta (si tiene datos de TMDB).
@@ -11,7 +12,9 @@ class PosterMiniatura extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = item.pelicula?.posterUrl;
-    if (url == null) return const SizedBox.shrink();
+    if (url == null || !ConfigClubScope.of(context).posters) {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.only(right: 4),
       child: ClipRRect(

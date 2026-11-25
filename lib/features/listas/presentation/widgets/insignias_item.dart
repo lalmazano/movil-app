@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config_scope.dart';
 import '../../domain/item_lista.dart';
 import 'huellitas.dart';
 
@@ -12,15 +13,18 @@ class InsigniasItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final config = ConfigClubScope.of(context);
     final hechoPor = item.hecho ? item.hechoPor : null;
     final autores = [
-      ?item.creadoPor,
-      if (hechoPor != null && hechoPor.uid != item.creadoPor?.uid) hechoPor,
+      if (config.autores) ...[
+        ?item.creadoPor,
+        if (hechoPor != null && hechoPor.uid != item.creadoPor?.uid) hechoPor,
+      ],
     ];
-    final promedio = item.promedioHuellitas;
+    final promedio = config.calificaciones ? item.promedioHuellitas : null;
     final textos = [
       if (promedio != null) '🐾 ${promedioTexto(promedio)}',
-      if (item.fotos > 0) '📷 ${item.fotos}',
+      if (config.fotos && item.fotos > 0) '📷 ${item.fotos}',
     ];
     if (autores.isEmpty && textos.isEmpty) return const SizedBox.shrink();
     return Padding(

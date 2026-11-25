@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/tmdb/tmdb_client.dart';
+import '../config_scope.dart';
 import '../../domain/item_lista.dart';
 import 'buscador_tmdb.dart';
 
@@ -55,7 +56,10 @@ class _SeccionPeliculaState extends State<SeccionPelicula> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.tipo != TipoLista.peliculas) return const SizedBox.shrink();
+    if (widget.tipo != TipoLista.peliculas ||
+        !ConfigClubScope.of(context).posters) {
+      return const SizedBox.shrink();
+    }
     return FutureBuilder<String?>(
       future: _clave,
       builder: (context, snap) {

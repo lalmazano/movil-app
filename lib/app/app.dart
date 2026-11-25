@@ -5,6 +5,7 @@ import '../core/routes/app_router.dart';
 import '../core/theme/app_theme.dart';
 import '../features/auth/domain/auth_service.dart';
 import '../features/listas/domain/item_lista.dart';
+import '../features/listas/presentation/config_scope.dart';
 
 class ClubDelFrijolApp extends StatelessWidget {
   const ClubDelFrijolApp({super.key, required this.repository, this.auth});
@@ -26,9 +27,12 @@ class ClubDelFrijolApp extends StatelessWidget {
       onGenerateRoute: AppRouter(repository, auth: auth).onGenerateRoute,
       // Respeta el tamaño de letra del teléfono, pero sin pasar de 1.15x
       // para que botones y filtros no se corten.
-      builder: (context, child) => MediaQuery.withClampedTextScaling(
-        maxScaleFactor: 1.15,
-        child: child!,
+      builder: (context, child) => ConfigClubProvider(
+        repository: repository,
+        child: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.15,
+          child: child!,
+        ),
       ),
     );
   }
