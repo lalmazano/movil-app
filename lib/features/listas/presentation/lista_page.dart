@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/paw_background.dart';
@@ -5,8 +7,10 @@ import '../data/catalogo_disney.dart';
 import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
 import 'item_detalle_page.dart';
+import 'widgets/campo_busqueda.dart';
 import 'widgets/dialogo_calificar.dart';
 import 'widgets/item_form_sheet.dart';
+import 'widgets/ruleta_sheet.dart';
 import 'widgets/tarjeta_item.dart';
 
 enum _Filtro { pendientes, hechos, todos }
@@ -33,6 +37,11 @@ class _ListaPageState extends State<ListaPage> {
   _Filtro _filtro = _Filtro.pendientes;
   String? _categoria;
   List<ItemLista> _ultimos = const [];
+
+  /// Búsqueda por título y nota (null si el buscador está cerrado).
+  TextEditingController? _busqueda;
+  String _consulta = '';
+  final _random = Random();
 
   TipoLista get _tipo => widget.tipo;
 
@@ -180,17 +189,81 @@ class _ListaPageState extends State<ListaPage> {
   }
 
   @override
+  void dispose() {
+    _busqueda?.dispose();
+    super.dispose();
+  }
+
+  void _abrirBusqueda() => setState(() => _busqueda = TextEditingController());
+
+  void _cerrarBusqueda() {
+    final busqueda = _busqueda;
+    setState(() {
+      _busqueda = null;
+      _consulta = '';
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => busqueda?.dispose());
+  }
+
+  /// "¿Qué vemos/hacemos hoy?": elige un pendiente al azar y lo abre.
+  Future<void> _ruleta() async {
+    final elegido = await mostrarRuleta(
+      context,
+      tipo: _tipo,
+      items: _ultimos,
+      categorias: _categorias,
+      random: _random,
+    );
+    if (elegido != null && mounted) _abrir(elegido);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final busqueda = _busqueda;
+    return PopScope(
+      canPop: busqueda == null,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _cerrarBusqueda();
+      },
+      child: _pantalla(context, busqueda),
+    );
+  }
+
+  Widget _pantalla(BuildContext context, TextEditingController? busqueda) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${_tipo.emoji} ${_tipo.titulo}'),
+        leading: busqueda == null
+            ? null
+            : IconButton(
+                tooltip: 'Cerrar búsqueda',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: _cerrarBusqueda,
+              ),
+        title: busqueda == null
+            ? Text('${_tipo.emoji} ${_tipo.titulo}')
+            : CampoBusqueda(
+                controller: busqueda,
+                onChanged: (q) => setState(() => _consulta = q),
+              ),
         actions: [
-          if (_tipo == TipoLista.peliculas)
+          if (busqueda == null) ...[
             IconButton(
-              tooltip: 'Cargar lista Disney',
-              icon: const Icon(Icons.auto_awesome),
-              onPressed: _cargarDisney,
+              tooltip: 'Buscar',
+              icon: const Icon(Icons.search),
+              onPressed: _abrirBusqueda,
             ),
+            IconButton(
+              tooltip: tituloRuleta(_tipo),
+              icon: const Icon(Icons.casino_outlined),
+              onPressed: _ruleta,
+            ),
+            if (_tipo == TipoLista.peliculas)
+              IconButton(
+                tooltip: 'Cargar lista Disney',
+                icon: const Icon(Icons.auto_awesome),
+                onPressed: _cargarDisney,
+              ),
+          ],
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -264,8 +337,11 @@ class _ListaPageState extends State<ListaPage> {
         _Filtro.hechos => i.hecho,
         _Filtro.todos => true,
       };
-      return porFiltro && (categoria == null || i.categoria == categoria);
+      return porFiltro &&
+          (categoria == null || i.categoria == categoria) &&
+          coincideBusqueda(i, _consulta);
     }).toList();
+    final buscando = _consulta.trim().isNotEmpty;
 
     return CustomScrollView(
       slivers: [
@@ -334,12 +410,17 @@ class _ListaPageState extends State<ListaPage> {
         if (visibles.isEmpty)
           SliverFillRemaining(
             hasScrollBody: false,
-            child: _Mensaje(
-              emoji: _filtro == _Filtro.hechos ? '🫘' : '🎉',
-              texto: _filtro == _Filtro.hechos
-                  ? 'Todavía no hay nada ${_tipo.accionHecho.toLowerCase()}.'
-                  : '¡Nada pendiente aquí!',
-            ),
+            child: buscando
+                ? _Mensaje(
+                    emoji: '🔍',
+                    texto: 'Nada coincide con «${_consulta.trim()}»',
+                  )
+                : _Mensaje(
+                    emoji: _filtro == _Filtro.hechos ? '🫘' : '🎉',
+                    texto: _filtro == _Filtro.hechos
+                        ? 'Todavía no hay nada ${_tipo.accionHecho.toLowerCase()}.'
+                        : '¡Nada pendiente aquí!',
+                  ),
           )
         else
           ..._secciones(categorias, visibles),
