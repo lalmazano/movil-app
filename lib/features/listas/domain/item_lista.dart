@@ -1,4 +1,9 @@
+import 'dart:typed_data';
+
 import 'config_club.dart';
+import 'detalles.dart';
+
+export 'detalles.dart';
 
 /// Las tres listas del club.
 enum TipoLista {
@@ -81,6 +86,11 @@ class ItemLista {
     this.nota = '',
     this.hecho = false,
     this.hechoEn,
+    this.creadoPor,
+    this.hechoPor,
+    this.calificaciones = const {},
+    this.pelicula,
+    this.fotos = 0,
   });
 
   final String id;
@@ -91,12 +101,37 @@ class ItemLista {
   final DateTime creadoEn;
   final DateTime? hechoEn;
 
+  /// Quién lo agregó (null en elementos viejos o de la carga inicial).
+  final Autor? creadoPor;
+
+  /// Quién lo marcó como hecho.
+  final Autor? hechoPor;
+
+  /// Calificación de cada persona, por uid.
+  final Map<String, Calificacion> calificaciones;
+
+  /// Póster y datos de TMDB (solo películas).
+  final InfoPelicula? pelicula;
+
+  /// Cuántas fotos tiene (las fotos viven en la subcolección `fotos`).
+  final int fotos;
+
+  /// Promedio de huellitas, o null si nadie ha calificado.
+  double? get promedioHuellitas => calificaciones.isEmpty
+      ? null
+      : calificaciones.values.map((c) => c.huellitas).reduce((a, b) => a + b) /
+            calificaciones.length;
+
   ItemLista copyWith({
     String? titulo,
     String? categoria,
     String? nota,
     bool? hecho,
     DateTime? Function()? hechoEn,
+    Autor? Function()? hechoPor,
+    Map<String, Calificacion>? calificaciones,
+    InfoPelicula? Function()? pelicula,
+    int? fotos,
   }) => ItemLista(
     id: id,
     titulo: titulo ?? this.titulo,
@@ -105,6 +140,11 @@ class ItemLista {
     hecho: hecho ?? this.hecho,
     creadoEn: creadoEn,
     hechoEn: hechoEn != null ? hechoEn() : this.hechoEn,
+    creadoPor: creadoPor,
+    hechoPor: hechoPor != null ? hechoPor() : this.hechoPor,
+    calificaciones: calificaciones ?? this.calificaciones,
+    pelicula: pelicula != null ? pelicula() : this.pelicula,
+    fotos: fotos ?? this.fotos,
   );
 
   Map<String, Object?> toMap() => {
@@ -114,9 +154,17 @@ class ItemLista {
     'hecho': hecho,
     'creadoEn': creadoEn,
     'hechoEn': hechoEn,
+    'creadoPor': creadoPor?.toMap(),
+    'hechoPor': hechoPor?.toMap(),
+    'calificaciones': {
+      for (final MapEntry(:key, :value) in calificaciones.entries)
+        key: value.toMap(),
+    },
+    'pelicula': pelicula?.toMap(),
+    'fotos': fotos,
   };
 
-  /// Las fechas ya deben venir como [DateTime].
+  /// Las fechas (también las anidadas) ya deben venir como [DateTime].
   factory ItemLista.fromMap(String id, Map<String, Object?> map) => ItemLista(
     id: id,
     titulo: (map['titulo'] as String?) ?? '',
@@ -125,6 +173,15 @@ class ItemLista {
     hecho: (map['hecho'] as bool?) ?? false,
     creadoEn: (map['creadoEn'] as DateTime?) ?? DateTime.now(),
     hechoEn: map['hechoEn'] as DateTime?,
+    creadoPor: Autor.fromMap(map['creadoPor']),
+    hechoPor: Autor.fromMap(map['hechoPor']),
+    calificaciones: {
+      if (map['calificaciones'] case final Map cal)
+        for (final MapEntry(:key, :value) in cal.entries)
+          '$key': ?Calificacion.fromMap(value),
+    },
+    pelicula: InfoPelicula.fromMap(map['pelicula']),
+    fotos: (map['fotos'] as num?)?.toInt() ?? 0,
   );
 }
 
@@ -149,13 +206,37 @@ abstract interface class ListaRepository {
   /// Elementos de la lista, del más antiguo al más reciente, en tiempo real.
   Stream<List<ItemLista>> watch(TipoLista tipo);
 
-  Future<void> add(TipoLista tipo, NuevoItem item);
+  /// Quién está usando la app (null en modo local).
+  Autor? get autorActual;
+
+  /// Agrega un elemento; [pelicula] guarda póster y datos de TMDB.
+  Future<void> add(TipoLista tipo, NuevoItem item, {InfoPelicula? pelicula});
 
   Future<void> addMany(TipoLista tipo, List<NuevoItem> items);
 
+  /// Guarda título, categoría, nota y [ItemLista.pelicula].
   Future<void> update(TipoLista tipo, ItemLista item);
 
+  /// Marca o desmarca; guarda quién lo marcó ([autorActual]).
   Future<void> setHecho(TipoLista tipo, String id, bool hecho);
 
+  /// Guarda (o reemplaza) la calificación de [Calificacion.autor].
+  Future<void> calificar(TipoLista tipo, String id, Calificacion calificacion);
+
+  /// Borra el elemento y sus fotos.
   Future<void> delete(TipoLista tipo, String id);
+
+  /// Un elemento en tiempo real (null si se borró).
+  Stream<ItemLista?> watchItem(TipoLista tipo, String id);
+
+  /// Fotos del elemento, de la más antigua a la más nueva.
+  Stream<List<FotoItem>> watchFotos(TipoLista tipo, String id);
+
+  /// Guarda una foto ya comprimida (máximo [maxBytesFoto]).
+  Future<void> agregarFoto(TipoLista tipo, String id, Uint8List bytes);
+
+  Future<void> borrarFoto(TipoLista tipo, String id, String fotoId);
+
+  /// Clave de la API de TMDB (documento `config/tmdb`, campo `apiKey`).
+  Future<String?> tmdbApiKey();
 }

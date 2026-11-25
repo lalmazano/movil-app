@@ -5,12 +5,14 @@ import 'item_lista.dart';
 /// Campos (todos booleanos; si faltan, valen `true`):
 /// - `peliculas`, `deseos`, `planes`: qué listas se muestran.
 /// - `registroAbierto`: si alguien nuevo puede entrar al club.
+/// - `aniversario` (timestamp, opcional): fecha desde la que cuenta el club.
 class ConfigClub {
   const ConfigClub({
     this.peliculas = true,
     this.deseos = true,
     this.planes = true,
     this.registroAbierto = true,
+    this.aniversario,
   });
 
   factory ConfigClub.fromMap(Map<String, Object?>? map) => ConfigClub(
@@ -18,12 +20,16 @@ class ConfigClub {
     deseos: map?['deseos'] as bool? ?? true,
     planes: map?['planes'] as bool? ?? true,
     registroAbierto: map?['registroAbierto'] as bool? ?? true,
+    aniversario: map?['aniversario'] as DateTime?,
   );
 
   final bool peliculas;
   final bool deseos;
   final bool planes;
   final bool registroAbierto;
+
+  /// Las fechas ya deben venir como [DateTime].
+  final DateTime? aniversario;
 
   bool esVisible(TipoLista tipo) => switch (tipo) {
     TipoLista.peliculas => peliculas,

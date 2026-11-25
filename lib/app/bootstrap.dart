@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
@@ -29,6 +30,14 @@ Future<Servicios> crearServicios() async {
       repository: FirestoreListaRepository(
         FirebaseFirestore.instance,
         clubId: AppConstants.clubId,
+        autor: () => switch (FirebaseAuth.instance.currentUser) {
+          final u? => Autor(
+            uid: u.uid,
+            nombre: u.displayName,
+            fotoUrl: u.photoURL,
+          ),
+          null => null,
+        },
       ),
       auth: await FirebaseAuthService.crear(),
     );

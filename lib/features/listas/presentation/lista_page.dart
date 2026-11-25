@@ -4,7 +4,9 @@ import '../../../core/widgets/paw_background.dart';
 import '../data/catalogo_disney.dart';
 import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
+import 'item_detalle_page.dart';
 import 'widgets/item_form_sheet.dart';
+import 'widgets/tarjeta_item.dart';
 
 enum _Filtro { pendientes, hechos, todos }
 
@@ -69,6 +71,19 @@ class _ListaPageState extends State<ListaPage> {
           titulo: cambios.titulo,
           categoria: cambios.categoria,
           nota: cambios.nota,
+        ),
+      ),
+    );
+  }
+
+  void _abrir(ItemLista item) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ItemDetallePage(
+          tipo: _tipo,
+          itemId: item.id,
+          repository: widget.repository,
+          onEditar: _editar,
         ),
       ),
     );
@@ -342,9 +357,10 @@ class _ListaPageState extends State<ListaPage> {
           SliverList.list(
             children: [
               for (final item in visibles.where((i) => i.categoria == c))
-                _TarjetaItem(
+                TarjetaItem(
                   item: item,
                   onMarcar: (v) => _marcar(item, v),
+                  onAbrir: () => _abrir(item),
                   onEditar: () => _editar(item),
                   onBorrar: () => _borrar(item),
                 ),
@@ -400,63 +416,6 @@ class _Progreso extends StatelessWidget {
       ),
     );
   }
-}
-
-class _TarjetaItem extends StatelessWidget {
-  const _TarjetaItem({
-    required this.item,
-    required this.onMarcar,
-    required this.onEditar,
-    required this.onBorrar,
-  });
-
-  final ItemLista item;
-  final ValueChanged<bool> onMarcar;
-  final VoidCallback onEditar;
-  final VoidCallback onBorrar;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final subtitulo = [
-      if (item.nota.isNotEmpty) item.nota,
-      if (item.hecho && item.hechoEn != null) '✓ ${_fecha(item.hechoEn!)}',
-    ].join(' · ');
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
-      child: ListTile(
-        visualDensity: VisualDensity.compact,
-        contentPadding: const EdgeInsets.only(left: 8, right: 4),
-        leading: Checkbox(
-          value: item.hecho,
-          shape: const CircleBorder(),
-          onChanged: (v) => onMarcar(v ?? false),
-        ),
-        title: Text(
-          item.titulo,
-          style: item.hecho
-              ? TextStyle(
-                  decoration: TextDecoration.lineThrough,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
-                )
-              : null,
-        ),
-        subtitle: subtitulo.isEmpty ? null : Text(subtitulo),
-        onTap: () => onMarcar(!item.hecho),
-        trailing: PopupMenuButton<VoidCallback>(
-          onSelected: (accion) => accion(),
-          itemBuilder: (_) => [
-            PopupMenuItem(value: onEditar, child: const Text('Editar')),
-            PopupMenuItem(value: onBorrar, child: const Text('Borrar')),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static String _fecha(DateTime f) =>
-      '${f.day.toString().padLeft(2, '0')}/'
-      '${f.month.toString().padLeft(2, '0')}/${f.year}';
 }
 
 class _Mensaje extends StatelessWidget {

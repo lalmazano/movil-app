@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/config_club.dart';
@@ -10,10 +12,32 @@ import '../domain/item_lista.dart';
 /// Firestore guarda una copia local, así que la app funciona sin internet y
 /// sincroniza los cambios cuando vuelve la conexión.
 class FirestoreListaRepository implements ListaRepository {
-  FirestoreListaRepository(this._db, {required this.clubId});
+  FirestoreListaRepository(
+    this._db, {
+    required this.clubId,
+    Autor? Function()? autor,
+  }) : _autor = autor ?? (() => null);
 
   final FirebaseFirestore _db;
   final String clubId;
+  final Autor? Function() _autor;
+
+  @override
+  Autor? get autorActual => _autor();
+
+  /// Convierte los Timestamp (también anidados) a DateTime.
+  static Object? _fechas(Object? v) => switch (v) {
+    Timestamp t => t.toDate(),
+    Map m => {for (final e in m.entries) '${e.key}': _fechas(e.value)},
+    List l => [for (final e in l) _fechas(e)],
+    _ => v,
+  };
+
+  static ItemLista _item(DocumentSnapshot<Map<String, dynamic>> doc) =>
+      ItemLista.fromMap(
+        doc.id,
+        (_fechas(doc.data() ?? const {}) as Map).cast<String, Object?>(),
+      );
 
   CollectionReference<Map<String, dynamic>> _col(TipoLista tipo) =>
       _db.collection('clubs').doc(clubId).collection(tipo.coleccion);
@@ -105,37 +129,33 @@ class FirestoreListaRepository implements ListaRepository {
       .collection('config')
       .doc('app')
       .snapshots()
-      .map((doc) => ConfigClub.fromMap(doc.data()));
+      .map(
+        (doc) => ConfigClub.fromMap(
+          (_fechas(doc.data()) as Map?)?.cast<String, Object?>(),
+        ),
+      );
 
   @override
   Stream<List<ItemLista>> watch(TipoLista tipo) =>
       _col(tipo)
           .orderBy('creadoEn')
           .snapshots()
-          .map(
-            (snap) => [
-              for (final doc in snap.docs)
-                ItemLista.fromMap(doc.id, {
-                  for (final e in doc.data().entries)
-                    e.key: e.value is Timestamp
-                        ? (e.value as Timestamp).toDate()
-                        : e.value,
-                }),
-            ],
-          );
+          .map((snap) => [for (final doc in snap.docs) _item(doc)]);
 
-  Map<String, Object?> _nuevo(NuevoItem item) => {
+  Map<String, Object?> _nuevo(NuevoItem item, {InfoPelicula? pelicula}) => {
     'titulo': item.titulo,
     'categoria': item.categoria,
     'nota': item.nota,
     'hecho': false,
     'creadoEn': FieldValue.serverTimestamp(),
     'hechoEn': null,
+    'creadoPor': ?_autor()?.toMap(),
+    'pelicula': ?pelicula?.toMap(),
   };
 
   @override
-  Future<void> add(TipoLista tipo, NuevoItem item) =>
-      _col(tipo).add(_nuevo(item));
+  Future<void> add(TipoLista tipo, NuevoItem item, {InfoPelicula? pelicula}) =>
+      _col(tipo).add(_nuevo(item, pelicula: pelicula));
 
   @override
   Future<void> addMany(TipoLista tipo, List<NuevoItem> items) async {
@@ -156,18 +176,101 @@ class FirestoreListaRepository implements ListaRepository {
         'titulo': item.titulo,
         'categoria': item.categoria,
         'nota': item.nota,
+        'pelicula': item.pelicula?.toMap(),
       });
 
   @override
-  Future<void> setHecho(TipoLista tipo, String id, bool hecho) => _col(tipo)
-      .doc(id)
-      .update({
+  Future<void> setHecho(TipoLista tipo, String id, bool hecho) =>
+      _col(tipo).doc(id).update({
         'hecho': hecho,
         'hechoEn': hecho ? FieldValue.serverTimestamp() : null,
+        'hechoPor': hecho ? _autor()?.toMap() : null,
       });
 
   @override
-  Future<void> delete(TipoLista tipo, String id) => _col(tipo).doc(id).delete();
+  Future<void> calificar(
+    TipoLista tipo,
+    String id,
+    Calificacion calificacion,
+  ) => _col(tipo).doc(id).update({
+    'calificaciones.${calificacion.autor.uid}': {
+      ...calificacion.toMap(),
+      'fecha': FieldValue.serverTimestamp(),
+    },
+  });
+
+  @override
+  Future<void> delete(TipoLista tipo, String id) async {
+    final ref = _col(tipo).doc(id);
+    final fotos = await ref.collection('fotos').get();
+    final lote = _db.batch();
+    for (final f in fotos.docs) {
+      lote.delete(f.reference);
+    }
+    lote.delete(ref);
+    await lote.commit();
+  }
+
+  @override
+  Stream<ItemLista?> watchItem(TipoLista tipo, String id) =>
+      _col(tipo)
+          .doc(id)
+          .snapshots()
+          .map((doc) => doc.exists ? _item(doc) : null);
+
+  @override
+  Stream<List<FotoItem>> watchFotos(TipoLista tipo, String id) =>
+      _col(tipo)
+          .doc(id)
+          .collection('fotos')
+          .orderBy('creadoEn')
+          .snapshots()
+          .map(
+            (snap) => [
+              for (final doc in snap.docs)
+                if (doc.data()['datos'] case final Blob datos)
+                  FotoItem(
+                    id: doc.id,
+                    bytes: datos.bytes,
+                    creadoEn:
+                        (doc.data()['creadoEn'] as Timestamp?)?.toDate() ??
+                        DateTime.now(),
+                    autor: Autor.fromMap(doc.data()['autor']),
+                  ),
+            ],
+          );
+
+  @override
+  Future<void> agregarFoto(TipoLista tipo, String id, Uint8List bytes) {
+    if (bytes.length > maxBytesFoto) {
+      throw ArgumentError('La foto pesa más de $maxBytesFoto bytes');
+    }
+    final ref = _col(tipo).doc(id);
+    return (_db.batch()
+          ..set(ref.collection('fotos').doc(), {
+            'datos': Blob(bytes),
+            'creadoEn': FieldValue.serverTimestamp(),
+            'autor': ?_autor()?.toMap(),
+          })
+          ..update(ref, {'fotos': FieldValue.increment(1)}))
+        .commit();
+  }
+
+  @override
+  Future<void> borrarFoto(TipoLista tipo, String id, String fotoId) {
+    final ref = _col(tipo).doc(id);
+    return (_db.batch()
+          ..delete(ref.collection('fotos').doc(fotoId))
+          ..update(ref, {'fotos': FieldValue.increment(-1)}))
+        .commit();
+  }
+
+  @override
+  Future<String?> tmdbApiKey() async {
+    final doc = await _db.collection('config').doc('tmdb').get();
+    final key = doc.data()?['apiKey'];
+    return key is String && key.trim().isNotEmpty ? key.trim() : null;
+  }
 }
 
 /// No se pudo crear parte de la estructura inicial del club.
