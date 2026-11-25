@@ -5,6 +5,7 @@ import '../data/catalogo_disney.dart';
 import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
 import 'item_detalle_page.dart';
+import 'widgets/dialogo_calificar.dart';
 import 'widgets/item_form_sheet.dart';
 import 'widgets/tarjeta_item.dart';
 
@@ -130,6 +131,15 @@ class _ListaPageState extends State<ListaPage> {
             ),
           ),
         );
+      // Con sesión iniciada, pregunta qué tal estuvo (en modo local no).
+      if (widget.repository.autorActual != null) {
+        calificarItem(
+          context,
+          repository: widget.repository,
+          tipo: _tipo,
+          item: item,
+        );
+      }
     }
   }
 
