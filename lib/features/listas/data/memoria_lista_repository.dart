@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import '../../actualizacion/domain/version_app.dart';
 import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
 
@@ -12,12 +13,19 @@ class MemoriaListaRepository implements ListaRepository {
     this.categorias = const {},
     this.autorActual,
     this.apiKeyTmdb,
+    this.version,
   }) : _reloj = reloj ?? DateTime.now;
 
   @override
   final Autor? autorActual;
 
   final String? apiKeyTmdb;
+
+  /// Versión publicada que simula `config/version` en pruebas.
+  final VersionApp? version;
+
+  @override
+  Stream<VersionApp?> watchVersion() => Stream.value(version);
   final _fotos = <String, List<FotoItem>>{};
 
   final ConfigClub config;

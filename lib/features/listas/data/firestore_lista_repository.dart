@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../actualizacion/domain/version_app.dart';
 import '../domain/config_club.dart';
 import 'datos_iniciales.dart';
 import '../domain/item_lista.dart';
@@ -128,6 +129,13 @@ class FirestoreListaRepository implements ListaRepository {
         ];
         return nombres.isEmpty ? tipo.categorias : nombres;
       });
+
+  @override
+  Stream<VersionApp?> watchVersion() => _db
+      .collection('config')
+      .doc('version')
+      .snapshots()
+      .map((doc) => VersionApp.fromMap(doc.data()));
 
   @override
   Stream<ConfigClub> watchConfig() => _db

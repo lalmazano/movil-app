@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -10,6 +12,21 @@ if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
 }
 
+// Llave de firma permanente (nunca se versiona):
+// - local: android/key.properties (storeFile, storePassword, keyAlias, keyPassword)
+// - GitHub Actions: variables CLUB_KEYSTORE_PATH, CLUB_KEYSTORE_PASSWORD,
+//   CLUB_KEY_ALIAS y CLUB_KEY_PASSWORD.
+// Sin ninguna de las dos se firma con la llave de depuración.
+val firma = Properties().apply {
+    val archivo = rootProject.file("key.properties")
+    if (archivo.exists()) archivo.inputStream().use { load(it) }
+    System.getenv("CLUB_KEYSTORE_PATH")?.let { setProperty("storeFile", it) }
+    System.getenv("CLUB_KEYSTORE_PASSWORD")?.let { setProperty("storePassword", it) }
+    System.getenv("CLUB_KEY_ALIAS")?.let { setProperty("keyAlias", it) }
+    System.getenv("CLUB_KEY_PASSWORD")?.let { setProperty("keyPassword", it) }
+}
+val tieneFirma = firma.getProperty("storeFile") != null
+
 android {
     namespace = "com.igss.movil_app"
     compileSdk = flutter.compileSdkVersion
@@ -18,6 +35,19 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Requerido por ota_update (actualizaciones dentro de la app).
+        isCoreLibraryDesugaringEnabled = true
+    }
+
+    signingConfigs {
+        if (tieneFirma) {
+            create("club") {
+                storeFile = file(firma.getProperty("storeFile"))
+                storePassword = firma.getProperty("storePassword")
+                keyAlias = firma.getProperty("keyAlias")
+                keyPassword = firma.getProperty("keyPassword")
+            }
+        }
     }
 
     defaultConfig {
@@ -37,9 +67,7 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(if (tieneFirma) "club" else "debug")
         }
     }
 }
@@ -52,4 +80,8 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

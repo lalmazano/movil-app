@@ -1,4 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Actualizaciones dentro de la app: descargar e instalar el APK nuevo. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- ota_update las declara pero no hacen falta en una app normal. -->
+    <uses-permission
+        android:name="android.permission.INSTALL_PACKAGES"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="remove" />
     <application
         android:label="El Club del Frijol"
         android:name="${applicationName}"
@@ -42,6 +52,16 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Comparte el APK descargado con el instalador de Android. -->
+        <provider
+            android:name="sk.fourq.otaupdate.OtaUpdateFileProvider"
+            android:authorities="${applicationId}.ota_update_provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

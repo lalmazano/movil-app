@@ -7,7 +7,8 @@ import 'item_lista.dart';
 /// - `registroAbierto`: si alguien nuevo puede entrar al club.
 /// - Funciones: `calificaciones` (huellitas al marcar), `autores` (quién
 ///   agregó / marcó), `ruleta`, `buscar`, `fotos`, `posters` (TMDB),
-///   `contador` (contador de aniversario) y `widget` (widget de Android).
+///   `contador` (contador de aniversario), `widget` (widget de Android) y
+///   `actualizaciones` (avisar y descargar versiones nuevas).
 ///
 /// Otros:
 /// - `aniversario` (timestamp, opcional): fecha desde la que cuenta el club.
@@ -25,6 +26,7 @@ class ConfigClub {
     this.posters = true,
     this.contador = true,
     this.widget = true,
+    this.actualizaciones = true,
     this.aniversario,
   });
 
@@ -43,6 +45,7 @@ class ConfigClub {
       posters: b('posters'),
       contador: b('contador'),
       widget: b('widget'),
+      actualizaciones: b('actualizaciones'),
       aniversario: map?['aniversario'] as DateTime?,
     );
   }
@@ -62,6 +65,7 @@ class ConfigClub {
     'posters',
     'contador',
     'widget',
+    'actualizaciones',
   ];
 
   final bool peliculas;
@@ -92,6 +96,9 @@ class ConfigClub {
 
   /// Actualizar el widget de la pantalla de inicio de Android.
   final bool widget;
+
+  /// Avisar cuando hay una versión nueva y descargarla.
+  final bool actualizaciones;
 
   /// Las fechas ya deben venir como [DateTime].
   final DateTime? aniversario;

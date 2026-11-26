@@ -1,0 +1,135 @@
+# Publica una versión nueva de El Club del Frijol.
+#
+# Se ejecuta al subir una etiqueta vX.Y.Z (debe coincidir con `version:` de
+# pubspec.yaml). Compila el APK firmado con la llave permanente, lo sube a
+# Firebase Hosting, publica las reglas de Firestore y actualiza
+# config/version para que la app avise a todos.
+#
+# Novedades: el mensaje de la etiqueta anotada (git tag -a v1.2.0 -m "…").
+# Si el mensaje incluye [obligatoria], la actualización será obligatoria.
+#
+# Secretos necesarios (Settings → Secrets and variables → Actions):
+#   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+#   GOOGLE_SERVICES_JSON_BASE64   (android/app/google-services.json en base64)
+#   FIREBASE_SERVICE_ACCOUNT      (JSON de la cuenta de servicio)
+name: Publicar versión
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+env:
+  PROYECTO: clubdelfrijol-1f507
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Leer versión
+        id: version
+        run: |
+          linea=$(grep -E '^version:' pubspec.yaml | awk '{print $2}')
+          nombre=${linea%%+*}
+          build=${linea##*+}
+          etiqueta=${GITHUB_REF_NAME#v}
+          if [ "$nombre" != "$etiqueta" ]; then
+            echo "::error::La etiqueta v$etiqueta no coincide con pubspec.yaml ($nombre)"
+            exit 1
+          fi
+          git fetch --force --tags
+          notas=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/-----BEGIN PGP/,$d')
+          [ -z "$notas" ] && notas=$(git log -1 --format=%B)
+          obligatoria=false
+          echo "$notas" | grep -qi '\[obligatoria\]' && obligatoria=true
+          notas=$(echo "$notas" | sed 's/\[obligatoria\]//Ig')
+          echo "nombre=$nombre" >> "$GITHUB_OUTPUT"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "obligatoria=$obligatoria" >> "$GITHUB_OUTPUT"
+          {
+            echo 'notas<<FIN_NOTAS'
+            echo "$notas"
+            echo 'FIN_NOTAS'
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Pruebas
+        run: |
+          flutter pub get
+          flutter test
+
+      - name: Preparar llave y Firebase
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/club.jks"
+          echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > android/app/google-services.json
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/cuenta.json"
+
+      - name: Compilar APK
+        env:
+          CLUB_KEYSTORE_PATH: ${{ runner.temp }}/club.jks
+          CLUB_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          CLUB_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          CLUB_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: flutter build apk --release --target-platform android-arm64
+
+      - name: Armar sitio de descarga
+        id: sitio
+        run: |
+          apk=build/app/outputs/flutter-apk/app-release.apk
+          mkdir -p publico/apk
+          cp "$apk" "publico/apk/club-del-frijol.apk"
+          cp "$apk" "publico/apk/club-del-frijol-${{ steps.version.outputs.nombre }}.apk"
+          cp assets/icon/app_icon.png publico/icono.png
+          sed 's/__VERSION__/${{ steps.version.outputs.nombre }}/' tool/publicar/sitio/index.html > publico/index.html
+          echo "sha256=$(sha256sum "$apk" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Subir a Firebase Hosting y publicar reglas
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/cuenta.json
+        run: npx --yes firebase-tools@14 deploy --only hosting,firestore:rules --project "$PROYECTO" --non-interactive
+
+      - name: Avisar a la app (config/version)
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/cuenta.json
+          VERSION: ${{ steps.version.outputs.nombre }}
+          BUILD: ${{ steps.version.outputs.build }}
+          URL: https://${{ env.PROYECTO }}.web.app/apk/club-del-frijol-${{ steps.version.outputs.nombre }}.apk
+          SHA256: ${{ steps.sitio.outputs.sha256 }}
+          NOTAS: ${{ steps.version.outputs.notas }}
+          OBLIGATORIA: ${{ steps.version.outputs.obligatoria }}
+        run: |
+          cd tool/publicar
+          npm install --silent
+          node publicar_version.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: club-del-frijol-${{ steps.version.outputs.nombre }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Limpiar secretos
+        if: always()
+        run: rm -f "$RUNNER_TEMP/club.jks" "$RUNNER_TEMP/cuenta.json" android/app/google-services.json

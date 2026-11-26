@@ -9,7 +9,8 @@ rules_version = '2';
 //     planes: bool           lista "Hacer juntos" visible
 //     registroAbierto: bool  si alguien nuevo puede unirse al club
 //     calificaciones, autores, ruleta, buscar, fotos, posters, contador,
-//     widget: bool        funciones de la app (fotos también se aplica aquí)
+//     widget, actualizaciones: bool   funciones de la app (fotos también
+//                         se aplica aquí)
 //     aniversario: timestamp  fecha del contador (opcional)
 //   Si el documento o un campo booleano no existe, vale true.
 //
@@ -24,6 +25,8 @@ rules_version = '2';
 //                         hechoPor, calificaciones.{uid}, pelicula, fotos).
 // clubs/{clubId}/{lista}/{itemId}/fotos/{fotoId} → fotos (campo datos: bytes).
 // config/tmdb           → apiKey de TMDB (solo miembros la leen).
+// config/version        → última versión publicada (la escribe GitHub Actions
+//                         con una cuenta de servicio; la app solo la lee).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -45,7 +48,7 @@ service cloud.firestore {
     function banderas() {
       return ['peliculas', 'deseos', 'planes', 'registroAbierto',
               'calificaciones', 'autores', 'ruleta', 'buscar', 'fotos',
-              'posters', 'contador', 'widget'];
+              'posters', 'contador', 'widget', 'actualizaciones'];
     }
 
     // Cada bandera que no existía en [antes] debe agregarse en true.
@@ -59,7 +62,8 @@ service cloud.firestore {
         && nuevaEnTrue(antes, 'calificaciones') && nuevaEnTrue(antes, 'autores')
         && nuevaEnTrue(antes, 'ruleta') && nuevaEnTrue(antes, 'buscar')
         && nuevaEnTrue(antes, 'fotos') && nuevaEnTrue(antes, 'posters')
-        && nuevaEnTrue(antes, 'contador') && nuevaEnTrue(antes, 'widget');
+        && nuevaEnTrue(antes, 'contador') && nuevaEnTrue(antes, 'widget')
+        && nuevaEnTrue(antes, 'actualizaciones');
     }
 
     function listaVisible(lista) {

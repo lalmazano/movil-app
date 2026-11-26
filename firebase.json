@@ -1,0 +1,18 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "hosting": {
+    "public": "publico",
+    "ignore": ["firebase.json", "**/.*"],
+    "headers": [
+      {
+        "source": "**/*.apk",
+        "headers": [
+          { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      }
+    ]
+  }
+}

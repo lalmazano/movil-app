@@ -4,6 +4,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/paw_background.dart';
+import '../../actualizacion/presentation/aviso_actualizacion.dart';
 import '../../auth/domain/auth_service.dart';
 import '../../listas/domain/config_club.dart';
 import '../../listas/domain/item_lista.dart';
@@ -97,6 +98,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 8),
                   ContadorAniversario(desde: aniversario, reloj: widget.reloj),
                 ],
+                AvisoActualizacion.android(repository: widget.repository),
                 if (_errorInicial case final error?) ...[
                   const SizedBox(height: 12),
                   _AvisoError(error: error, onReintentar: _inicializar),

@@ -50,3 +50,12 @@ app.*.map.json
 # Configuración de Firebase (no se versiona)
 google-services.json
 GoogleService-Info.plist
+
+# Llave de firma (no se versiona nunca)
+key.properties
+*.jks
+*.keystore
+
+# Publicación
+/publico/
+tool/publicar/node_modules/

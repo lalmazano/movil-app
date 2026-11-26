@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import '../../actualizacion/domain/version_app.dart';
 import 'config_club.dart';
 import 'detalles.dart';
 
@@ -199,6 +200,9 @@ abstract interface class ListaRepository {
 
   /// Categorías de la lista, en tiempo real (de la base de datos).
   Stream<List<String>> watchCategorias(TipoLista tipo);
+
+  /// Última versión publicada de la app (`config/version`), o null.
+  Stream<VersionApp?> watchVersion();
 
   /// Configuración del club (listas visibles y registro), en tiempo real.
   Stream<ConfigClub> watchConfig();
