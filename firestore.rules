@@ -27,6 +27,7 @@ rules_version = '2';
 // config/tmdb           → apiKey de TMDB (solo miembros la leen).
 // config/version        → última versión publicada (la escribe GitHub Actions
 //                         con una cuenta de servicio; la app solo la lee).
+// apk/{build}/partes/{n} → el APK partido en trozos (campo datos: bytes).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -110,6 +111,17 @@ service cloud.firestore {
         && request.resource.data.nombres.size() > 0
         && request.resource.data.nombres.size() <= 50;
       allow update, delete: if false;
+    }
+
+    // APK de cada versión, partido en documentos de < 1 MB (lo sube GitHub
+    // Actions con una cuenta de servicio). Solo los miembros lo descargan.
+    match /apk/{build} {
+      allow read: if esMiembro();
+      allow write: if false;
+      match /partes/{parte} {
+        allow read: if esMiembro();
+        allow write: if false;
+      }
     }
 
     // Documento del club: lo crea el primer miembro (marca que ya se

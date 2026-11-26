@@ -1,10 +1,14 @@
 /// Última versión publicada, en Firestore `config/version`. La escribe
 /// GitHub Actions al publicar (ver `.github/workflows/publicar.yml`).
+///
+/// El APK vive en Firestore partido en [partes] documentos
+/// (`apk/{build}/partes/{000…}`), porque Firebase Hosting gratuito no
+/// permite archivos .apk.
 class VersionApp {
   const VersionApp({
     required this.version,
     required this.build,
-    required this.url,
+    required this.partes,
     this.notas = '',
     this.obligatoria = false,
     this.sha256,
@@ -17,8 +21,8 @@ class VersionApp {
   /// instalado.
   final int build;
 
-  /// Dónde descargar el APK.
-  final String url;
+  /// En cuántos documentos está partido el APK.
+  final int partes;
 
   /// Novedades de la versión.
   final String notas;
@@ -31,14 +35,12 @@ class VersionApp {
 
   static VersionApp? fromMap(Map<String, Object?>? map) {
     final build = (map?['build'] as num?)?.toInt();
-    final url = map?['url'];
-    if (map == null || build == null || url is! String || url.isEmpty) {
-      return null;
-    }
+    final partes = (map?['partes'] as num?)?.toInt() ?? 0;
+    if (map == null || build == null || partes < 1) return null;
     return VersionApp(
       version: (map['version'] as String?) ?? '$build',
       build: build,
-      url: url,
+      partes: partes,
       notas: (map['notas'] as String?) ?? '',
       obligatoria: (map['obligatoria'] as bool?) ?? false,
       sha256: map['sha256'] as String?,

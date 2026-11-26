@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:movil_app/features/actualizacion/data/descargador_apk.dart';
 import 'package:movil_app/features/actualizacion/domain/version_app.dart';
 import 'package:movil_app/features/actualizacion/presentation/aviso_actualizacion.dart';
 import 'package:movil_app/features/listas/data/memoria_lista_repository.dart';
@@ -11,7 +12,7 @@ import 'package:movil_app/features/listas/presentation/config_scope.dart';
 const _v120 = VersionApp(
   version: '1.2.0',
   build: 5,
-  url: 'https://ejemplo.web.app/apk/club-del-frijol.apk',
+  partes: 27,
   notas: '• Ruleta nueva',
 );
 
@@ -35,13 +36,14 @@ Widget _app(
 );
 
 void main() {
-  test('VersionApp.fromMap exige build y url', () {
+  test('VersionApp.fromMap exige build y partes', () {
     expect(VersionApp.fromMap(null), isNull);
     expect(VersionApp.fromMap({'build': 2}), isNull);
+    expect(VersionApp.fromMap({'build': 2, 'partes': 0}), isNull);
     final v = VersionApp.fromMap({
       'version': '1.1.0',
       'build': 2,
-      'url': 'https://x/y.apk',
+      'partes': 27,
       'obligatoria': true,
     });
     expect(v?.build, 2);
@@ -92,7 +94,7 @@ void main() {
           version: const VersionApp(
             version: '2.0.0',
             build: 9,
-            url: 'https://x/y.apk',
+            partes: 3,
             obligatoria: true,
           ),
         ),

@@ -3,11 +3,11 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ota_update/ota_update.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
+import '../data/descargador_apk.dart';
 import '../domain/version_app.dart';
 
 /// Número de compilación instalado (versionCode).
@@ -19,46 +19,6 @@ typedef Instalador = Stream<double> Function(VersionApp version);
 Future<int> _buildInstalado() async =>
     int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0;
 
-/// Descarga con ota_update y abre el instalador de Android.
-Stream<double> instalarConOta(VersionApp version) async* {
-  final eventos = OtaUpdate().execute(
-    version.url,
-    destinationFilename: 'club-del-frijol.apk',
-    sha256checksum: version.sha256,
-  );
-  await for (final e in eventos) {
-    switch (e.status) {
-      case OtaStatus.DOWNLOADING:
-        yield (double.tryParse(e.value ?? '') ?? 0).clamp(0, 100);
-      case OtaStatus.INSTALLING || OtaStatus.INSTALLATION_DONE:
-        yield 100;
-        return;
-      case OtaStatus.PERMISSION_NOT_GRANTED_ERROR:
-        throw const ActualizacionException(
-          'Activa "Instalar apps desconocidas" para El Club del Frijol en '
-          'los ajustes del teléfono y vuelve a intentar.',
-        );
-      case OtaStatus.CHECKSUM_ERROR:
-        throw const ActualizacionException(
-          'El archivo descargado está dañado. Intenta de nuevo.',
-        );
-      default:
-        throw ActualizacionException(
-          'No se pudo descargar la actualización (${e.value ?? e.status.name}).',
-        );
-    }
-  }
-}
-
-class ActualizacionException implements Exception {
-  const ActualizacionException(this.mensaje);
-
-  final String mensaje;
-
-  @override
-  String toString() => mensaje;
-}
-
 bool get _esAndroid => !kIsWeb && Platform.isAndroid;
 
 /// Tarjeta en el inicio que aparece cuando hay una versión nueva en
@@ -69,14 +29,14 @@ class AvisoActualizacion extends StatefulWidget {
     super.key,
     required this.repository,
     this.leerBuild = _buildInstalado,
-    this.instalador = instalarConOta,
+    this.instalador = instalarDesdeFirestore,
     bool? soportado,
   }) : soportado = soportado ?? false;
 
   /// Constructor para la app real: solo funciona en Android.
   AvisoActualizacion.android({super.key, required this.repository})
     : leerBuild = _buildInstalado,
-      instalador = instalarConOta,
+      instalador = instalarDesdeFirestore,
       soportado = _esAndroid;
 
   final ListaRepository repository;

@@ -123,30 +123,26 @@ mismas tres capas y registre sus rutas en `lib/core/routes/app_router.dart`.
 
 La app lee `config/version` en Firestore; si hay un build mayor que el
 instalado, muestra las novedades, descarga el APK y abre el instalador de
-Android (bandera `actualizaciones` en `config/app`).
+Android (bandera `actualizaciones` en `config/app`). El APK se guarda en
+Firestore partido en trozos (`apk/{build}/partes/…`), porque Firebase Hosting
+gratuito no permite archivos `.apk`; solo los miembros pueden leerlo.
 
 ### Configuración (una sola vez)
-1. **Firebase Hosting:** consola de Firebase → Hosting → *Comenzar*.
-2. **Cuenta de servicio:** Google Cloud Console → IAM → la cuenta
+1. **Cuenta de servicio:** Google Cloud Console → IAM → la cuenta
    `firebase-adminsdk-…@clubdelfrijol-1f507.iam.gserviceaccount.com` →
-   *Editar* → agrega el rol **Administrador de Firebase** (*Firebase Admin*).
-   Luego Firebase → Configuración del proyecto → Cuentas de servicio →
-   *Generar nueva clave privada*.
-3. **Secretos en GitHub** (Settings → Secrets and variables → Actions):
+   *Editar* → rol **Administrador de Firebase**. Luego Firebase →
+   Configuración del proyecto → Cuentas de servicio → *Generar nueva clave*.
+2. **Secretos en GitHub** (Settings → Secrets and variables → Actions):
    `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`,
    `GOOGLE_SERVICES_JSON_BASE64` y `FIREBASE_SERVICE_ACCOUNT` (el JSON).
-4. Registra la SHA-1 de la llave permanente en Firebase (app Android).
+3. Registra la SHA-1 de la llave permanente en Firebase (app Android).
 
 ### Publicar una versión
-1. Sube `version:` en `pubspec.yaml` (p. ej. `1.2.0+3`; el número tras `+`
+1. Sube `version:` en `pubspec.yaml` (p. ej. `1.2.0+5`; el número tras `+`
    siempre debe crecer).
-2. Crea y sube la etiqueta con las novedades:
-   ```bash
-   git tag -a v1.2.0 -m "• Novedad 1
-   • Novedad 2"
-   git push origin v1.2.0
-   ```
-   Agrega `[obligatoria]` al mensaje para forzar la actualización.
-3. GitHub Actions (`publicar.yml`) prueba, compila, sube el APK a
-   `https://clubdelfrijol-1f507.web.app` (con página de descarga), publica
-   `firestore.rules` y actualiza `config/version`.
+2. En GitHub: **Releases → Draft a new release** → etiqueta nueva `v1.2.0`
+   sobre la rama con el código → novedades en la descripción (agrega
+   `[obligatoria]` para forzarla) → **Publish release**.
+3. GitHub Actions (`publicar.yml`) prueba, compila y firma, publica
+   `firestore.rules`, sube el APK a Firestore, actualiza `config/version` y
+   adjunta el APK al Release (para instalarlo a mano si hace falta).
