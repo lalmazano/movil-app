@@ -1,7 +1,8 @@
 # Publica una versión nueva de El Club del Frijol.
 #
-# Se ejecuta al subir una etiqueta vX.Y.Z (debe coincidir con `version:` de
-# pubspec.yaml). Compila el APK firmado con la llave permanente, publica las
+# Se ejecuta al subir una etiqueta vX.Y.Z. La versión sale de la etiqueta
+# (no hace falta editar pubspec.yaml) y el número de compilación se calcula
+# como X*10000 + Y*100 + Z, así siempre crece: v1.1.5 → 10105. Compila el APK firmado con la llave permanente, publica las
 # reglas de Firestore, sube el APK a Firestore (en partes; Firebase Hosting
 # gratuito no permite .apk), actualiza config/version para que la app avise a
 # todos y adjunta el APK al Release de GitHub.
@@ -47,14 +48,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          linea=$(grep -E '^version:' pubspec.yaml | awk '{print $2}')
-          nombre=${linea%%+*}
-          build=${linea##*+}
-          etiqueta=${GITHUB_REF_NAME#v}
-          if [ "$nombre" != "$etiqueta" ]; then
-            echo "::error::La etiqueta v$etiqueta no coincide con pubspec.yaml ($nombre)"
+          nombre=${GITHUB_REF_NAME#v}
+          if ! [[ "$nombre" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::La etiqueta debe ser vX.Y.Z (p. ej. v1.2.0); llegó $GITHUB_REF_NAME"
             exit 1
           fi
+          x=${BASH_REMATCH[1]}; y=${BASH_REMATCH[2]}; z=${BASH_REMATCH[3]}
+          if [ "$y" -gt 99 ] || [ "$z" -gt 99 ]; then
+            echo "::error::Y y Z deben ser menores a 100"
+            exit 1
+          fi
+          build=$(( 10#$x * 10000 + 10#$y * 100 + 10#$z ))
           git fetch --force --tags
           # El Release puede tardar unos segundos en existir tras la etiqueta.
           notas=""
@@ -108,7 +112,10 @@ jobs:
           CLUB_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           CLUB_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           CLUB_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: flutter build apk --release --target-platform android-arm64
+        run: >-
+          flutter build apk --release --target-platform android-arm64
+          --build-name=${{ steps.version.outputs.nombre }}
+          --build-number=${{ steps.version.outputs.build }}
 
       - name: Publicar reglas de Firestore
         env:

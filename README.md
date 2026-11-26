@@ -138,11 +138,11 @@ gratuito no permite archivos `.apk`; solo los miembros pueden leerlo.
 3. Registra la SHA-1 de la llave permanente en Firebase (app Android).
 
 ### Publicar una versión
-1. Sube `version:` en `pubspec.yaml` (p. ej. `1.2.0+5`; el número tras `+`
-   siempre debe crecer).
-2. En GitHub: **Releases → Draft a new release** → etiqueta nueva `v1.2.0`
+1. En GitHub: **Releases → Draft a new release** → etiqueta nueva `v1.2.0`
    sobre la rama con el código → novedades en la descripción (agrega
-   `[obligatoria]` para forzarla) → **Publish release**.
-3. GitHub Actions (`publicar.yml`) prueba, compila y firma, publica
+   `[obligatoria]` para forzarla) → **Publish release**. La versión sale de la
+   etiqueta (no hay que editar `pubspec.yaml`); el número de compilación es
+   X·10000 + Y·100 + Z, así que cada versión mayor siempre es más nueva.
+2. GitHub Actions (`publicar.yml`) prueba, compila y firma, publica
    `firestore.rules`, sube el APK a Firestore, actualiza `config/version` y
    adjunta el APK al Release (para instalarlo a mano si hace falta).
