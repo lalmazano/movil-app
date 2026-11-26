@@ -5,8 +5,13 @@
 # Firebase Hosting, publica las reglas de Firestore y actualiza
 # config/version para que la app avise a todos.
 #
-# Novedades: el mensaje de la etiqueta anotada (git tag -a v1.2.0 -m "…").
-# Si el mensaje incluye [obligatoria], la actualización será obligatoria.
+# Cómo publicar (dos formas):
+#   - Desde GitHub: Releases → Draft a new release → etiqueta nueva vX.Y.Z,
+#     destino la rama con el código → novedades en la descripción → Publish.
+#   - Desde git: git tag -a v1.2.0 -m "novedades" && git push origin v1.2.0
+# Novedades: la descripción del Release, o el mensaje de la etiqueta anotada,
+# o el último commit. Si incluyen [obligatoria], la actualización será
+# obligatoria.
 #
 # Secretos necesarios (Settings → Secrets and variables → Actions):
 #   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
@@ -38,6 +43,8 @@ jobs:
 
       - name: Leer versión
         id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           linea=$(grep -E '^version:' pubspec.yaml | awk '{print $2}')
           nombre=${linea%%+*}
@@ -48,8 +55,15 @@ jobs:
             exit 1
           fi
           git fetch --force --tags
-          notas=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/-----BEGIN PGP/,$d')
-          [ -z "$notas" ] && notas=$(git log -1 --format=%B)
+          # El Release puede tardar unos segundos en existir tras la etiqueta.
+          notas=""
+          for _ in 1 2 3; do
+            notas=$(gh release view "$GITHUB_REF_NAME" --json body -q .body 2>/dev/null || true)
+            [ -n "$notas" ] && break
+            sleep 5
+          done
+          [ -z "$notas" ] && notas=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME" | sed '/-----BEGIN PGP/,$d')
+          [ -z "$notas" ] && notas=$(git log -1 --format=%B | grep -v -E '^(Co-Authored-By|Claude-Session):')
           obligatoria=false
           echo "$notas" | grep -qi '\[obligatoria\]' && obligatoria=true
           notas=$(echo "$notas" | sed 's/\[obligatoria\]//Ig')
