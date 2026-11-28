@@ -3,6 +3,9 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../actualizacion/domain/version_app.dart';
+import '../../cartas/data/firestore_cartas_repository.dart';
+import '../../fechas/data/firestore_fechas_repository.dart';
+import '../../preguntas/data/firestore_preguntas_repository.dart';
 import '../domain/config_club.dart';
 import 'datos_iniciales.dart';
 import '../domain/item_lista.dart';
@@ -25,6 +28,27 @@ class FirestoreListaRepository implements ListaRepository {
 
   @override
   Autor? get autorActual => _autor();
+
+  @override
+  late final cartas = FirestoreCartasRepository(
+    _db,
+    clubId: clubId,
+    autor: _autor,
+  );
+
+  @override
+  late final fechas = FirestoreFechasRepository(
+    _db,
+    clubId: clubId,
+    autor: _autor,
+  );
+
+  @override
+  late final preguntas = FirestorePreguntasRepository(
+    _db,
+    clubId: clubId,
+    autor: _autor,
+  );
 
   /// Convierte los Timestamp (también anidados) a DateTime.
   static Object? _fechas(Object? v) => switch (v) {
@@ -155,7 +179,11 @@ class FirestoreListaRepository implements ListaRepository {
           .snapshots()
           .map((snap) => [for (final doc in snap.docs) _item(doc)]);
 
-  Map<String, Object?> _nuevo(NuevoItem item, {InfoPelicula? pelicula}) => {
+  Map<String, Object?> _nuevo(
+    NuevoItem item, {
+    InfoPelicula? pelicula,
+    bool repetible = false,
+  }) => {
     'titulo': item.titulo,
     'categoria': item.categoria,
     'nota': item.nota,
@@ -164,11 +192,25 @@ class FirestoreListaRepository implements ListaRepository {
     'hechoEn': null,
     'creadoPor': ?_autor()?.toMap(),
     'pelicula': ?pelicula?.toMap(),
+    if (repetible) 'repetible': true,
   };
 
   @override
-  Future<void> add(TipoLista tipo, NuevoItem item, {InfoPelicula? pelicula}) =>
-      _col(tipo).add(_nuevo(item, pelicula: pelicula));
+  Future<void> add(
+    TipoLista tipo,
+    NuevoItem item, {
+    InfoPelicula? pelicula,
+    bool repetible = false,
+  }) => _col(tipo).add(_nuevo(item, pelicula: pelicula, repetible: repetible));
+
+  @override
+  Future<void> registrarVez(TipoLista tipo, String id) => _col(tipo)
+      .doc(id)
+      .update({
+        'veces': FieldValue.increment(1),
+        'ultimaVez': FieldValue.serverTimestamp(),
+        'hechoPor': _autor()?.toMap(),
+      });
 
   @override
   Future<void> addMany(TipoLista tipo, List<NuevoItem> items) async {
@@ -183,13 +225,13 @@ class FirestoreListaRepository implements ListaRepository {
   }
 
   @override
-  Future<void> update(TipoLista tipo, ItemLista item) => _col(tipo)
-      .doc(item.id)
-      .update({
+  Future<void> update(TipoLista tipo, ItemLista item) =>
+      _col(tipo).doc(item.id).update({
         'titulo': item.titulo,
         'categoria': item.categoria,
         'nota': item.nota,
         'pelicula': item.pelicula?.toMap(),
+        'repetible': item.repetible,
       });
 
   @override

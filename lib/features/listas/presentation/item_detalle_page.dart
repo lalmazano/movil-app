@@ -5,6 +5,7 @@ import '../domain/item_lista.dart';
 import 'widgets/seccion_calificaciones.dart';
 import 'widgets/seccion_fotos.dart';
 import 'widgets/seccion_pelicula.dart';
+import 'widgets/seccion_sugerencias.dart';
 import 'widgets/tarjeta_item.dart';
 
 /// Detalle de un elemento: datos, póster (películas), calificaciones y fotos.
@@ -71,6 +72,11 @@ class _ItemDetallePageState extends State<ItemDetallePage> {
                     repository: widget.repository,
                   ),
                   SeccionFotos(
+                    tipo: widget.tipo,
+                    item: item,
+                    repository: widget.repository,
+                  ),
+                  SeccionSugerencias(
                     tipo: widget.tipo,
                     item: item,
                     repository: widget.repository,

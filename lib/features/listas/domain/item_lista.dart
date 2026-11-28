@@ -1,6 +1,9 @@
 import 'dart:typed_data';
 
 import '../../actualizacion/domain/version_app.dart';
+import '../../cartas/domain/cartas_repository.dart';
+import '../../fechas/domain/fechas_repository.dart';
+import '../../preguntas/domain/preguntas_repository.dart';
 import 'config_club.dart';
 import 'detalles.dart';
 
@@ -92,6 +95,9 @@ class ItemLista {
     this.calificaciones = const {},
     this.pelicula,
     this.fotos = 0,
+    this.repetible = false,
+    this.veces = 0,
+    this.ultimaVez,
   });
 
   final String id;
@@ -117,6 +123,16 @@ class ItemLista {
   /// Cuántas fotos tiene (las fotos viven en la subcolección `fotos`).
   final int fotos;
 
+  /// Se puede hacer varias veces (p. ej. "Desayunar juntos"): al marcarlo se
+  /// suma una vez y sigue pendiente.
+  final bool repetible;
+
+  /// Cuántas veces lo han hecho (solo repetibles).
+  final int veces;
+
+  /// Última vez que lo hicieron (solo repetibles).
+  final DateTime? ultimaVez;
+
   /// Promedio de huellitas, o null si nadie ha calificado.
   double? get promedioHuellitas => calificaciones.isEmpty
       ? null
@@ -133,6 +149,9 @@ class ItemLista {
     Map<String, Calificacion>? calificaciones,
     InfoPelicula? Function()? pelicula,
     int? fotos,
+    bool? repetible,
+    int? veces,
+    DateTime? Function()? ultimaVez,
   }) => ItemLista(
     id: id,
     titulo: titulo ?? this.titulo,
@@ -146,6 +165,9 @@ class ItemLista {
     calificaciones: calificaciones ?? this.calificaciones,
     pelicula: pelicula != null ? pelicula() : this.pelicula,
     fotos: fotos ?? this.fotos,
+    repetible: repetible ?? this.repetible,
+    veces: veces ?? this.veces,
+    ultimaVez: ultimaVez != null ? ultimaVez() : this.ultimaVez,
   );
 
   Map<String, Object?> toMap() => {
@@ -163,6 +185,9 @@ class ItemLista {
     },
     'pelicula': pelicula?.toMap(),
     'fotos': fotos,
+    'repetible': repetible,
+    'veces': veces,
+    'ultimaVez': ultimaVez,
   };
 
   /// Las fechas (también las anidadas) ya deben venir como [DateTime].
@@ -183,6 +208,9 @@ class ItemLista {
     },
     pelicula: InfoPelicula.fromMap(map['pelicula']),
     fotos: (map['fotos'] as num?)?.toInt() ?? 0,
+    repetible: (map['repetible'] as bool?) ?? false,
+    veces: (map['veces'] as num?)?.toInt() ?? 0,
+    ultimaVez: map['ultimaVez'] as DateTime?,
   );
 }
 
@@ -214,11 +242,29 @@ abstract interface class ListaRepository {
   Autor? get autorActual;
 
   /// Agrega un elemento; [pelicula] guarda póster y datos de TMDB.
-  Future<void> add(TipoLista tipo, NuevoItem item, {InfoPelicula? pelicula});
+  Future<void> add(
+    TipoLista tipo,
+    NuevoItem item, {
+    InfoPelicula? pelicula,
+    bool repetible = false,
+  });
+
+  /// Elementos repetibles: suma una vez (veces + 1, ultimaVez = ahora).
+  Future<void> registrarVez(TipoLista tipo, String id);
+
+  /// Cartas con fecha (`clubs/{club}/cartas`).
+  CartasRepository get cartas;
+
+  /// Fechas importantes (`clubs/{club}/fechas`).
+  FechasRepository get fechas;
+
+  /// Pregunta del día (`clubs/{club}/preguntas`).
+  PreguntasRepository get preguntas;
 
   Future<void> addMany(TipoLista tipo, List<NuevoItem> items);
 
-  /// Guarda título, categoría, nota y [ItemLista.pelicula].
+  /// Guarda título, categoría, nota, [ItemLista.pelicula] y
+  /// [ItemLista.repetible].
   Future<void> update(TipoLista tipo, ItemLista item);
 
   /// Marca o desmarca; guarda quién lo marcó ([autorActual]).

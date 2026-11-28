@@ -25,6 +25,9 @@ rules_version = '2';
 //                         hechoPor, calificaciones.{uid}, pelicula, fotos).
 // clubs/{clubId}/{lista}/{itemId}/fotos/{fotoId} → fotos (campo datos: bytes).
 // config/tmdb           → apiKey de TMDB (solo miembros la leen).
+// clubs/{clubId}/cartas/{id} (+ contenido/texto) → cartas con fecha.
+// clubs/{clubId}/fechas/{id}  → fechas importantes.
+// clubs/{clubId}/preguntas/{aaaa-mm-dd} (+ respuestas/{uid}) → pregunta del día.
 // config/version        → última versión publicada (la escribe GitHub Actions
 //                         con una cuenta de servicio; la app solo la lee).
 // apk/{build}/partes/{n} → el APK partido en trozos (campo datos: bytes).
@@ -49,7 +52,8 @@ service cloud.firestore {
     function banderas() {
       return ['peliculas', 'deseos', 'planes', 'registroAbierto',
               'calificaciones', 'autores', 'ruleta', 'buscar', 'fotos',
-              'posters', 'contador', 'widget', 'actualizaciones'];
+              'posters', 'contador', 'widget', 'actualizaciones', 'cartas',
+              'resumen', 'fechas', 'preguntas', 'sugerencias', 'repetibles'];
     }
 
     // Cada bandera que no existía en [antes] debe agregarse en true.
@@ -64,7 +68,10 @@ service cloud.firestore {
         && nuevaEnTrue(antes, 'ruleta') && nuevaEnTrue(antes, 'buscar')
         && nuevaEnTrue(antes, 'fotos') && nuevaEnTrue(antes, 'posters')
         && nuevaEnTrue(antes, 'contador') && nuevaEnTrue(antes, 'widget')
-        && nuevaEnTrue(antes, 'actualizaciones');
+        && nuevaEnTrue(antes, 'actualizaciones') && nuevaEnTrue(antes, 'cartas')
+        && nuevaEnTrue(antes, 'resumen') && nuevaEnTrue(antes, 'fechas')
+        && nuevaEnTrue(antes, 'preguntas') && nuevaEnTrue(antes, 'sugerencias')
+        && nuevaEnTrue(antes, 'repetibles');
     }
 
     function listaVisible(lista) {
@@ -121,6 +128,77 @@ service cloud.firestore {
       match /partes/{parte} {
         allow read: if esMiembro();
         allow write: if false;
+      }
+    }
+
+    function activa(bandera) {
+      return config().get(bandera, true) == true;
+    }
+
+    // 💌 Cartas con fecha. El documento tiene los datos visibles (de, titulo,
+    // abrirEn, creadaEn, abiertaEn); el texto vive aparte en
+    // contenido/texto y solo se puede leer desde abrirEn (o si eres el autor).
+    match /clubs/{clubId}/cartas/{cartaId} {
+      function carta() {
+        return get(/databases/$(database)/documents/clubs/$(clubId)/cartas/$(cartaId)).data;
+      }
+      allow read: if esMiembro() && activa('cartas');
+      allow create: if esMiembro() && activa('cartas')
+        && request.resource.data.de.uid == request.auth.uid
+        && request.resource.data.titulo is string
+        && request.resource.data.titulo.size() > 0
+        && request.resource.data.titulo.size() <= 120
+        && request.resource.data.abrirEn is timestamp;
+      // Al abrirla solo se marca abiertaEn (no se cambia nada más).
+      allow update: if esMiembro() && activa('cartas')
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['abiertaEn', 'abiertaPor'])
+        && request.time >= resource.data.abrirEn;
+      allow delete: if esMiembro() && resource.data.de.uid == request.auth.uid;
+
+      match /contenido/{doc} {
+        allow read: if esMiembro() && activa('cartas')
+          && (carta().de.uid == request.auth.uid
+              || request.time >= carta().abrirEn);
+        allow create: if esMiembro() && activa('cartas')
+          && getAfter(/databases/$(database)/documents/clubs/$(clubId)/cartas/$(cartaId)).data.de.uid == request.auth.uid
+          && request.resource.data.texto is string
+          && request.resource.data.texto.size() <= 5000;
+        allow update: if false;
+        allow delete: if esMiembro() && carta().de.uid == request.auth.uid;
+      }
+    }
+
+    // 📆 Fechas importantes.
+    match /clubs/{clubId}/fechas/{fechaId} {
+      allow read, delete: if esMiembro() && activa('fechas');
+      allow create, update: if esMiembro() && activa('fechas')
+        && request.resource.data.titulo is string
+        && request.resource.data.titulo.size() > 0
+        && request.resource.data.titulo.size() <= 80
+        && request.resource.data.fecha is timestamp;
+    }
+
+    // 🎲 Pregunta del día: preguntas/{aaaa-mm-dd} con la pregunta, y cada
+    // respuesta en respuestas/{uid}. La respuesta del otro solo se puede leer
+    // después de contestar la tuya.
+    match /clubs/{clubId}/preguntas/{dia} {
+      allow read: if esMiembro() && activa('preguntas');
+      allow create: if esMiembro() && activa('preguntas')
+        && request.resource.data.pregunta is string
+        && request.resource.data.pregunta.size() <= 300;
+      allow update, delete: if false;
+
+      match /respuestas/{uid} {
+        allow read: if esMiembro() && activa('preguntas')
+          && (uid == request.auth.uid
+              || exists(/databases/$(database)/documents/clubs/$(clubId)/preguntas/$(dia)/respuestas/$(request.auth.uid)));
+        allow create, update: if esMiembro() && activa('preguntas')
+          && uid == request.auth.uid
+          && request.resource.data.texto is string
+          && request.resource.data.texto.size() > 0
+          && request.resource.data.texto.size() <= 1000;
+        allow delete: if false;
       }
     }
 

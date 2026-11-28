@@ -8,7 +8,8 @@ import 'item_lista.dart';
 /// - Funciones: `calificaciones` (huellitas al marcar), `autores` (quién
 ///   agregó / marcó), `ruleta`, `buscar`, `fotos`, `posters` (TMDB),
 ///   `contador` (contador de aniversario), `widget` (widget de Android) y
-///   `actualizaciones` (avisar y descargar versiones nuevas).
+///   `actualizaciones` (avisar y descargar versiones nuevas), `cartas`,
+///   `resumen`, `fechas`, `preguntas`, `sugerencias` y `repetibles`.
 ///
 /// Otros:
 /// - `aniversario` (timestamp, opcional): fecha desde la que cuenta el club.
@@ -27,6 +28,12 @@ class ConfigClub {
     this.contador = true,
     this.widget = true,
     this.actualizaciones = true,
+    this.cartas = true,
+    this.resumen = true,
+    this.fechas = true,
+    this.preguntas = true,
+    this.sugerencias = true,
+    this.repetibles = true,
     this.aniversario,
   });
 
@@ -46,6 +53,12 @@ class ConfigClub {
       contador: b('contador'),
       widget: b('widget'),
       actualizaciones: b('actualizaciones'),
+      cartas: b('cartas'),
+      resumen: b('resumen'),
+      fechas: b('fechas'),
+      preguntas: b('preguntas'),
+      sugerencias: b('sugerencias'),
+      repetibles: b('repetibles'),
       aniversario: map?['aniversario'] as DateTime?,
     );
   }
@@ -66,6 +79,12 @@ class ConfigClub {
     'contador',
     'widget',
     'actualizaciones',
+    'cartas',
+    'resumen',
+    'fechas',
+    'preguntas',
+    'sugerencias',
+    'repetibles',
   ];
 
   final bool peliculas;
@@ -99,6 +118,24 @@ class ConfigClub {
 
   /// Avisar cuando hay una versión nueva y descargarla.
   final bool actualizaciones;
+
+  /// Cartas con fecha que se abren en un día (💌).
+  final bool cartas;
+
+  /// Resumen anual tipo "Wrapped" (🎁).
+  final bool resumen;
+
+  /// Fechas importantes con cuenta regresiva (📆).
+  final bool fechas;
+
+  /// Pregunta del día para conocerse (🎲).
+  final bool preguntas;
+
+  /// Sugerencias de películas de TMDB (🎬).
+  final bool sugerencias;
+
+  /// Planes repetibles con contador de veces (🔁).
+  final bool repetibles;
 
   /// Las fechas ya deben venir como [DateTime].
   final DateTime? aniversario;

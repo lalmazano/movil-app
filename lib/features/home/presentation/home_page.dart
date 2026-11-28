@@ -6,6 +6,10 @@ import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../actualizacion/presentation/aviso_actualizacion.dart';
 import '../../auth/domain/auth_service.dart';
+import '../../cartas/presentation/tarjeta_cartas.dart';
+import '../../fechas/presentation/tarjeta_fechas.dart';
+import '../../preguntas/presentation/tarjeta_pregunta.dart';
+import '../../resumen/presentation/tarjeta_resumen.dart';
 import '../../listas/domain/config_club.dart';
 import '../../listas/domain/item_lista.dart';
 import '../data/widget_inicio.dart';
@@ -98,7 +102,10 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 8),
                   ContadorAniversario(desde: aniversario, reloj: widget.reloj),
                 ],
-                AvisoActualizacion.android(repository: widget.repository),
+                AvisoActualizacion.android(
+                  key: const ValueKey('aviso-actualizacion-widget'),
+                  repository: widget.repository,
+                ),
                 if (_errorInicial case final error?) ...[
                   const SizedBox(height: 12),
                   _AvisoError(error: error, onReintentar: _inicializar),
@@ -124,6 +131,23 @@ class _HomePageState extends State<HomePage> {
                       tipo: tipo,
                       repository: repository,
                     ),
+                // Más del club (cada tarjeta se oculta con su bandera).
+                TarjetaPregunta(
+                  key: const ValueKey('extra-pregunta'),
+                  repository: repository,
+                ),
+                TarjetaFechas(
+                  key: const ValueKey('extra-fechas'),
+                  repository: repository,
+                ),
+                TarjetaCartas(
+                  key: const ValueKey('extra-cartas'),
+                  repository: repository,
+                ),
+                TarjetaResumen(
+                  key: const ValueKey('extra-resumen'),
+                  repository: repository,
+                ),
               ],
             );
           },

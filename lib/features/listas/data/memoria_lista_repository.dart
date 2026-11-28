@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../../actualizacion/domain/version_app.dart';
+import '../../cartas/data/memoria_cartas_repository.dart';
+import '../../fechas/data/memoria_fechas_repository.dart';
+import '../../preguntas/data/memoria_preguntas_repository.dart';
 import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
 
@@ -20,6 +23,24 @@ class MemoriaListaRepository implements ListaRepository {
   final Autor? autorActual;
 
   final String? apiKeyTmdb;
+
+  @override
+  late final cartas = MemoriaCartasRepository(
+    autor: () => autorActual,
+    reloj: _reloj,
+  );
+
+  @override
+  late final fechas = MemoriaFechasRepository(
+    autor: () => autorActual,
+    reloj: _reloj,
+  );
+
+  @override
+  late final preguntas = MemoriaPreguntasRepository(
+    autor: () => autorActual,
+    reloj: _reloj,
+  );
 
   /// Versión publicada que simula `config/version` en pruebas.
   final VersionApp? version;
@@ -64,12 +85,28 @@ class MemoriaListaRepository implements ListaRepository {
     TipoLista tipo,
     NuevoItem item, {
     InfoPelicula? pelicula,
+    bool repetible = false,
   }) async {
-    _datos[tipo]!.add(_nuevo(item, pelicula));
+    _datos[tipo]!.add(_nuevo(item, pelicula, repetible));
     _cambios.add(tipo);
   }
 
-  ItemLista _nuevo(NuevoItem item, [InfoPelicula? pelicula]) => ItemLista(
+  @override
+  Future<void> registrarVez(TipoLista tipo, String id) async => _cambiar(
+    tipo,
+    id,
+    (i) => i.copyWith(
+      veces: i.veces + 1,
+      ultimaVez: () => _reloj(),
+      hechoPor: () => autorActual,
+    ),
+  );
+
+  ItemLista _nuevo(
+    NuevoItem item, [
+    InfoPelicula? pelicula,
+    bool repetible = false,
+  ]) => ItemLista(
     id: '${_siguienteId++}',
     titulo: item.titulo,
     categoria: item.categoria,
@@ -77,6 +114,7 @@ class MemoriaListaRepository implements ListaRepository {
     creadoEn: _reloj(),
     creadoPor: autorActual,
     pelicula: pelicula,
+    repetible: repetible,
   );
 
   @override
