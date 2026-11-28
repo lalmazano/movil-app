@@ -86,6 +86,7 @@ existen no se cambian:
 | `resumen` | 🎁 Resumen anual para compartir |
 | `fechas` | 📆 Fechas importantes con cuenta regresiva |
 | `preguntas` | 🎲 Pregunta del día |
+| `preguntasInternet` | 🌐 Preguntas de internet en días alternos (API de Truth or Dare Bot, en español) |
 | `sugerencias` | 🎬 Sugerencias de películas (TMDB) |
 | `repetibles` | 🔁 Planes que se pueden repetir |
 

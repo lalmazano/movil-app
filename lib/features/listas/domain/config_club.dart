@@ -9,7 +9,8 @@ import 'item_lista.dart';
 ///   agregó / marcó), `ruleta`, `buscar`, `fotos`, `posters` (TMDB),
 ///   `contador` (contador de aniversario), `widget` (widget de Android) y
 ///   `actualizaciones` (avisar y descargar versiones nuevas), `cartas`,
-///   `resumen`, `fechas`, `preguntas`, `sugerencias` y `repetibles`.
+///   `resumen`, `fechas`, `preguntas`, `sugerencias`, `repetibles` y
+///   `preguntasInternet`.
 ///
 /// Otros:
 /// - `aniversario` (timestamp, opcional): fecha desde la que cuenta el club.
@@ -34,6 +35,7 @@ class ConfigClub {
     this.preguntas = true,
     this.sugerencias = true,
     this.repetibles = true,
+    this.preguntasInternet = true,
     this.aniversario,
   });
 
@@ -59,6 +61,7 @@ class ConfigClub {
       preguntas: b('preguntas'),
       sugerencias: b('sugerencias'),
       repetibles: b('repetibles'),
+      preguntasInternet: b('preguntasInternet'),
       aniversario: map?['aniversario'] as DateTime?,
     );
   }
@@ -85,6 +88,7 @@ class ConfigClub {
     'preguntas',
     'sugerencias',
     'repetibles',
+    'preguntasInternet',
   ];
 
   final bool peliculas;
@@ -136,6 +140,10 @@ class ConfigClub {
 
   /// Planes repetibles con contador de veces (🔁).
   final bool repetibles;
+
+  /// Usar preguntas de internet (API de Truth or Dare Bot, en español) en
+  /// días alternos cuando no hay propuestas del club.
+  final bool preguntasInternet;
 
   /// Las fechas ya deben venir como [DateTime].
   final DateTime? aniversario;

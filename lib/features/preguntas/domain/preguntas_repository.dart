@@ -2,6 +2,9 @@ import 'dart:async';
 
 import '../../listas/domain/detalles.dart';
 import 'banco_preguntas.dart';
+import 'propuestas.dart';
+
+export 'propuestas.dart';
 
 /// Máximo de caracteres de una respuesta (lo exigen las reglas de Firestore).
 const maxCaracteresRespuesta = 1000;
@@ -116,8 +119,19 @@ abstract interface class PreguntasRepository {
   /// Quién usa la app (null sin sesión).
   Autor? get autorActual;
 
-  /// Crea el documento de hoy con su pregunta si todavía no existe.
-  Future<void> asegurarHoy();
+  /// Crea el documento de hoy con su pregunta si todavía no existe: primero
+  /// una propuesta del club; si no hay y [usarInternet], en días alternos una
+  /// de internet; si no, la del banco de la app.
+  Future<void> asegurarHoy({bool usarInternet = false});
+
+  /// Preguntas propuestas por el club (en espera primero).
+  Stream<List<PreguntaPropuesta>> watchPropuestas();
+
+  /// Propone una pregunta nueva (5 a 300 letras).
+  Future<void> proponer(String texto);
+
+  /// Borra una propuesta propia.
+  Future<void> borrarPropuesta(String id);
 
   /// Pregunta guardada de [dia] (si aún no existe, la del banco).
   Stream<String> watchPregunta(String dia);

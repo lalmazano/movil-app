@@ -6,8 +6,17 @@ import '../domain/preguntas_repository.dart';
 /// Preguntas en memoria, para pruebas y modo local. Aplica la misma regla que
 /// Firestore: las respuestas de los demás solo se ven después de responder.
 class MemoriaPreguntasRepository implements PreguntasRepository {
-  MemoriaPreguntasRepository({required this.autor, DateTime Function()? reloj})
-    : reloj = reloj ?? DateTime.now;
+  MemoriaPreguntasRepository({
+    required this.autor,
+    DateTime Function()? reloj,
+    this.internet,
+  }) : reloj = reloj ?? DateTime.now;
+
+  /// Para pruebas: simula la pregunta de internet de un día.
+  final Future<String?> Function(DateTime fecha)? internet;
+
+  final _propuestas = <PreguntaPropuesta>[];
+  var _siguienteId = 0;
 
   /// Quién usa la app (null en modo local sin sesión).
   final Autor? Function() autor;
@@ -33,10 +42,58 @@ class MemoriaPreguntasRepository implements PreguntasRepository {
   }
 
   @override
-  Future<void> asegurarHoy() async {
+  Future<void> asegurarHoy({bool usarInternet = false}) async {
     final dia = hoy;
     if (_preguntas.containsKey(dia)) return;
-    _preguntas[dia] = preguntaDelDia(fechaDeClave(dia)!);
+    final fecha = fechaDeClave(dia)!;
+    final deInternet =
+        siguientePropuesta(_propuestas) == null &&
+            usarInternet &&
+            tocaInternet(fecha)
+        ? await internet?.call(fecha)
+        : null;
+    final elegida = elegirPregunta(
+      fecha,
+      banco: _propuestas,
+      deInternet: deInternet,
+    );
+    if (_preguntas.containsKey(dia)) return;
+    if (elegida.propuesta case final p?) {
+      final i = _propuestas.indexWhere((x) => x.id == p.id);
+      _propuestas[i] = PreguntaPropuesta(
+        id: p.id,
+        texto: p.texto,
+        creadaEn: p.creadaEn,
+        autor: p.autor,
+        usadaEn: reloj(),
+      );
+    }
+    _preguntas[dia] = elegida.pregunta;
+    _cambios.add(null);
+  }
+
+  @override
+  Stream<List<PreguntaPropuesta>> watchPropuestas() =>
+      _vigilar(() => List.unmodifiable(_propuestas));
+
+  @override
+  Future<void> proponer(String texto) async {
+    final yo = autor();
+    if (yo == null) throw StateError('Inicia sesión para proponer.');
+    _propuestas.add(
+      PreguntaPropuesta(
+        id: '${_siguienteId++}',
+        texto: validarPropuesta(texto),
+        creadaEn: reloj(),
+        autor: yo,
+      ),
+    );
+    _cambios.add(null);
+  }
+
+  @override
+  Future<void> borrarPropuesta(String id) async {
+    _propuestas.removeWhere((p) => p.id == id);
     _cambios.add(null);
   }
 

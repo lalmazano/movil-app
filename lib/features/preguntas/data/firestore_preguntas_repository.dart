@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../listas/domain/detalles.dart';
 import '../domain/preguntas_repository.dart';
+import 'preguntas_internet.dart';
 
 /// Preguntas en Firestore: `clubs/{clubId}/preguntas/{aaaa-mm-dd}` con
 /// `{pregunta}` y cada respuesta en `respuestas/{uid}`.
@@ -30,6 +31,9 @@ class FirestorePreguntasRepository implements PreguntasRepository {
   CollectionReference<Map<String, dynamic>> get _col =>
       db.collection('clubs').doc(clubId).collection('preguntas');
 
+  CollectionReference<Map<String, dynamic>> get _banco =>
+      db.collection('clubs').doc(clubId).collection('banco_preguntas');
+
   CollectionReference<Map<String, dynamic>> _respuestas(String dia) =>
       _col.doc(dia).collection('respuestas');
 
@@ -51,17 +55,80 @@ class FirestorePreguntasRepository implements PreguntasRepository {
       doc.exists ? Respuesta.fromMap(_fechas(doc.data())) : null;
 
   @override
-  Future<void> asegurarHoy() async {
+  Future<void> asegurarHoy({bool usarInternet = false}) async {
     final dia = hoy;
+    final fecha = fechaDeClave(dia)!;
     final ref = _col.doc(dia);
+    if ((await ref.get()).exists) return;
+
+    // Lo que tarda (leer propuestas, pedir a internet) va fuera de la
+    // transacción; dentro solo se confirma.
+    var banco = const <PreguntaPropuesta>[];
+    try {
+      banco = [
+        for (final d in (await _banco.get()).docs)
+          PreguntaPropuesta.fromMap(
+            d.id,
+            _fechas(d.data()) as Map<String, Object?>,
+          ),
+      ];
+    } on FirebaseException catch (_) {
+      // Sin permiso o sin conexión: se sigue sin propuestas.
+    }
+    final deInternet =
+        siguientePropuesta(banco) == null && usarInternet && tocaInternet(fecha)
+        ? await PreguntasInternet.fabrica().preguntaPara(fecha)
+        : null;
+    final elegida = elegirPregunta(fecha, banco: banco, deInternet: deInternet);
+
     // Transacción: solo el primero que abre la pregunta la crea.
     await db.runTransaction((tx) async {
       final doc = await tx.get(ref);
-      if (!doc.exists) {
-        tx.set(ref, {'pregunta': preguntaDelDia(fechaDeClave(dia)!)});
+      if (doc.exists) return;
+      final propuesta = elegida.propuesta;
+      if (propuesta != null) {
+        final refP = _banco.doc(propuesta.id);
+        final p = await tx.get(refP);
+        if (p.exists && p.data()?['usadaEn'] == null) {
+          tx.update(refP, {'usadaEn': FieldValue.serverTimestamp()});
+        }
       }
+      tx.set(ref, {
+        'pregunta': elegida.pregunta,
+        'fuente': elegida.fuente.name,
+        if (propuesta != null) 'propuestaId': propuesta.id,
+        if (propuesta?.autor case final a?) 'propuestaPor': a.toMap(),
+      });
     });
   }
+
+  @override
+  Stream<List<PreguntaPropuesta>> watchPropuestas() => _banco
+      .orderBy('creadaEn')
+      .snapshots()
+      .map(
+        (snap) => [
+          for (final d in snap.docs)
+            PreguntaPropuesta.fromMap(
+              d.id,
+              _fechas(d.data()) as Map<String, Object?>,
+            ),
+        ],
+      );
+
+  @override
+  Future<void> proponer(String texto) {
+    final yo = autor();
+    if (yo == null) throw StateError('Inicia sesión para proponer.');
+    return _banco.add({
+      'texto': validarPropuesta(texto),
+      'autor': yo.toMap(),
+      'creadaEn': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> borrarPropuesta(String id) => _banco.doc(id).delete();
 
   @override
   Stream<String> watchPregunta(String dia) => _col

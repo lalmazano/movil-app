@@ -30,10 +30,14 @@ class _TarjetaPreguntaState extends State<TarjetaPregunta> {
     final hoy = _preguntas.hoy;
     if (_dia == hoy && _stream != null) return;
     _dia = hoy;
-    _preguntas.asegurarHoy().catchError((Object e) {
-      // Sin conexión: la pregunta del banco se muestra igual.
-      debugPrint('No se pudo crear la pregunta del día: $e');
-    });
+    _preguntas
+        .asegurarHoy(
+          usarInternet: ConfigClubScope.of(context).preguntasInternet,
+        )
+        .catchError((Object e) {
+          // Sin conexión: la pregunta del banco se muestra igual.
+          debugPrint('No se pudo crear la pregunta del día: $e');
+        });
     _stream = _preguntas.watchDia(hoy);
     _pareja ??= _preguntas.pareja().catchError((Object _) => null);
   }

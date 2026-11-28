@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/widgets/huellitas.dart';
 import '../domain/preguntas_repository.dart';
+import 'banco_preguntas_page.dart';
 import 'tarjeta_pregunta.dart' show nombreOtro;
 
 const _meses = [
@@ -92,6 +93,18 @@ class _PreguntaPageState extends State<PreguntaPage> {
         title: Text(
           _esHoy ? '🎲 Pregunta del día' : '🎲 ${fechaLegible(widget.dia)}',
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Banco de preguntas',
+            icon: const Icon(Icons.lightbulb_outline),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    BancoPreguntasPage(repository: widget.repository),
+              ),
+            ),
+          ),
+        ],
       ),
       body: FutureBuilder<Autor?>(
         future: _pareja,
