@@ -99,7 +99,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('campo-busqueda')), findsNothing);
     expect(find.text('Shrek'), findsOneWidget);
-    expect(find.text('🎬 Películas'), findsOneWidget);
+    expect(find.text('Películas'), findsOneWidget);
     expect(find.byTooltip('Cargar lista Disney'), findsOneWidget);
   });
 

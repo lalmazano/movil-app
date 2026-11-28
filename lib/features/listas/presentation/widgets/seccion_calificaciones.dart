@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../config_scope.dart';
+import '../../../../core/widgets/iconos_club.dart';
 import '../../domain/item_lista.dart';
+import '../config_scope.dart';
 import 'dialogo_calificar.dart';
 import 'huellitas.dart';
 import 'tarjeta_item.dart';
@@ -64,7 +65,7 @@ class SeccionCalificaciones extends StatelessWidget {
                     ),
                   ),
                   if (promedio != null)
-                    Text(
+                    textoConHuellitas(
                       '🐾 ${promedioTexto(promedio)} de 5',
                       style: textTheme.labelLarge,
                     ),
@@ -106,7 +107,7 @@ class SeccionCalificaciones extends StatelessWidget {
                     tipo: tipo,
                     item: item,
                   ),
-                  icon: const Text('🐾'),
+                  icon: const Huellita(tamano: 18),
                   label: Text(
                     yaCalifico ? 'Cambiar mi calificación' : 'Calificar',
                   ),

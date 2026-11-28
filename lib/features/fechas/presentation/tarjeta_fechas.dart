@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
@@ -53,7 +54,7 @@ class _ContenidoState extends State<_Contenido> {
         if (snap.hasError) {
           return MosaicoInicio(
             key: const Key('tarjeta-fechas'),
-            emoji: '📆',
+            estilo: Secciones.fechas,
             titulo: 'Fechas',
             subtitulo: 'No se pudieron cargar',
             onTap: _abrir,
@@ -66,7 +67,7 @@ class _ContenidoState extends State<_Contenido> {
         final texto = TarjetaFechas.texto(fechas, hoy)?.replaceFirst('📆 ', '');
         return MosaicoInicio(
           key: const Key('tarjeta-fechas'),
-          emoji: '📆',
+          estilo: Secciones.fechas,
           titulo: 'Fechas',
           subtitulo:
               texto ??

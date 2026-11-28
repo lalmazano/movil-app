@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../data/catalogo_disney.dart';
 import '../domain/config_club.dart';
@@ -284,7 +285,7 @@ class _ListaPageState extends State<ListaPage> {
                 onPressed: _cerrarBusqueda,
               ),
         title: busqueda == null
-            ? Text('${_tipo.emoji} ${_tipo.titulo}')
+            ? TituloSeccion(Secciones.deLista(_tipo), _tipo.titulo)
             : CampoBusqueda(
                 controller: busqueda,
                 onChanged: (q) => setState(() => _consulta = q),
@@ -294,19 +295,19 @@ class _ListaPageState extends State<ListaPage> {
             if (ConfigClubScope.of(context).buscar)
               IconButton(
                 tooltip: 'Buscar',
-                icon: const Icon(Icons.search),
+                icon: const Icon(Icons.search_rounded),
                 onPressed: _abrirBusqueda,
               ),
             if (ConfigClubScope.of(context).ruleta)
               IconButton(
                 tooltip: tituloRuleta(_tipo),
-                icon: const Icon(Icons.casino_outlined),
+                icon: const Icon(Icons.casino_rounded),
                 onPressed: _ruleta,
               ),
             if (_tipo == TipoLista.peliculas)
               IconButton(
                 tooltip: 'Cargar lista Disney',
-                icon: const Icon(Icons.auto_awesome),
+                icon: const Icon(Icons.auto_awesome_rounded),
                 onPressed: _cargarDisney,
               ),
           ],

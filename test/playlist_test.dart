@@ -136,7 +136,7 @@ void main() {
     expect(find.text('Agreguen su primera canción 🎶'), findsOneWidget);
     await tester.tap(find.text('Canciones favoritas'));
     await tester.pumpAndSettle();
-    expect(find.text('📀 Canciones favoritas'), findsOneWidget);
+    expect(find.text('Canciones favoritas'), findsOneWidget);
     expect(find.text('Agregar canción'), findsOneWidget);
 
     await tester.pumpWidget(

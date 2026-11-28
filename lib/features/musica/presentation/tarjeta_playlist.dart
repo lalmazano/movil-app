@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
@@ -44,7 +45,7 @@ class _TarjetaPlaylistState extends State<TarjetaPlaylist> {
             : textoCancionesPlaylist(canciones.length);
         return MosaicoInicio(
           key: const Key('tarjeta-playlist'),
-          emoji: '📀',
+          estilo: Secciones.canciones,
           titulo: 'Canciones favoritas',
           subtitulo: subtitulo,
           extra: canciones.isEmpty

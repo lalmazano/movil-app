@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/widgets/huellitas.dart';
 import '../domain/preguntas_repository.dart';
@@ -90,8 +91,9 @@ class _PreguntaPageState extends State<PreguntaPage> {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _esHoy ? '🎲 Pregunta del día' : '🎲 ${fechaLegible(widget.dia)}',
+        title: TituloSeccion(
+          Secciones.pregunta,
+          _esHoy ? 'Pregunta del día' : fechaLegible(widget.dia),
         ),
         actions: [
           IconButton(

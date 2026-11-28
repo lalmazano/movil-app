@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'iconos_club.dart';
+
 /// Altura de cada cuadrito del inicio.
 const altoMosaico = 118.0;
 
-/// Cuadrito del inicio: emoji, título corto, una o dos líneas de detalle y,
+/// Cuadrito del inicio: ícono de la sección, título corto, una o dos líneas de detalle y,
 /// opcionalmente, una barra de avance o algo extra arriba a la derecha.
 /// Todos los accesos del inicio usan este mismo diseño.
 class MosaicoInicio extends StatelessWidget {
   const MosaicoInicio({
     super.key,
-    required this.emoji,
+    required this.estilo,
     required this.titulo,
     this.subtitulo,
     this.onTap,
@@ -18,7 +20,7 @@ class MosaicoInicio extends StatelessWidget {
     this.destacado = false,
   });
 
-  final String emoji;
+  final EstiloSeccion estilo;
   final String titulo;
   final String? subtitulo;
   final VoidCallback? onTap;
@@ -62,12 +64,12 @@ class MosaicoInicio extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(emoji, style: const TextStyle(fontSize: 24)),
+                  InsigniaSeccion(estilo, lado: 34),
                   const Spacer(),
                   ?extra,
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
                 titulo,
                 maxLines: 1,
@@ -93,6 +95,8 @@ class MosaicoInicio extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progreso!.clamp(0, 1),
                     minHeight: 5,
+                    color: estilo.color,
+                    backgroundColor: estilo.color.withValues(alpha: 0.2),
                   ),
                 ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../domain/item_lista.dart';
 import 'config_scope.dart';
@@ -41,7 +42,10 @@ class _ItemDetallePageState extends State<ItemDetallePage> {
         final item = snap.data;
         return Scaffold(
           appBar: AppBar(
-            title: Text(widget.tipo.titulo),
+            title: TituloSeccion(
+              Secciones.deLista(widget.tipo),
+              widget.tipo.titulo,
+            ),
             actions: [
               if (item != null && widget.onEditar != null)
                 IconButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../../listas/presentation/widgets/huellitas.dart';
@@ -72,9 +73,11 @@ class _TarjetaPreguntaState extends State<TarjetaPregunta> {
                   children: [
                     Row(
                       children: [
+                        const InsigniaSeccion(Secciones.pregunta, lado: 26),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '🎲 Pregunta del día',
+                            'Pregunta del día',
                             style: textTheme.labelLarge,
                           ),
                         ),

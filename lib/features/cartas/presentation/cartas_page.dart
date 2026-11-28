@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../../musica/domain/cancion.dart';
@@ -17,7 +18,7 @@ class _CartasDesactivadas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('🖋️ Cartas')),
+    appBar: AppBar(title: const TituloSeccion(Secciones.cartas, 'Cartas')),
     body: const Center(
       child: Padding(
         padding: EdgeInsets.all(24),
@@ -127,7 +128,7 @@ class _CartasPageState extends State<CartasPage> {
       return const _CartasDesactivadas();
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('🖋️ Cartas')),
+      appBar: AppBar(title: const TituloSeccion(Secciones.cartas, 'Cartas')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _escribir,
         icon: const Icon(Icons.edit),
@@ -333,7 +334,7 @@ class _LeerCartaPageState extends State<LeerCartaPage> {
     final textTheme = Theme.of(context).textTheme;
     const tinta = MichiColors.cafe;
     return Scaffold(
-      appBar: AppBar(title: const Text('✉️ Carta')),
+      appBar: AppBar(title: const TituloSeccion(Secciones.cartas, 'Carta')),
       body: PawBackground(
         child: FutureBuilder<ContenidoCarta>(
           future: _contenido,
@@ -619,7 +620,9 @@ class _EscribirCartaPageState extends State<EscribirCartaPage> {
     final scheme = Theme.of(context).colorScheme;
     final cancion = _cancion;
     return Scaffold(
-      appBar: AppBar(title: const Text('✍️ Escribir carta')),
+      appBar: AppBar(
+        title: const TituloSeccion(Secciones.cartas, 'Escribir carta'),
+      ),
       body: Form(
         key: _form,
         child: ListView(

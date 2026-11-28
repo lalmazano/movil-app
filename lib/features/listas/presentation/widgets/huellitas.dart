@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/iconos_club.dart';
 import '../../domain/item_lista.dart';
 
 /// Avatar redondo de una persona: su foto si la tiene, si no la inicial.
@@ -41,10 +42,7 @@ class FilaHuellitas extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       for (var i = 1; i <= 5; i++)
-        Opacity(
-          opacity: i <= cantidad ? 1 : 0.2,
-          child: Text('🐾', style: TextStyle(fontSize: tamano, height: 1.2)),
-        ),
+        Huellita(llena: i <= cantidad, tamano: tamano),
     ],
   );
 }

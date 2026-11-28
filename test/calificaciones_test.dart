@@ -100,7 +100,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(InsigniasItem),
-        matching: find.text('🐾 5'),
+        matching: find.text('\uFFFC 5', findRichText: true),
       ),
       findsOneWidget,
     );
@@ -123,7 +123,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Cambiar mi calificación'), findsOneWidget);
-    expect(find.text('🐾 4.5 de 5'), findsOneWidget);
+    expect(find.text('\uFFFC 4.5 de 5', findRichText: true), findsOneWidget);
     final item = (await repo.watch(TipoLista.peliculas).first).single;
     expect(item.calificaciones['u1']?.huellitas, 4);
   });

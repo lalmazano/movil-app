@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../../listas/presentation/widgets/huellitas.dart';
@@ -159,7 +160,9 @@ class _AdivinaPageState extends State<AdivinaPage>
   Widget build(BuildContext context) {
     final activo = ConfigClubScope.of(context).adivina;
     return Scaffold(
-      appBar: AppBar(title: const Text('❓ Adivina la canción')),
+      appBar: AppBar(
+        title: const TituloSeccion(Secciones.adivina, 'Adivina la canción'),
+      ),
       body: PawBackground(
         child: SafeArea(
           child: !activo

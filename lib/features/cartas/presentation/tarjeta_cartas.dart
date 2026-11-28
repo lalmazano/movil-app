@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
@@ -62,7 +63,7 @@ class _TarjetaCartasState extends State<TarjetaCartas> {
             : 'Cargando…';
         return MosaicoInicio(
           key: const Key('tarjeta-cartas'),
-          emoji: '🖋️',
+          estilo: Secciones.cartas,
           titulo: 'Cartas',
           subtitulo: subtitulo,
           destacado: subtitulo.contains('lista'),

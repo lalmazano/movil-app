@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/widgets/iconos_club.dart';
 import '../../listas/domain/config_club.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
@@ -189,7 +190,7 @@ class _ResumenPageState extends State<ResumenPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🎁 Su año en el club'),
+        title: const TituloSeccion(Secciones.resumen, 'Su año en el club'),
         actions: [
           if (config.resumen && opciones.length > 1)
             PopupMenuButton<int>(

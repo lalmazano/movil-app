@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../domain/fechas_repository.dart';
 import 'fecha_form_sheet.dart';
@@ -54,7 +55,9 @@ class _FechasPageState extends State<FechasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('📆 Fechas importantes')),
+      appBar: AppBar(
+        title: const TituloSeccion(Secciones.fechas, 'Fechas importantes'),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _agregar,
         icon: const Icon(Icons.add),

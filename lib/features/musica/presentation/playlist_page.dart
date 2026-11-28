@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../domain/musica_repository.dart';
 import 'reproductor.dart';
@@ -150,7 +151,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
   Widget build(BuildContext context) {
     if (!ConfigClubScope.of(context).playlist) {
       return Scaffold(
-        appBar: AppBar(title: const Text('📀 Canciones favoritas')),
+        appBar: AppBar(
+          title: const TituloSeccion(
+            Secciones.canciones,
+            'Canciones favoritas',
+          ),
+        ),
         body: const Center(child: Text('La playlist está desactivada')),
       );
     }
@@ -161,7 +167,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
         final porCorazones = _orden == OrdenPlaylist.corazones;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('📀 Canciones favoritas'),
+            title: const TituloSeccion(
+              Secciones.canciones,
+              'Canciones favoritas',
+            ),
             actions: [
               if (canciones.isNotEmpty)
                 IconButton(

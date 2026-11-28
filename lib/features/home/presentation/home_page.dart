@@ -3,18 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/club_logo.dart';
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/mosaico_inicio.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../actualizacion/presentation/aviso_actualizacion.dart';
 import '../../auth/domain/auth_service.dart';
 import '../../cartas/presentation/tarjeta_cartas.dart';
 import '../../fechas/presentation/tarjeta_fechas.dart';
+import '../../listas/domain/config_club.dart';
+import '../../listas/domain/item_lista.dart';
 import '../../musica/presentation/tarjeta_adivina.dart';
 import '../../musica/presentation/tarjeta_playlist.dart';
 import '../../preguntas/presentation/tarjeta_pregunta.dart';
 import '../../resumen/presentation/tarjeta_resumen.dart';
-import '../../listas/domain/config_club.dart';
-import '../../listas/domain/item_lista.dart';
 import '../data/widget_inicio.dart';
 import 'contador_aniversario.dart';
 
@@ -304,7 +305,7 @@ class _TarjetaListaState extends State<_TarjetaLista> {
         final items = snap.data ?? const <ItemLista>[];
         final hechos = items.where((i) => i.hecho).length;
         return MosaicoInicio(
-          emoji: tipo.emoji,
+          estilo: Secciones.deLista(tipo),
           titulo: tipo.titulo,
           subtitulo: items.isEmpty
               ? 'Lista vacía'

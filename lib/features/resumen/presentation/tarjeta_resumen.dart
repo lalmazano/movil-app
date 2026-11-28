@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
@@ -32,7 +33,7 @@ class TarjetaResumen extends StatelessWidget {
     final anio = (reloj ?? DateTime.now)().year;
     return MosaicoInicio(
       key: const Key('tarjeta-resumen'),
-      emoji: '🎁',
+      estilo: Secciones.resumen,
       titulo: 'Su año $anio',
       subtitulo: 'Su resumen del club ✨',
       onTap: () => Navigator.of(context).push(

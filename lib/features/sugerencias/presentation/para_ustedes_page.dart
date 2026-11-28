@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/tmdb/tmdb_client.dart';
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../listas/domain/item_lista.dart';
 import '../domain/sugerencias.dart';
@@ -43,7 +44,9 @@ class _ParaUstedesPageState extends State<ParaUstedesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('🎬 Para ustedes')),
+      appBar: AppBar(
+        title: const TituloSeccion(Secciones.sugerencias, 'Para ustedes'),
+      ),
       body: PawBackground(
         child: FutureBuilder<List<Sugerencia>>(
           future: _sugerencias,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
@@ -64,7 +65,7 @@ class _ContenidoState extends State<_Contenido> {
           if (playlist.hasError) {
             return MosaicoInicio(
               key: const Key('tarjeta-adivina'),
-              emoji: '❓',
+              estilo: Secciones.adivina,
               titulo: 'Adivina la canción',
               subtitulo: 'No se pudo cargar la playlist',
               onTap: _abrir,
@@ -81,7 +82,7 @@ class _ContenidoState extends State<_Contenido> {
           }
           return MosaicoInicio(
             key: const Key('tarjeta-adivina'),
-            emoji: '❓',
+            estilo: Secciones.adivina,
             titulo: 'Adivina la canción',
             subtitulo: TarjetaAdivina.subtitulo(
               playlist: canciones,

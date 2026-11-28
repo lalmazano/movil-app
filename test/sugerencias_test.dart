@@ -323,7 +323,7 @@ void main() {
       await tester.tap(find.byKey(const Key('boton-mas-sugerencias')));
       await tester.pumpAndSettle();
 
-      expect(find.text('🎬 Para ustedes'), findsOneWidget);
+      expect(find.text('Para ustedes'), findsOneWidget);
       expect(find.text('Shrek Tercero'), findsOneWidget);
       expect(find.text('Kung Fu Panda'), findsOneWidget);
       expect(find.text('buscando a nemo'), findsNothing);

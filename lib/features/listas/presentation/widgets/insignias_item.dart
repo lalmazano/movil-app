@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../config_scope.dart';
+import '../../../../core/widgets/iconos_club.dart';
 import '../../domain/item_lista.dart';
+import '../config_scope.dart';
 import 'huellitas.dart';
 import 'repetible.dart';
 
@@ -45,10 +46,9 @@ class InsigniasItem extends StatelessWidget {
             Flexible(
               child: Padding(
                 padding: EdgeInsets.only(left: autores.isEmpty ? 0 : 3),
-                child: Text(
+                child: textoConHuellitas(
                   textos.join('  '),
                   maxLines: 1,
-                  softWrap: false,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelSmall,
                 ),

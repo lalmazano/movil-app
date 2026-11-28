@@ -158,7 +158,7 @@ void main() {
       await abrir(tester, repo);
 
       expect(tarjeta(), findsOneWidget);
-      expect(find.text('🎲 Pregunta del día'), findsOneWidget);
+      expect(find.text('Pregunta del día'), findsOneWidget);
       expect(find.text(preguntaDelDia(hoy)), findsOneWidget);
       expect(
         find.text('✍️ Responde para ver la respuesta de la otra persona'),

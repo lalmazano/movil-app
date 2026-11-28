@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/iconos_club.dart';
 import '../../domain/item_lista.dart';
 
 /// Resultado del diálogo de calificación.
@@ -98,10 +99,7 @@ class _DialogoCalificarState extends State<_DialogoCalificar> {
                   onTap: () => setState(() => _huellitas = i),
                   child: Padding(
                     padding: const EdgeInsets.all(4),
-                    child: Opacity(
-                      opacity: i <= _huellitas ? 1 : 0.25,
-                      child: const Text('🐾', style: TextStyle(fontSize: 26)),
-                    ),
+                    child: Huellita(llena: i <= _huellitas, tamano: 30),
                   ),
                 ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/iconos_club.dart';
 import '../../listas/presentation/widgets/huellitas.dart';
 import '../domain/banco_preguntas.dart';
 import '../domain/preguntas_repository.dart';
@@ -75,7 +76,9 @@ class _BancoPreguntasPageState extends State<BancoPreguntasPage> {
     final textTheme = Theme.of(context).textTheme;
     final yo = widget.repository.autorActual?.uid;
     return Scaffold(
-      appBar: AppBar(title: const Text('💡 Banco de preguntas')),
+      appBar: AppBar(
+        title: const TituloSeccion(Secciones.banco, 'Banco de preguntas'),
+      ),
       floatingActionButton: yo == null
           ? null
           : FloatingActionButton.extended(
