@@ -24,6 +24,8 @@ class ResultadoTmdb {
     this.anio,
     this.posterUrl,
     this.resumen,
+    this.popularidad,
+    this.votos,
   });
 
   final int id;
@@ -31,6 +33,12 @@ class ResultadoTmdb {
   final int? anio;
   final String? posterUrl;
   final String? resumen;
+
+  /// Popularidad de TMDB (`popularity`), si viene.
+  final double? popularidad;
+
+  /// Calificación promedio de TMDB (`vote_average`, de 0 a 10), si viene.
+  final double? votos;
 
   /// Datos para guardar (sin duración: esa viene de [TmdbClient.detalle]).
   InfoPelicula get info => InfoPelicula(
@@ -78,6 +86,23 @@ class TmdbClient {
       'language': _idioma,
       'include_adult': 'false',
     });
+    return _resultados(json);
+  }
+
+  /// Películas recomendadas a partir de [tmdbId]. Si TMDB no tiene
+  /// recomendaciones, usa las películas similares.
+  Future<List<ResultadoTmdb>> recomendaciones(int tmdbId) async {
+    final recomendadas = _resultados(
+      await _get('/3/movie/$tmdbId/recommendations', {'language': _idioma}),
+    );
+    if (recomendadas.isNotEmpty) return recomendadas;
+    return _resultados(
+      await _get('/3/movie/$tmdbId/similar', {'language': _idioma}),
+    );
+  }
+
+  /// Convierte la lista `results` de una búsqueda o recomendación.
+  static List<ResultadoTmdb> _resultados(Map<String, Object?> json) {
     final resultados = json['results'];
     if (resultados is! List) return const [];
     return [
@@ -92,6 +117,8 @@ class TmdbClient {
             anio: _anio(r['release_date']),
             posterUrl: _poster(r['poster_path']),
             resumen: _texto(r['overview']),
+            popularidad: (r['popularity'] as num?)?.toDouble(),
+            votos: (r['vote_average'] as num?)?.toDouble(),
           ),
     ];
   }
