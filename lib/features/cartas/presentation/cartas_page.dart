@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../listas/presentation/config_scope.dart';
+import '../../musica/domain/cancion.dart';
+import '../../musica/presentation/reproductor.dart';
+import '../../musica/presentation/widgets_musica.dart';
 import '../domain/cartas_repository.dart';
 import 'formato_cartas.dart';
 
@@ -267,7 +270,9 @@ class _Sobre extends StatelessWidget {
 }
 
 /// Muestra el texto de una carta como una hoja de papel. Si quien la lee no
-/// es quien la escribió, la marca como abierta.
+/// es quien la escribió, la marca como abierta. Si trae canción (y la
+/// bandera `cartasMusica` está activa), la muestra debajo y suena la muestra
+/// de 30 s una vez al abrirla.
 class LeerCartaPage extends StatefulWidget {
   const LeerCartaPage({super.key, required this.cartas, required this.carta});
 
@@ -279,17 +284,43 @@ class LeerCartaPage extends StatefulWidget {
 }
 
 class _LeerCartaPageState extends State<LeerCartaPage> {
-  late final Future<String> _texto = _cargar();
+  late final Future<ContenidoCarta> _contenido = _cargar();
 
-  Future<String> _cargar() async {
-    final texto = await widget.cartas.leer(widget.carta);
+  /// Se guarda al inicio para detenerlo al salir aunque cambie la instancia.
+  final _reproductor = Reproductor.instancia;
+
+  /// La canción que sonó sola al abrir (solo una vez).
+  Cancion? _sonoSola;
+
+  Future<ContenidoCarta> _cargar() async {
+    final contenido = await widget.cartas.leerContenido(widget.carta);
     // Si falla marcarla, igual se muestra (p. ej. sin conexión).
     unawaited(
       widget.cartas.marcarAbierta(widget.carta).catchError((Object e) {
         debugPrint('No se pudo marcar la carta como abierta: $e');
       }),
     );
-    return texto;
+    return contenido;
+  }
+
+  /// Reproduce la muestra una sola vez, después de dibujar la carta.
+  void _autoplay(Cancion cancion) {
+    if (_sonoSola != null || cancion.previewUrl == null) return;
+    _sonoSola = cancion;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _reproductor.actual != cancion) {
+        unawaited(_reproductor.alternar(cancion));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    final cancion = _sonoSola;
+    if (cancion != null && _reproductor.actual == cancion) {
+      unawaited(_reproductor.detener());
+    }
+    super.dispose();
   }
 
   @override
@@ -298,13 +329,14 @@ class _LeerCartaPageState extends State<LeerCartaPage> {
       return const _CartasDesactivadas();
     }
     final carta = widget.carta;
+    final conMusica = ConfigClubScope.of(context).cartasMusica;
     final textTheme = Theme.of(context).textTheme;
     const tinta = MichiColors.cafe;
     return Scaffold(
       appBar: AppBar(title: const Text('💌 Carta')),
       body: PawBackground(
-        child: FutureBuilder<String>(
-          future: _texto,
+        child: FutureBuilder<ContenidoCarta>(
+          future: _contenido,
           builder: (context, snap) {
             if (snap.hasError) {
               final e = snap.error;
@@ -321,6 +353,8 @@ class _LeerCartaPageState extends State<LeerCartaPage> {
             if (!snap.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
+            final cancion = conMusica ? snap.data!.cancion : null;
+            if (cancion != null) _autoplay(cancion);
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
@@ -355,7 +389,7 @@ class _LeerCartaPageState extends State<LeerCartaPage> {
                       ),
                       const Divider(height: 28, color: MichiColors.rosa),
                       SelectableText(
-                        snap.data!,
+                        snap.data!.texto,
                         style: textTheme.bodyLarge?.copyWith(
                           color: tinta,
                           height: 1.6,
@@ -376,10 +410,84 @@ class _LeerCartaPageState extends State<LeerCartaPage> {
                     ],
                   ),
                 ),
+                if (cancion != null) ...[
+                  const SizedBox(height: 16),
+                  _CancionDeLaCarta(cancion: cancion, de: carta.de.nombreCorto),
+                ],
               ],
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// La canción que acompaña a la carta: portada, título, artista, muestra y
+/// "Escuchar completa".
+class _CancionDeLaCarta extends StatelessWidget {
+  const _CancionDeLaCarta({required this.cancion, required this.de});
+
+  final Cancion cancion;
+  final String de;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    const tinta = MichiColors.cafe;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBF2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MichiColors.rosa, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '🎵 $de te dedicó una canción',
+            style: textTheme.labelLarge?.copyWith(color: tinta),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              PortadaCancion(cancion: cancion, lado: 64),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      cancion.titulo,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: tinta,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      cancion.artista,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodyMedium?.copyWith(color: tinta),
+                    ),
+                  ],
+                ),
+              ),
+              BotonPreview(cancion: cancion, tamano: 36),
+            ],
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => mostrarAbrirCancion(context, cancion),
+              icon: const Icon(Icons.headphones),
+              label: const Text('Escuchar completa'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -408,11 +516,33 @@ class _EscribirCartaPageState extends State<EscribirCartaPage> {
 
   var _guardando = false;
 
+  /// Canción opcional para acompañar la carta.
+  Cancion? _cancion;
+
+  /// Se guarda al inicio para detener la muestra al salir.
+  final _reproductor = Reproductor.instancia;
+
   @override
   void dispose() {
     _titulo.dispose();
     _texto.dispose();
+    if (_cancion != null && _reproductor.actual == _cancion) {
+      unawaited(_reproductor.detener());
+    }
     super.dispose();
+  }
+
+  Future<void> _elegirCancion() async {
+    final cancion = await mostrarBuscadorCanciones(
+      context,
+      titulo: '🎵 Una canción para tu carta',
+    );
+    if (cancion != null && mounted) setState(() => _cancion = cancion);
+  }
+
+  void _quitarCancion() {
+    if (_reproductor.actual == _cancion) unawaited(_reproductor.detener());
+    setState(() => _cancion = null);
   }
 
   Future<void> _elegirFecha() async {
@@ -466,6 +596,7 @@ class _EscribirCartaPageState extends State<EscribirCartaPage> {
         titulo: _titulo.text,
         texto: _texto.text,
         abrirEn: _abrirEn,
+        cancion: ConfigClubScope.of(context).cartasMusica ? _cancion : null,
       );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -484,7 +615,9 @@ class _EscribirCartaPageState extends State<EscribirCartaPage> {
       return const _CartasDesactivadas();
     }
     final futuro = _abrirEn.isAfter(widget.cartas.ahora());
+    final conMusica = ConfigClubScope.of(context).cartasMusica;
     final scheme = Theme.of(context).colorScheme;
+    final cancion = _cancion;
     return Scaffold(
       appBar: AppBar(title: const Text('✍️ Escribir carta')),
       body: Form(
@@ -520,6 +653,35 @@ class _EscribirCartaPageState extends State<EscribirCartaPage> {
               validator: (v) =>
                   (v ?? '').trim().isEmpty ? 'La carta está vacía' : null,
             ),
+            if (conMusica) ...[
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                clipBehavior: Clip.antiAlias,
+                child: cancion == null
+                    ? ListTile(
+                        leading: const Text(
+                          '🎵',
+                          style: TextStyle(fontSize: 24),
+                        ),
+                        title: const Text('Agregar una canción'),
+                        subtitle: const Text(
+                          'Será sorpresa hasta que abra la carta',
+                        ),
+                        trailing: const Icon(Icons.add),
+                        onTap: _elegirCancion,
+                      )
+                    : FilaCancion(
+                        cancion: cancion,
+                        onTap: _elegirCancion,
+                        trailing: IconButton(
+                          tooltip: 'Quitar canción',
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.close),
+                          onPressed: _quitarCancion,
+                        ),
+                      ),
+              ),
+            ],
             const SizedBox(height: 8),
             Text(
               'Se podrá abrir desde:',

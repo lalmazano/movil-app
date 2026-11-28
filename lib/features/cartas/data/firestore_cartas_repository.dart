@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../listas/domain/detalles.dart';
+import '../../musica/domain/cancion.dart';
 import '../domain/cartas_repository.dart';
 
 /// Cartas en Firestore: `clubs/{clubId}/cartas/{id}` (el sobre) y
-/// `clubs/{clubId}/cartas/{id}/contenido/texto` (el texto, que las reglas
+/// `clubs/{clubId}/cartas/{id}/contenido/texto` (el texto y la canción
+/// opcional, que las reglas
 /// solo dejan leer desde `abrirEn` o a quien la escribió).
 class FirestoreCartasRepository implements CartasRepository {
   FirestoreCartasRepository(
@@ -63,6 +65,7 @@ class FirestoreCartasRepository implements CartasRepository {
     required String titulo,
     required String texto,
     required DateTime abrirEn,
+    Cancion? cancion,
   }) async {
     final yo = _yo;
     final limpio = validarCarta(
@@ -72,6 +75,9 @@ class FirestoreCartasRepository implements CartasRepository {
       ahora: ahora(),
     );
     final ref = _col.doc();
+    // La canción va con el texto (protegido), no en el sobre: así la otra
+    // persona no sabe cuál es hasta el día de abrirla.
+    final contenido = ContenidoCarta(texto: texto, cancion: cancion);
     // El sobre y el texto van juntos en un solo lote (las reglas del texto
     // revisan el sobre con getAfter).
     await (db.batch()
@@ -81,17 +87,17 @@ class FirestoreCartasRepository implements CartasRepository {
             'abrirEn': Timestamp.fromDate(abrirEn),
             'creadaEn': FieldValue.serverTimestamp(),
           })
-          ..set(_texto(ref.id), {'texto': texto}))
+          ..set(_texto(ref.id), contenido.toMap()))
         .commit();
   }
 
   @override
-  Future<String> leer(Carta carta) async {
+  Future<ContenidoCarta> leerContenido(Carta carta) async {
     final mia = carta.esDe(uidActual);
     if (!mia && carta.bloqueadaEn(ahora())) throw cartaCerrada(carta);
     try {
       final doc = await _texto(carta.id).get();
-      return doc.data()?['texto'] as String? ?? '';
+      return ContenidoCarta.fromMap(doc.data());
     } on FirebaseException catch (e) {
       // El reloj del teléfono puede ir adelantado respecto al servidor.
       if (e.code == 'permission-denied') throw cartaCerrada(carta);

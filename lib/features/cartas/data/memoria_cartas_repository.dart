@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../../listas/domain/detalles.dart';
+import '../../musica/domain/cancion.dart';
 import '../domain/cartas_repository.dart';
 
 /// Cartas en memoria, para pruebas y modo local. Aplica el mismo candado
@@ -17,7 +18,7 @@ class MemoriaCartasRepository implements CartasRepository {
   static const _local = Autor(uid: 'local', nombre: 'Tú');
 
   final _cartas = <Carta>[];
-  final _textos = <String, String>{};
+  final _contenidos = <String, ContenidoCarta>{};
   final _cambios = StreamController<void>.broadcast();
   var _siguienteId = 0;
 
@@ -46,6 +47,7 @@ class MemoriaCartasRepository implements CartasRepository {
     required String titulo,
     required String texto,
     required DateTime abrirEn,
+    Cancion? cancion,
   }) async {
     final limpio = validarCarta(
       titulo: titulo,
@@ -64,17 +66,17 @@ class MemoriaCartasRepository implements CartasRepository {
         creadaEn: reloj().add(Duration(microseconds: _siguienteId)),
       ),
     );
-    _textos[id] = texto;
+    _contenidos[id] = ContenidoCarta(texto: texto, cancion: cancion);
     _cambios.add(null);
   }
 
   @override
-  Future<String> leer(Carta carta) async {
+  Future<ContenidoCarta> leerContenido(Carta carta) async {
     final actual = _buscar(carta.id);
     if (!actual.esDe(uidActual) && actual.bloqueadaEn(reloj())) {
       throw cartaCerrada(actual);
     }
-    return _textos[actual.id] ?? '';
+    return _contenidos[actual.id] ?? const ContenidoCarta(texto: '');
   }
 
   @override
@@ -99,7 +101,7 @@ class MemoriaCartasRepository implements CartasRepository {
       throw const CartaError('Solo quien escribió la carta puede borrarla');
     }
     _cartas.remove(actual);
-    _textos.remove(actual.id);
+    _contenidos.remove(actual.id);
     _cambios.add(null);
   }
 
