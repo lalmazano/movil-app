@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/item_lista.dart';
+import '../config_scope.dart';
 import 'insignias_item.dart';
 import 'poster_miniatura.dart';
+import 'repetible.dart';
 
 /// Tarjeta de un elemento en la lista. Tocarla abre el detalle; el círculo
-/// lo marca como hecho.
+/// lo marca como hecho. En los repetibles (🔁) el círculo es un botón "+1"
+/// ([onOtraVez]) y nunca se tachan.
 class TarjetaItem extends StatelessWidget {
   const TarjetaItem({
     super.key,
@@ -14,6 +17,7 @@ class TarjetaItem extends StatelessWidget {
     required this.onAbrir,
     required this.onEditar,
     required this.onBorrar,
+    this.onOtraVez,
   });
 
   final ItemLista item;
@@ -22,12 +26,19 @@ class TarjetaItem extends StatelessWidget {
   final VoidCallback onEditar;
   final VoidCallback onBorrar;
 
+  /// Suma una vez a un repetible. Sin él se muestra el círculo normal.
+  final VoidCallback? onOtraVez;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final otraVez = usaRepetible(item, ConfigClubScope.of(context))
+        ? onOtraVez
+        : null;
+    final tachado = item.hecho && otraVez == null;
     final subtitulo = [
       if (item.nota.isNotEmpty) item.nota,
-      if (item.hecho && item.hechoEn != null) '✓ ${fechaCorta(item.hechoEn!)}',
+      if (tachado && item.hechoEn != null) '✓ ${fechaCorta(item.hechoEn!)}',
     ].join(' · ');
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
@@ -38,11 +49,14 @@ class TarjetaItem extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(4, 4, 0, 4),
           child: Row(
             children: [
-              Checkbox(
-                value: item.hecho,
-                shape: const CircleBorder(),
-                onChanged: (v) => onMarcar(v ?? false),
-              ),
+              if (otraVez != null)
+                BotonOtraVez(onPressed: otraVez)
+              else
+                Checkbox(
+                  value: item.hecho,
+                  shape: const CircleBorder(),
+                  onChanged: (v) => onMarcar(v ?? false),
+                ),
               PosterMiniatura(item: item),
               const SizedBox(width: 4),
               Expanded(
@@ -54,10 +68,10 @@ class TarjetaItem extends StatelessWidget {
                       Text(
                         item.titulo,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          decoration: item.hecho
+                          decoration: tachado
                               ? TextDecoration.lineThrough
                               : null,
-                          color: item.hecho
+                          color: tachado
                               ? theme.colorScheme.onSurface.withValues(
                                   alpha: 0.55,
                                 )

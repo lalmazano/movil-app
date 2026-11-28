@@ -11,6 +11,7 @@ import 'item_detalle_page.dart';
 import 'widgets/campo_busqueda.dart';
 import 'widgets/dialogo_calificar.dart';
 import 'widgets/item_form_sheet.dart';
+import 'widgets/repetible.dart';
 import 'widgets/ruleta_sheet.dart';
 import 'widgets/tarjeta_item.dart';
 
@@ -70,7 +71,12 @@ class _ListaPageState extends State<ListaPage> {
     );
     if (nuevo == null || !mounted) return;
     _escribir(
-      () => widget.repository.add(_tipo, nuevo.item, pelicula: nuevo.pelicula),
+      () => widget.repository.add(
+        _tipo,
+        nuevo.item,
+        pelicula: nuevo.pelicula,
+        repetible: nuevo.repetible,
+      ),
     );
   }
 
@@ -95,6 +101,7 @@ class _ListaPageState extends State<ListaPage> {
           categoria: cambios.item.categoria,
           nota: cambios.item.nota,
           pelicula: () => cambios.pelicula,
+          repetible: cambios.repetible,
         ),
       ),
     );
@@ -164,6 +171,28 @@ class _ListaPageState extends State<ListaPage> {
           item: item,
         );
       }
+    }
+  }
+
+  /// Repetibles (🔁): confirma y suma una vez; siguen pendientes. No hay
+  /// "deshacer" porque el contador solo se guarda sumando.
+  Future<void> _otraVez(ItemLista item) async {
+    if (!await confirmarOtraVez(context, item) || !mounted) return;
+    _escribir(() => widget.repository.registrarVez(_tipo, item.id));
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text('¡Otra vez! Ya van ${item.veces + 1} 🫘')),
+      );
+    // Con sesión iniciada, pregunta qué tal estuvo (en modo local no).
+    if (widget.repository.autorActual != null &&
+        ConfigClubScope.of(context).calificaciones) {
+      calificarItem(
+        context,
+        repository: widget.repository,
+        tipo: _tipo,
+        item: item,
+      );
     }
   }
 
@@ -338,7 +367,13 @@ class _ListaPageState extends State<ListaPage> {
     if (items.isEmpty) {
       return _Mensaje(emoji: _tipo.emoji, texto: _tipo.vacio);
     }
-    final hechos = items.where((i) => i.hecho).length;
+    // Los repetibles (🔁) siempre están pendientes y, si ya los hicieron
+    // alguna vez, también aparecen en hechos.
+    final config = ConfigClubScope.of(context);
+    bool pendiente(ItemLista i) => usaRepetible(i, config) || !i.hecho;
+    bool hecho(ItemLista i) => usaRepetible(i, config) ? i.veces > 0 : i.hecho;
+    final pendientes = items.where(pendiente).length;
+    final hechos = items.where(hecho).length;
     final categorias = [
       for (final c in _categorias)
         if (items.any((i) => i.categoria == c)) c,
@@ -350,8 +385,8 @@ class _ListaPageState extends State<ListaPage> {
     final categoria = categorias.contains(_categoria) ? _categoria : null;
     final visibles = items.where((i) {
       final porFiltro = switch (_filtro) {
-        _Filtro.pendientes => !i.hecho,
-        _Filtro.hechos => i.hecho,
+        _Filtro.pendientes => pendiente(i),
+        _Filtro.hechos => hecho(i),
         _Filtro.todos => true,
       };
       return porFiltro &&
@@ -379,7 +414,7 @@ class _ListaPageState extends State<ListaPage> {
               segments: [
                 ButtonSegment(
                   value: _Filtro.pendientes,
-                  label: _Etiqueta('Pendientes ${items.length - hechos}'),
+                  label: _Etiqueta('Pendientes $pendientes'),
                 ),
                 ButtonSegment(
                   value: _Filtro.hechos,
@@ -468,6 +503,7 @@ class _ListaPageState extends State<ListaPage> {
                 TarjetaItem(
                   item: item,
                   onMarcar: (v) => _marcar(item, v),
+                  onOtraVez: () => _otraVez(item),
                   onAbrir: () => _abrir(item),
                   onEditar: () => _editar(item),
                   onBorrar: () => _borrar(item),

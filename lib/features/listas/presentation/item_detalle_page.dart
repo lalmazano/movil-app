@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/widgets/paw_background.dart';
 import '../domain/item_lista.dart';
+import 'config_scope.dart';
+import 'widgets/repetible.dart';
 import 'widgets/seccion_calificaciones.dart';
 import 'widgets/seccion_fotos.dart';
 import 'widgets/seccion_pelicula.dart';
@@ -116,19 +118,29 @@ class _Encabezado extends StatelessWidget {
                   label: Text(item.categoria),
                   visualDensity: VisualDensity.compact,
                 ),
-                Chip(
-                  avatar: Icon(
-                    item.hecho ? Icons.check_circle : Icons.circle_outlined,
-                    size: 18,
+                if (usaRepetible(item, ConfigClubScope.of(context)))
+                  Chip(
+                    key: const Key('chip-repetible'),
+                    label: Text(
+                      '🔁 ${item.veces == 0 ? 'Aún no lo hacen' : 'Hecho ${vecesTexto(item.veces)}'}'
+                      '${item.ultimaVez == null ? '' : ' · última vez ${fechaCorta(item.ultimaVez!)}'}',
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  )
+                else
+                  Chip(
+                    avatar: Icon(
+                      item.hecho ? Icons.check_circle : Icons.circle_outlined,
+                      size: 18,
+                    ),
+                    label: Text(
+                      item.hecho
+                          ? '${tipo.accionHecho}'
+                                '${item.hechoEn == null ? '' : ' el ${fechaCorta(item.hechoEn!)}'}'
+                          : 'Pendiente',
+                    ),
+                    visualDensity: VisualDensity.compact,
                   ),
-                  label: Text(
-                    item.hecho
-                        ? '${tipo.accionHecho}'
-                              '${item.hechoEn == null ? '' : ' el ${fechaCorta(item.hechoEn!)}'}'
-                        : 'Pendiente',
-                  ),
-                  visualDensity: VisualDensity.compact,
-                ),
               ],
             ),
             if (item.nota.isNotEmpty) ...[
