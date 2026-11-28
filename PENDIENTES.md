@@ -3,18 +3,18 @@
 Funciones elegidas para hacer más adelante. Cada una tendrá su bandera en
 `config/app` (como las demás) y llegará con el aviso de actualización.
 
-## Marcadas como pendientes
-- [ ] **💌 Cartas con fecha:** una nota que el otro solo puede abrir en una
+## Hechas (v1.2.0)
+- [x] **💌 Cartas con fecha:** una nota que el otro solo puede abrir en una
   fecha (aniversario, cumpleaños).
-- [ ] **🎁 Resumen anual tipo "Wrapped":** películas vistas, mejores
+- [x] **🎁 Resumen anual tipo "Wrapped":** películas vistas, mejores
   calificadas, fotos del año, categoría favorita; para compartir.
-- [ ] **📆 Fechas importantes:** cumpleaños, aniversarios y días especiales con
+- [x] **📆 Fechas importantes:** cumpleaños, aniversarios y días especiales con
   cuenta regresiva ("Faltan 12 días para…"), también en el widget.
-- [ ] **🎲 Preguntas para conocerse:** una pregunta diaria; cada uno responde y
+- [x] **🎲 Preguntas para conocerse:** una pregunta diaria; cada uno responde y
   las respuestas se revelan cuando los dos contestaron.
-- [ ] **🎬 Sugerencias de TMDB:** "Si les gustó *Coco*, podrían ver…" según las
+- [x] **🎬 Sugerencias de TMDB:** "Si les gustó *Coco*, podrían ver…" según las
   mejor calificadas.
-- [ ] **🔁 Planes repetibles:** marcar un plan como repetible ("Desayunar
+- [x] **🔁 Planes repetibles:** marcar un plan como repetible ("Desayunar
   juntos") y contar cuántas veces lo han hecho.
 
 ## Otras ideas (sin decidir)

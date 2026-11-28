@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/routes/app_router.dart';
@@ -23,6 +24,10 @@ class ClubDelFrijolApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
+      // Calendarios, selectores de hora y textos del sistema en español.
+      locale: const Locale('es', 'GT'),
+      supportedLocales: const [Locale('es', 'GT'), Locale('es')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       initialRoute: AppRoutes.home,
       onGenerateRoute: AppRouter(repository, auth: auth).onGenerateRoute,
       // Respeta el tamaño de letra del teléfono, pero sin pasar de 1.15x

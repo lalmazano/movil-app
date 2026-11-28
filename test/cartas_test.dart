@@ -152,7 +152,7 @@ void main() {
       expect(find.text('Te quiero mucho'), findsOneWidget);
       expect((await r.repo.watch().first).single.abierta, isTrue);
 
-      await tester.pageBack();
+      await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(find.text('Abierta el 14/02/2027'), findsOneWidget);
     });
@@ -196,10 +196,12 @@ void main() {
         ClubDelFrijolApp(repository: MemoriaListaRepository(autorActual: luis)),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Cartas'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Cartas'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Escríbele una carta'), findsOneWidget);
-      await tester.ensureVisible(find.text('Cartas'));
-      await tester.pumpAndSettle();
       await tester.tap(find.text('Cartas'));
       await tester.pumpAndSettle();
       expect(find.text('Escribir carta'), findsOneWidget);
@@ -213,6 +215,9 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
+      // Hasta el final del inicio, para que se construya todo.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -5000));
       await tester.pumpAndSettle();
       expect(find.text('Cartas'), findsNothing);
       expect(find.text('Escríbele una carta'), findsNothing);

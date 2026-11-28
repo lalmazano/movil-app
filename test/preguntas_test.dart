@@ -179,7 +179,7 @@ void main() {
       expect(find.text('Ver atardeceres contigo'), findsOneWidget);
       expect(find.text('⏳ Esperando a tu frijolito…'), findsOneWidget);
 
-      await tester.pageBack();
+      await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(find.text('⏳ Esperando a tu frijolito…'), findsOneWidget);
 

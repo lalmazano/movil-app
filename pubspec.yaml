@@ -46,6 +46,8 @@ dependencies:
   crypto: ^3.0.8
   path_provider: ^2.1.6
   share_plus: ^13.3.1
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

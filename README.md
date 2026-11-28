@@ -81,6 +81,13 @@ existen no se cambian:
 | `posters` | 🎞️ Pósters y datos de TMDB (requiere `config/tmdb.apiKey`) |
 | `contador` | Contador de aniversario (requiere `aniversario`, timestamp) |
 | `widget` | Widget de la pantalla de inicio de Android |
+| `actualizaciones` | Aviso y descarga de versiones nuevas |
+| `cartas` | 💌 Cartas que se abren en una fecha |
+| `resumen` | 🎁 Resumen anual para compartir |
+| `fechas` | 📆 Fechas importantes con cuenta regresiva |
+| `preguntas` | 🎲 Pregunta del día |
+| `sugerencias` | 🎬 Sugerencias de películas (TMDB) |
+| `repetibles` | 🔁 Planes que se pueden repetir |
 
 ## Icono (Gato con Botas)
 
