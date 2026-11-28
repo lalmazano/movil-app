@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/club_logo.dart';
+import '../../../core/widgets/mosaico_inicio.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../actualizacion/presentation/aviso_actualizacion.dart';
 import '../../auth/domain/auth_service.dart';
@@ -80,30 +81,47 @@ class _HomePageState extends State<HomePage> {
           builder: (context, snap) {
             // Mientras carga (o si falla) se muestran todas las listas.
             final visibles = snap.data?.listasVisibles ?? TipoLista.values;
+            final config = snap.data ?? const ConfigClub();
             return ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               children: [
-                Center(
-                  child: switch (auth) {
-                    final auth? => _FotoPerfil(auth: auth, usuario: usuario),
-                    null => const ClubLogo(),
-                  },
+                // Encabezado compacto: foto a la izquierda, saludo y contador.
+                Row(
+                  children: [
+                    switch (auth) {
+                      final auth? => _FotoPerfil(
+                        auth: auth,
+                        usuario: usuario,
+                        radio: 32,
+                      ),
+                      null => const ClubLogo(radio: 32),
+                    },
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            usuario == null
+                                ? 'Bienvenidos al club'
+                                : '¡Hola, ${usuario.nombreCorto}!',
+                            style: textTheme.titleLarge,
+                          ),
+                          if (snap.data case ConfigClub(
+                            contador: true,
+                            :final aniversario?,
+                          )) ...[
+                            const SizedBox(height: 4),
+                            ContadorAniversario(
+                              desde: aniversario,
+                              reloj: widget.reloj,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  usuario == null
-                      ? 'Bienvenidos al club'
-                      : '¡Hola, ${usuario.nombreCorto}!',
-                  textAlign: TextAlign.center,
-                  style: textTheme.headlineSmall,
-                ),
-                if (snap.data case ConfigClub(
-                  contador: true,
-                  :final aniversario?,
-                )) ...[
-                  const SizedBox(height: 8),
-                  ContadorAniversario(desde: aniversario, reloj: widget.reloj),
-                ],
                 AvisoActualizacion.android(
                   key: const ValueKey('aviso-actualizacion-widget'),
                   repository: widget.repository,
@@ -116,10 +134,11 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 12),
                   const _AvisoModoLocal(),
                 ],
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
+                // Las listas, en una fila de cuadritos.
                 if (visibles.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(16),
                     child: Text(
                       'No hay listas visibles por ahora 🫘',
                       textAlign: TextAlign.center,
@@ -127,36 +146,53 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )
                 else
-                  for (final tipo in visibles)
-                    _TarjetaLista(
-                      key: ValueKey(tipo),
-                      tipo: tipo,
-                      repository: repository,
-                    ),
-                // Más del club (cada tarjeta se oculta con su bandera).
+                  CuadriculaInicio(
+                    columnas: 3,
+                    hijos: [
+                      for (final tipo in visibles)
+                        _TarjetaLista(
+                          key: ValueKey(tipo),
+                          tipo: tipo,
+                          repository: repository,
+                        ),
+                    ],
+                  ),
+                const SizedBox(height: 10),
+                // Pregunta del día (se oculta sola sin bandera o sin sesión).
                 TarjetaPregunta(
                   key: const ValueKey('extra-pregunta'),
                   repository: repository,
                 ),
-                TarjetaFechas(
-                  key: const ValueKey('extra-fechas'),
-                  repository: repository,
-                ),
-                TarjetaCartas(
-                  key: const ValueKey('extra-cartas'),
-                  repository: repository,
-                ),
-                TarjetaPlaylist(
-                  key: const ValueKey('extra-playlist'),
-                  repository: repository,
-                ),
-                TarjetaAdivina(
-                  key: const ValueKey('extra-adivina'),
-                  repository: repository,
-                ),
-                TarjetaResumen(
-                  key: const ValueKey('extra-resumen'),
-                  repository: repository,
+                const SizedBox(height: 10),
+                // Más del club, en cuadritos de dos en dos.
+                CuadriculaInicio(
+                  hijos: [
+                    if (config.fechas)
+                      TarjetaFechas(
+                        key: const ValueKey('extra-fechas'),
+                        repository: repository,
+                      ),
+                    if (config.cartas)
+                      TarjetaCartas(
+                        key: const ValueKey('extra-cartas'),
+                        repository: repository,
+                      ),
+                    if (config.playlist)
+                      TarjetaPlaylist(
+                        key: const ValueKey('extra-playlist'),
+                        repository: repository,
+                      ),
+                    if (config.adivina)
+                      TarjetaAdivina(
+                        key: const ValueKey('extra-adivina'),
+                        repository: repository,
+                      ),
+                    if (config.resumen && visibles.isNotEmpty)
+                      TarjetaResumen(
+                        key: const ValueKey('extra-resumen'),
+                        repository: repository,
+                      ),
+                  ],
                 ),
               ],
             );
@@ -170,12 +206,15 @@ class _HomePageState extends State<HomePage> {
 /// Foto de perfil de Google en el círculo central. Al tocarla se abre la
 /// cuenta (correo y cerrar sesión). Sin foto, muestra el logo del club.
 class _FotoPerfil extends StatelessWidget {
-  const _FotoPerfil({required this.auth, required this.usuario});
+  const _FotoPerfil({
+    required this.auth,
+    required this.usuario,
+    this.radio = 64,
+  });
 
   final AuthService auth;
   final Usuario? usuario;
-
-  static const _radio = 64.0;
+  final double radio;
 
   /// Google entrega la foto a 96 px; se pide más grande para que no se vea
   /// borrosa en el círculo.
@@ -219,17 +258,17 @@ class _FotoPerfil extends StatelessWidget {
         customBorder: const CircleBorder(),
         onTap: () => _abrirCuenta(context),
         child: foto == null
-            ? const ClubLogo(radio: _radio)
+            ? ClubLogo(radio: radio)
             : CircleAvatar(
-                radius: _radio,
+                radius: radio,
                 backgroundColor: color.withValues(alpha: 0.35),
                 child: ClipOval(
                   child: Image.network(
                     _enAltaResolucion(foto),
-                    width: _radio * 2,
-                    height: _radio * 2,
+                    width: radio * 2,
+                    height: radio * 2,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const ClubLogo(radio: _radio),
+                    errorBuilder: (_, _, _) => ClubLogo(radio: radio),
                   ),
                 ),
               ),
@@ -258,54 +297,22 @@ class _TarjetaListaState extends State<_TarjetaLista> {
   @override
   Widget build(BuildContext context) {
     final tipo = widget.tipo;
-    final textTheme = Theme.of(context).textTheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () =>
-            Navigator.of(context).pushNamed(AppRoutes.lista, arguments: tipo),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: StreamBuilder<List<ItemLista>>(
-            stream: _items,
-            builder: (context, snap) {
-              final items = snap.data ?? const <ItemLista>[];
-              final hechos = items.where((i) => i.hecho).length;
-              return Row(
-                children: [
-                  Text(tipo.emoji, style: const TextStyle(fontSize: 40)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(tipo.titulo, style: textTheme.titleLarge),
-                        const SizedBox(height: 4),
-                        Text(
-                          items.isEmpty
-                              ? 'Lista vacía'
-                              : '$hechos de ${items.length} ${tipo.hechos}',
-                          style: textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: LinearProgressIndicator(
-                            value: items.isEmpty ? 0 : hechos / items.length,
-                            minHeight: 8,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
+    return StreamBuilder<List<ItemLista>>(
+      stream: _items,
+      builder: (context, snap) {
+        final items = snap.data ?? const <ItemLista>[];
+        final hechos = items.where((i) => i.hecho).length;
+        return MosaicoInicio(
+          emoji: tipo.emoji,
+          titulo: tipo.titulo,
+          subtitulo: items.isEmpty
+              ? 'Lista vacía'
+              : '$hechos de ${items.length} ${tipo.hechos}',
+          progreso: items.isEmpty ? 0 : hechos / items.length,
+          onTap: () =>
+              Navigator.of(context).pushNamed(AppRoutes.lista, arguments: tipo),
+        );
+      },
     );
   }
 }

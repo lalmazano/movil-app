@@ -197,7 +197,7 @@ void main() {
       await agregar(repo, 3);
       await abrirApp(tester, repo);
       expect(tarjeta(), findsOneWidget);
-      expect(find.text('❓ Adivina la canción'), findsOneWidget);
+      expect(find.text('Adivina la canción'), findsOneWidget);
       expect(
         find.text('Necesitan al menos 4 canciones en la playlist'),
         findsOneWidget,

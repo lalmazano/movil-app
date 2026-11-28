@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../domain/fechas_repository.dart';
@@ -46,53 +47,34 @@ class _ContenidoState extends State<_Contenido> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
     return StreamBuilder<List<FechaImportante>>(
       stream: _stream,
       builder: (context, snap) {
-        // Si falla la lectura (p. ej. reglas sin publicar) no se muestra.
-        if (snap.hasError) return const SizedBox.shrink();
+        if (snap.hasError) {
+          return MosaicoInicio(
+            key: const Key('tarjeta-fechas'),
+            emoji: '📆',
+            titulo: 'Fechas',
+            subtitulo: 'No se pudieron cargar',
+            onTap: _abrir,
+          );
+        }
         final fechas = snap.data ?? const <FechaImportante>[];
         final hoy = widget.fechas.hoy();
         final siguiente = siguienteFecha(fechas, hoy);
         final cercana = siguiente?.esCercana(hoy) ?? false;
-        return Card(
+        final texto = TarjetaFechas.texto(fechas, hoy)?.replaceFirst('📆 ', '');
+        return MosaicoInicio(
           key: const Key('tarjeta-fechas'),
-          margin: const EdgeInsets.only(bottom: 12),
-          color: cercana ? scheme.primaryContainer : null,
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: _abrir,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      TarjetaFechas.texto(fechas, hoy) ??
-                          (fechas.isEmpty
-                              ? '📆 Agrega sus fechas importantes'
-                              : '📆 No hay fechas próximas'),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.titleSmall,
-                    ),
-                  ),
-                  if (fechas.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Icon(Icons.add),
-                    )
-                  else
-                    TextButton(
-                      onPressed: _abrir,
-                      child: const Text('Ver todas'),
-                    ),
-                ],
-              ),
-            ),
-          ),
+          emoji: '📆',
+          titulo: 'Fechas',
+          subtitulo:
+              texto ??
+              (fechas.isEmpty
+                  ? 'Agrega sus fechas importantes'
+                  : 'No hay fechas próximas'),
+          destacado: cercana,
+          onTap: _abrir,
         );
       },
     );

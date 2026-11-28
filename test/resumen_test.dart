@@ -254,7 +254,7 @@ void main() {
       await tester.pumpWidget(app(repo));
       await tester.pumpAndSettle();
 
-      expect(find.text('Su año 2026 en el club'), findsOneWidget);
+      expect(find.text('Su año 2026'), findsOneWidget);
       await tester.tap(find.byKey(const Key('tarjeta-resumen')));
       await tester.pumpAndSettle();
 

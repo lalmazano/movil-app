@@ -48,7 +48,7 @@ class _TarjetaPreguntaState extends State<TarjetaPregunta> {
     final textTheme = Theme.of(context).textTheme;
     return Card(
       key: const Key('tarjeta-pregunta'),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => Navigator.of(context).push(
@@ -57,7 +57,7 @@ class _TarjetaPreguntaState extends State<TarjetaPregunta> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
           child: FutureBuilder<Autor?>(
             future: _pareja,
             builder: (context, pareja) => StreamBuilder<DiaPregunta>(
@@ -75,28 +75,29 @@ class _TarjetaPreguntaState extends State<TarjetaPregunta> {
                         Expanded(
                           child: Text(
                             '🎲 Pregunta del día',
-                            style: textTheme.titleMedium,
+                            style: textTheme.labelLarge,
                           ),
                         ),
-                        const Icon(Icons.chevron_right),
+                        const Icon(Icons.chevron_right, size: 20),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 2),
                     Text(
                       dia?.pregunta ?? '…',
-                      style: textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     if (dia != null && !dia.cargando) ...[
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 4),
                       if (!dia.respondi)
                         _Estado('✍️ Responde para ver la de $otro')
                       else if (dia.otras.isEmpty)
                         _Estado('⏳ Esperando a $otro…')
                       else
-                        for (final r in [dia.mia!, ...dia.otras])
-                          _RespuestaCorta(respuesta: r),
+                        _AmbasRespuestas(respuestas: [dia.mia!, ...dia.otras]),
                     ],
                   ],
                 );
@@ -123,8 +124,27 @@ class _Estado extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     texto,
-    style: Theme.of(context).textTheme.bodyMedium
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+    style: Theme.of(context).textTheme.bodySmall
         ?.copyWith(fontStyle: FontStyle.italic),
+  );
+}
+
+/// Las respuestas en una sola línea: avatar y texto corto de cada uno.
+class _AmbasRespuestas extends StatelessWidget {
+  const _AmbasRespuestas({required this.respuestas});
+
+  final List<Respuesta> respuestas;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      for (final (i, r) in respuestas.indexed) ...[
+        if (i > 0) const SizedBox(width: 10),
+        Expanded(child: _RespuestaCorta(respuesta: r)),
+      ],
+    ],
   );
 }
 
@@ -134,21 +154,18 @@ class _RespuestaCorta extends StatelessWidget {
   final Respuesta respuesta;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 4),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AvatarAutor(autor: respuesta.autor, radio: 10),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            respuesta.texto,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+  Widget build(BuildContext context) => Row(
+    children: [
+      AvatarAutor(autor: respuesta.autor, radio: 9),
+      const SizedBox(width: 6),
+      Expanded(
+        child: Text(
+          respuesta.texto,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
-      ],
-    ),
+      ),
+    ],
   );
 }

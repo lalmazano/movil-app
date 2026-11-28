@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../domain/musica_repository.dart';
@@ -27,57 +28,33 @@ class _TarjetaPlaylistState extends State<TarjetaPlaylist> {
   @override
   Widget build(BuildContext context) {
     if (!ConfigClubScope.of(context).playlist) return const SizedBox.shrink();
-    final textTheme = Theme.of(context).textTheme;
-    return Card(
-      key: const Key('tarjeta-playlist'),
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => PlaylistPage(musica: _musica),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: StreamBuilder<List<CancionPlaylist>>(
-            stream: _playlist ??= _musica.watchPlaylist(),
-            builder: (context, snap) {
-              final canciones = snap.data ?? const <CancionPlaylist>[];
-              final subtitulo = snap.hasError
-                  ? 'No se pudo cargar la playlist'
-                  : !snap.hasData
-                  ? 'Cargando…'
-                  : canciones.isEmpty
-                  ? 'Agreguen su primera canción 🎶'
-                  : textoCancionesPlaylist(canciones.length);
-              return Row(
-                children: [
-                  const Text('📀', style: TextStyle(fontSize: 32)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Nuestras canciones',
-                          style: textTheme.titleMedium,
-                        ),
-                        Text(subtitulo, style: textTheme.bodyMedium),
-                      ],
-                    ),
-                  ),
-                  if (canciones.isNotEmpty)
-                    _PortadasEncimadas(
-                      canciones: [for (final c in canciones.take(4)) c.cancion],
-                    ),
-                  const Icon(Icons.chevron_right),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
+    void abrir() => Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => PlaylistPage(musica: _musica)),
+    );
+    return StreamBuilder<List<CancionPlaylist>>(
+      stream: _playlist ??= _musica.watchPlaylist(),
+      builder: (context, snap) {
+        final canciones = snap.data ?? const <CancionPlaylist>[];
+        final subtitulo = snap.hasError
+            ? 'No se pudo cargar la playlist'
+            : !snap.hasData
+            ? 'Cargando…'
+            : canciones.isEmpty
+            ? 'Agreguen su primera canción 🎶'
+            : textoCancionesPlaylist(canciones.length);
+        return MosaicoInicio(
+          key: const Key('tarjeta-playlist'),
+          emoji: '📀',
+          titulo: 'Nuestras canciones',
+          subtitulo: subtitulo,
+          extra: canciones.isEmpty
+              ? null
+              : _PortadasEncimadas(
+                  canciones: [for (final c in canciones.take(3)) c.cancion],
+                ),
+          onTap: abrir,
+        );
+      },
     );
   }
 }
@@ -88,8 +65,8 @@ class _PortadasEncimadas extends StatelessWidget {
 
   final List<Cancion> canciones;
 
-  static const _lado = 30.0;
-  static const _paso = 18.0;
+  static const _lado = 24.0;
+  static const _paso = 14.0;
 
   @override
   Widget build(BuildContext context) {

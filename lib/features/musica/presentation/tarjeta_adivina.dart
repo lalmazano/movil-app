@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../domain/adivina_juego.dart';
@@ -55,14 +56,20 @@ class _ContenidoState extends State<_Contenido> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     return StreamBuilder<List<CancionPlaylist>>(
       stream: _playlist,
       builder: (context, playlist) => StreamBuilder<List<RecordAdivina>>(
         stream: _records,
         builder: (context, records) {
-          // Si falla la lectura (p. ej. reglas sin publicar) no se muestra.
-          if (playlist.hasError) return const SizedBox.shrink();
+          if (playlist.hasError) {
+            return MosaicoInicio(
+              key: const Key('tarjeta-adivina'),
+              emoji: '❓',
+              titulo: 'Adivina la canción',
+              subtitulo: 'No se pudo cargar la playlist',
+              onTap: _abrir,
+            );
+          }
           final uid = widget.musica.autorActual?.uid ?? 'local';
           final canciones = [
             for (final c in playlist.data ?? const <CancionPlaylist>[])
@@ -72,45 +79,15 @@ class _ContenidoState extends State<_Contenido> {
           for (final r in records.data ?? const <RecordAdivina>[]) {
             if (r.autor.uid == uid) mio = r;
           }
-          return Card(
+          return MosaicoInicio(
             key: const Key('tarjeta-adivina'),
-            margin: const EdgeInsets.only(bottom: 12),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: _abrir,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '❓ Adivina la canción',
-                            style: textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            TarjetaAdivina.subtitulo(
-                              playlist: canciones,
-                              miRecord: mio,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Icon(Icons.play_arrow_rounded),
-                    ),
-                  ],
-                ),
-              ),
+            emoji: '❓',
+            titulo: 'Adivina la canción',
+            subtitulo: TarjetaAdivina.subtitulo(
+              playlist: canciones,
+              miRecord: mio,
             ),
+            onTap: _abrir,
           );
         },
       ),

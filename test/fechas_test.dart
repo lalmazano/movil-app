@@ -243,13 +243,10 @@ void main() {
       );
       await tester.pumpWidget(app(repo));
       await tester.pump();
-      expect(
-        find.text('📆 Cumpleaños de Ana · Faltan 12 días'),
-        findsOneWidget,
-      );
-      expect(find.text('Ver todas'), findsOneWidget);
+      expect(find.text('Cumpleaños de Ana · Faltan 12 días'), findsOneWidget);
+      expect(find.text('Fechas'), findsOneWidget);
 
-      await tester.tap(find.text('Ver todas'));
+      await tester.tap(find.byKey(const Key('tarjeta-fechas')));
       await tester.pumpAndSettle();
       expect(find.byType(FechasPage), findsOneWidget);
       expect(find.text('🎂'), findsOneWidget);

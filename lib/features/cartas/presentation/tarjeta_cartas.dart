@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/mosaico_inicio.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/config_scope.dart';
 import '../domain/cartas_repository.dart';
@@ -48,44 +49,26 @@ class _TarjetaCartasState extends State<TarjetaCartas> {
   @override
   Widget build(BuildContext context) {
     if (!ConfigClubScope.of(context).cartas) return const SizedBox.shrink();
-    final textTheme = Theme.of(context).textTheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => CartasPage(cartas: _repo)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: StreamBuilder<List<Carta>>(
-            stream: _cartas ??= _repo.watch(),
-            builder: (context, snap) {
-              final subtitulo = snap.hasError
-                  ? 'No se pudieron cargar las cartas'
-                  : snap.hasData
-                  ? _resumen(snap.data!)
-                  : 'Cargando…';
-              return Row(
-                children: [
-                  const Text('💌', style: TextStyle(fontSize: 32)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Cartas', style: textTheme.titleMedium),
-                        Text(subtitulo, style: textTheme.bodyMedium),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
+    void abrir() => Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => CartasPage(cartas: _repo)));
+    return StreamBuilder<List<Carta>>(
+      stream: _cartas ??= _repo.watch(),
+      builder: (context, snap) {
+        final subtitulo = snap.hasError
+            ? 'No se pudieron cargar las cartas'
+            : snap.hasData
+            ? _resumen(snap.data!)
+            : 'Cargando…';
+        return MosaicoInicio(
+          key: const Key('tarjeta-cartas'),
+          emoji: '💌',
+          titulo: 'Cartas',
+          subtitulo: subtitulo,
+          destacado: subtitulo.contains('lista'),
+          onTap: abrir,
+        );
+      },
     );
   }
 }

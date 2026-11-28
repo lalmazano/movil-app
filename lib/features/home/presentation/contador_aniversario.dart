@@ -34,11 +34,10 @@ class _ContadorAniversarioState extends State<ContadorAniversario> {
       child: InkWell(
         onTap: () => setState(() => _soloDias = !_soloDias),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Text(
             texto,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleSmall
+            style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: scheme.onPrimaryContainer),
           ),
         ),
