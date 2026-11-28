@@ -1,0 +1,5 @@
+Fredoka — Copyright 2016 The Fredoka Project Authors (https://github.com/hafontia-zz/Fredoka-One)
+
+Esta tipografía se distribuye bajo la SIL Open Font License, Versión 1.1.
+Texto completo de la licencia: https://openfontlicense.org/open-font-license-official-text/
+Obtenida de Google Fonts: https://fonts.google.com/specimen/Fredoka

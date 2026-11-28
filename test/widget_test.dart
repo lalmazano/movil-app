@@ -25,7 +25,7 @@ void main() {
       ClubDelFrijolApp(repository: MemoriaListaRepository()),
     );
     await tester.pump();
-    expect(find.text('🫘 El Club del Frijol'), findsOneWidget);
+    expect(find.text('El Club del Frijol'), findsOneWidget);
     expect(find.text('Películas'), findsOneWidget);
     expect(find.text('Deseos'), findsOneWidget);
     expect(find.text('Hacer juntos'), findsOneWidget);

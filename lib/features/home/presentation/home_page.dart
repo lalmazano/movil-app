@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_constants.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/iconos_club.dart';
@@ -74,7 +73,7 @@ class _HomePageState extends State<HomePage> {
     final textTheme = Theme.of(context).textTheme;
     final usuario = auth?.actual;
     return Scaffold(
-      appBar: AppBar(title: const Text('🫘 ${AppConstants.appName}')),
+      appBar: AppBar(title: const LogotipoClub()),
       body: PawBackground(
         // Una sola suscripción a la configuración para el contador y las listas.
         child: StreamBuilder<ConfigClub>(

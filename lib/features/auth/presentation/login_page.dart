@@ -52,7 +52,8 @@ class _LoginPageState extends State<LoginPage> {
                     AppConstants.appName,
                     textAlign: TextAlign.center,
                     style: textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontFamily: familiaLogotipo,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),

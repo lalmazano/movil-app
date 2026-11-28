@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/iconos_club.dart';
 import '../../listas/domain/config_club.dart';
 import '../../listas/domain/item_lista.dart';
@@ -631,10 +632,7 @@ class TarjetaFinalResumen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '🫘 ${AppConstants.appName}',
-              style: TextStyle(fontSize: 14, color: Colors.white70),
-            ),
+            const LogotipoClub(tamano: 14, color: Colors.white70),
             const SizedBox(height: 4),
             Text(
               'Nuestro ${r.anio} 🎁',

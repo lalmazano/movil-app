@@ -78,6 +78,14 @@ flutter:
   assets:
     - assets/icon/app_icon.png
 
+  # Letra redondeada para el nombre del club (SIL Open Font License,
+  # ver assets/fonts/LICENCIA-Fredoka.txt).
+  fonts:
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
+          weight: 600
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
