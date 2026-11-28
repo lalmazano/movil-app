@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../../actualizacion/domain/version_app.dart';
 import '../../cartas/domain/cartas_repository.dart';
 import '../../fechas/domain/fechas_repository.dart';
+import '../../musica/domain/musica_repository.dart';
 import '../../preguntas/domain/preguntas_repository.dart';
 import 'config_club.dart';
 import 'detalles.dart';
@@ -260,6 +261,9 @@ abstract interface class ListaRepository {
 
   /// Pregunta del día (`clubs/{club}/preguntas`).
   PreguntasRepository get preguntas;
+
+  /// Playlist del club y récords de "Adivina la canción".
+  MusicaRepository get musica;
 
   Future<void> addMany(TipoLista tipo, List<NuevoItem> items);
 

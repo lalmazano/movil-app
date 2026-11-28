@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../actualizacion/domain/version_app.dart';
 import '../../cartas/data/firestore_cartas_repository.dart';
 import '../../fechas/data/firestore_fechas_repository.dart';
+import '../../musica/data/firestore_musica_repository.dart';
 import '../../preguntas/data/firestore_preguntas_repository.dart';
 import '../domain/config_club.dart';
 import 'datos_iniciales.dart';
@@ -38,6 +39,13 @@ class FirestoreListaRepository implements ListaRepository {
 
   @override
   late final fechas = FirestoreFechasRepository(
+    _db,
+    clubId: clubId,
+    autor: _autor,
+  );
+
+  @override
+  late final musica = FirestoreMusicaRepository(
     _db,
     clubId: clubId,
     autor: _autor,

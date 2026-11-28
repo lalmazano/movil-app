@@ -8,6 +8,8 @@ import '../../actualizacion/presentation/aviso_actualizacion.dart';
 import '../../auth/domain/auth_service.dart';
 import '../../cartas/presentation/tarjeta_cartas.dart';
 import '../../fechas/presentation/tarjeta_fechas.dart';
+import '../../musica/presentation/tarjeta_adivina.dart';
+import '../../musica/presentation/tarjeta_playlist.dart';
 import '../../preguntas/presentation/tarjeta_pregunta.dart';
 import '../../resumen/presentation/tarjeta_resumen.dart';
 import '../../listas/domain/config_club.dart';
@@ -142,6 +144,14 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TarjetaCartas(
                   key: const ValueKey('extra-cartas'),
+                  repository: repository,
+                ),
+                TarjetaPlaylist(
+                  key: const ValueKey('extra-playlist'),
+                  repository: repository,
+                ),
+                TarjetaAdivina(
+                  key: const ValueKey('extra-adivina'),
                   repository: repository,
                 ),
                 TarjetaResumen(

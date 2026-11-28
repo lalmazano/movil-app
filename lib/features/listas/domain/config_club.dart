@@ -9,7 +9,8 @@ import 'item_lista.dart';
 ///   agregó / marcó), `ruleta`, `buscar`, `fotos`, `posters` (TMDB),
 ///   `contador` (contador de aniversario), `widget` (widget de Android) y
 ///   `actualizaciones` (avisar y descargar versiones nuevas), `cartas`,
-///   `resumen`, `fechas`, `preguntas`, `sugerencias` y `repetibles`.
+///   `resumen`, `fechas`, `preguntas`, `sugerencias`, `repetibles`,
+///   `playlist`, `adivina` y `cartasMusica`.
 ///
 /// Otros:
 /// - `aniversario` (timestamp, opcional): fecha desde la que cuenta el club.
@@ -34,6 +35,9 @@ class ConfigClub {
     this.preguntas = true,
     this.sugerencias = true,
     this.repetibles = true,
+    this.playlist = true,
+    this.adivina = true,
+    this.cartasMusica = true,
     this.aniversario,
   });
 
@@ -59,6 +63,9 @@ class ConfigClub {
       preguntas: b('preguntas'),
       sugerencias: b('sugerencias'),
       repetibles: b('repetibles'),
+      playlist: b('playlist'),
+      adivina: b('adivina'),
+      cartasMusica: b('cartasMusica'),
       aniversario: map?['aniversario'] as DateTime?,
     );
   }
@@ -85,6 +92,9 @@ class ConfigClub {
     'preguntas',
     'sugerencias',
     'repetibles',
+    'playlist',
+    'adivina',
+    'cartasMusica',
   ];
 
   final bool peliculas;
@@ -136,6 +146,15 @@ class ConfigClub {
 
   /// Planes repetibles con contador de veces (🔁).
   final bool repetibles;
+
+  /// Playlist del club con buscador de iTunes (📀).
+  final bool playlist;
+
+  /// Juego "Adivina la canción" (❓).
+  final bool adivina;
+
+  /// Canción adjunta en las cartas con fecha (💌🎵).
+  final bool cartasMusica;
 
   /// Las fechas ya deben venir como [DateTime].
   final DateTime? aniversario;

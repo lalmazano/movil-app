@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import '../../actualizacion/domain/version_app.dart';
 import '../../cartas/data/memoria_cartas_repository.dart';
 import '../../fechas/data/memoria_fechas_repository.dart';
+import '../../musica/data/memoria_musica_repository.dart';
 import '../../preguntas/data/memoria_preguntas_repository.dart';
 import '../domain/config_club.dart';
 import '../domain/item_lista.dart';
@@ -32,6 +33,12 @@ class MemoriaListaRepository implements ListaRepository {
 
   @override
   late final fechas = MemoriaFechasRepository(
+    autor: () => autorActual,
+    reloj: _reloj,
+  );
+
+  @override
+  late final musica = MemoriaMusicaRepository(
     autor: () => autorActual,
     reloj: _reloj,
   );

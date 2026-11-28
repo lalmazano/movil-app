@@ -27,6 +27,8 @@ rules_version = '2';
 // config/tmdb           → apiKey de TMDB (solo miembros la leen).
 // clubs/{clubId}/cartas/{id} (+ contenido/texto) → cartas con fecha.
 // clubs/{clubId}/fechas/{id}  → fechas importantes.
+// clubs/{clubId}/playlist/{itunesId} → playlist del club.
+// clubs/{clubId}/adivina/{uid} → récords de "Adivina la canción".
 // clubs/{clubId}/preguntas/{aaaa-mm-dd} (+ respuestas/{uid}) → pregunta del día.
 // config/version        → última versión publicada (la escribe GitHub Actions
 //                         con una cuenta de servicio; la app solo la lee).
@@ -53,7 +55,8 @@ service cloud.firestore {
       return ['peliculas', 'deseos', 'planes', 'registroAbierto',
               'calificaciones', 'autores', 'ruleta', 'buscar', 'fotos',
               'posters', 'contador', 'widget', 'actualizaciones', 'cartas',
-              'resumen', 'fechas', 'preguntas', 'sugerencias', 'repetibles'];
+              'resumen', 'fechas', 'preguntas', 'sugerencias', 'repetibles',
+              'playlist', 'adivina', 'cartasMusica'];
     }
 
     // Cada bandera que no existía en [antes] debe agregarse en true.
@@ -71,7 +74,8 @@ service cloud.firestore {
         && nuevaEnTrue(antes, 'actualizaciones') && nuevaEnTrue(antes, 'cartas')
         && nuevaEnTrue(antes, 'resumen') && nuevaEnTrue(antes, 'fechas')
         && nuevaEnTrue(antes, 'preguntas') && nuevaEnTrue(antes, 'sugerencias')
-        && nuevaEnTrue(antes, 'repetibles');
+        && nuevaEnTrue(antes, 'repetibles') && nuevaEnTrue(antes, 'playlist')
+        && nuevaEnTrue(antes, 'adivina') && nuevaEnTrue(antes, 'cartasMusica');
     }
 
     function listaVisible(lista) {
@@ -184,6 +188,34 @@ service cloud.firestore {
              .hasOnly(['usadaEn'])
         && !('usadaEn' in resource.data);
       allow delete: if esMiembro() && resource.data.autor.uid == request.auth.uid;
+    }
+
+    // 📀 Playlist del club: id = itunesId (no se repiten canciones). Cada quien
+    // agrega a su nombre, solo cambia su propio ❤️ y solo borra lo suyo.
+    // El juego "Adivina la canción" también la lee.
+    match /clubs/{clubId}/playlist/{id} {
+      allow read: if esMiembro() && (activa('playlist') || activa('adivina'));
+      allow create: if esMiembro() && activa('playlist')
+        && request.resource.data.agregadaPor.uid == request.auth.uid
+        && request.resource.data.cancion.titulo is string
+        && id == string(request.resource.data.cancion.itunesId);
+      allow update: if esMiembro() && activa('playlist')
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['corazones'])
+        && request.resource.data.corazones
+             .diff(resource.data.get('corazones', {})).affectedKeys()
+             .hasOnly([request.auth.uid]);
+      allow delete: if esMiembro()
+        && resource.data.agregadaPor.uid == request.auth.uid;
+    }
+
+    // ❓ Récords de "Adivina la canción": cada quien escribe solo el suyo.
+    match /clubs/{clubId}/adivina/{uid} {
+      allow read: if esMiembro() && activa('adivina');
+      allow write: if esMiembro() && activa('adivina')
+        && uid == request.auth.uid
+        && request.resource.data.mejor is int
+        && request.resource.data.partidas is int;
     }
 
     // 📆 Fechas importantes.
