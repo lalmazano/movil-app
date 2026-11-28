@@ -29,7 +29,7 @@ class FirestoreCartasRepository implements CartasRepository {
 
   Autor get _yo =>
       autor() ??
-      (throw const CartaError('Inicia sesión para usar las cartas 💌'));
+      (throw const CartaError('Inicia sesión para usar las cartas ✉️'));
 
   /// Convierte los Timestamp (también anidados) a DateTime.
   static Object? _fechas(Object? v) => switch (v) {

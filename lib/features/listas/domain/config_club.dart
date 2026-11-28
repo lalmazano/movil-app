@@ -129,7 +129,7 @@ class ConfigClub {
   /// Avisar cuando hay una versión nueva y descargarla.
   final bool actualizaciones;
 
-  /// Cartas con fecha que se abren en un día (💌).
+  /// Cartas con fecha que se abren en un día (✉️).
   final bool cartas;
 
   /// Resumen anual tipo "Wrapped" (🎁).
@@ -153,7 +153,7 @@ class ConfigClub {
   /// Juego "Adivina la canción" (❓).
   final bool adivina;
 
-  /// Canción adjunta en las cartas con fecha (💌🎵).
+  /// Canción adjunta en las cartas con fecha (✉️🎵).
   final bool cartasMusica;
 
   /// Las fechas ya deben venir como [DateTime].

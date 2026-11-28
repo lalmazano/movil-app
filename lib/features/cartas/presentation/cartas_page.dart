@@ -74,7 +74,7 @@ class _CartasPageState extends State<CartasPage> {
       MaterialPageRoute(builder: (_) => EscribirCartaPage(cartas: _repo)),
     );
     if (guardada == true && mounted) {
-      _avisar(context, 'Carta guardada 💌');
+      _avisar(context, 'Carta guardada ✉️');
     }
   }
 
@@ -152,7 +152,7 @@ class _CartasPageState extends State<CartasPage> {
                   padding: EdgeInsets.all(24),
                   child: Text(
                     'Aún no hay cartas.\nEscribe una para que se abra en un '
-                    'día especial 💌',
+                    'día especial ✉️',
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -215,7 +215,7 @@ class _Sobre extends StatelessWidget {
             : 'Abierta el ${fechaCorta(carta.abiertaEn!)}',
       ),
       (false, false) => (
-        '💌',
+        '✉️',
         mia ? 'Ya se puede abrir · aún sin abrir' : '¡Ya puedes abrirla!',
       ),
     };
@@ -333,7 +333,7 @@ class _LeerCartaPageState extends State<LeerCartaPage> {
     final textTheme = Theme.of(context).textTheme;
     const tinta = MichiColors.cafe;
     return Scaffold(
-      appBar: AppBar(title: const Text('💌 Carta')),
+      appBar: AppBar(title: const Text('✉️ Carta')),
       body: PawBackground(
         child: FutureBuilder<ContenidoCarta>(
           future: _contenido,
@@ -400,7 +400,7 @@ class _LeerCartaPageState extends State<LeerCartaPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Text(
-                          'Con cariño, ${carta.de.nombreCorto} 💌',
+                          'Con cariño, ${carta.de.nombreCorto} ✉️',
                           style: textTheme.titleMedium?.copyWith(
                             color: tinta,
                             fontStyle: FontStyle.italic,

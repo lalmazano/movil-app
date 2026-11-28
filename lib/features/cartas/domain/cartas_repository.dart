@@ -165,5 +165,5 @@ String validarCarta({
 
 /// Mensaje cuando alguien intenta abrir una carta antes de tiempo.
 CartaError cartaCerrada(Carta carta) => const CartaError(
-  'Todavía no se puede abrir esta carta 🔒 Ten paciencia 💌',
+  'Todavía no se puede abrir esta carta 🔒 Ten paciencia ✉️',
 );
