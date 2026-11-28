@@ -136,7 +136,12 @@ class _RuletaSheetState extends State<RuletaSheet>
 
     if (_pendientes.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          0,
+          24,
+          24 + MediaQuery.viewPaddingOf(context).bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -150,8 +155,15 @@ class _RuletaSheetState extends State<RuletaSheet>
 
     final candidatos = _candidatos;
     final categorias = _categoriasConPendientes;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    // Desplazable y respetando la barra de navegación del teléfono, para que
+    // el botón "Girar" siempre se vea.
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        16 + MediaQuery.viewPaddingOf(context).bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,10 +171,10 @@ class _RuletaSheetState extends State<RuletaSheet>
           Text(
             '🎲 $titulo',
             textAlign: TextAlign.center,
-            style: textTheme.titleLarge,
+            style: textTheme.titleMedium,
           ),
           if (categorias.length > 1) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -183,13 +195,14 @@ class _RuletaSheetState extends State<RuletaSheet>
               ],
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Card(
             color: colores.primaryContainer,
+            margin: EdgeInsets.zero,
             child: Container(
-              constraints: const BoxConstraints(minHeight: 140),
+              constraints: const BoxConstraints(minHeight: 96),
               alignment: Alignment.center,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(14),
               child: switch (_fase) {
                 _Fase.inicio => Text(
                   candidatos.length == 1
@@ -215,7 +228,7 @@ class _RuletaSheetState extends State<RuletaSheet>
               },
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           if (_fase == _Fase.listo)
             Row(
               children: [
@@ -262,12 +275,12 @@ class _Elegido extends StatelessWidget {
       key: const Key('ruleta-elegido'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('🎉', style: TextStyle(fontSize: 32)),
-        const SizedBox(height: 8),
+        const Text('🎉', style: TextStyle(fontSize: 26)),
+        const SizedBox(height: 4),
         Text(
           item.titulo,
           textAlign: TextAlign.center,
-          style: textTheme.headlineSmall?.copyWith(
+          style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: colores.onPrimaryContainer,
           ),
