@@ -17,7 +17,7 @@ class _CartasDesactivadas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('💌 Cartas')),
+    appBar: AppBar(title: const Text('🖋️ Cartas')),
     body: const Center(
       child: Padding(
         padding: EdgeInsets.all(24),
@@ -127,7 +127,7 @@ class _CartasPageState extends State<CartasPage> {
       return const _CartasDesactivadas();
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('💌 Cartas')),
+      appBar: AppBar(title: const Text('🖋️ Cartas')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _escribir,
         icon: const Icon(Icons.edit),

@@ -7,7 +7,7 @@ import '../domain/cartas_repository.dart';
 import 'cartas_page.dart';
 import 'formato_cartas.dart';
 
-/// Tarjeta "💌 Cartas" en el inicio. Se oculta si la bandera `cartas` de
+/// Tarjeta "🖋️ Cartas" en el inicio. Se oculta si la bandera `cartas` de
 /// config/app es false.
 class TarjetaCartas extends StatefulWidget {
   const TarjetaCartas({super.key, required this.repository});
@@ -62,7 +62,7 @@ class _TarjetaCartasState extends State<TarjetaCartas> {
             : 'Cargando…';
         return MosaicoInicio(
           key: const Key('tarjeta-cartas'),
-          emoji: '💌',
+          emoji: '🖋️',
           titulo: 'Cartas',
           subtitulo: subtitulo,
           destacado: subtitulo.contains('lista'),
