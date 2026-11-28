@@ -173,13 +173,17 @@ class FirestorePreguntasRepository implements PreguntasRepository {
   Stream<List<DiaPregunta>> watchHistorial({int limite = 30}) {
     final uid = autor()?.uid;
     if (uid == null) return Stream.value(const []);
+    // Rango ascendente por id (aaaa-mm-dd) y se invierte en la app: Firestore
+    // no siempre permite ordenar por id en forma descendente.
+    final desde = claveDia(DateTime.now().subtract(Duration(days: limite)));
     return _col
+        .where(FieldPath.documentId, isGreaterThanOrEqualTo: desde)
         .where(FieldPath.documentId, isLessThan: hoy)
-        .orderBy(FieldPath.documentId, descending: true)
-        .limit(limite)
         .snapshots()
         .asyncMap(
-          (snap) => Future.wait([for (final d in snap.docs) _dia(uid, d)]),
+          (snap) => Future.wait([
+            for (final d in snap.docs.reversed.take(limite)) _dia(uid, d),
+          ]),
         );
   }
 
@@ -189,12 +193,12 @@ class FirestorePreguntasRepository implements PreguntasRepository {
     final uid = autor()?.uid;
     if (uid == null) return null;
     try {
+      final desde = claveDia(DateTime.now().subtract(const Duration(days: 7)));
       final dias = await _col
+          .where(FieldPath.documentId, isGreaterThanOrEqualTo: desde)
           .where(FieldPath.documentId, isLessThanOrEqualTo: hoy)
-          .orderBy(FieldPath.documentId, descending: true)
-          .limit(7)
           .get();
-      for (final d in dias.docs) {
+      for (final d in dias.docs.reversed) {
         final dia = await _dia(uid, d);
         if (dia.otras.isNotEmpty) return _pareja = dia.otras.first.autor;
       }
