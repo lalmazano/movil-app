@@ -18,7 +18,7 @@ Funciones elegidas para hacer más adelante. Cada una tendrá su bandera en
   juntos") y contar cuántas veces lo han hecho.
 
 ## Hechas (música, v1.3.0)
-- [x] **📀 Playlist del club** con buscador de iTunes, ❤️ y "¿Qué escuchamos?".
+- [x] **📀 Canciones favoritas** (playlist del club) con buscador de iTunes, ❤️ y "¿Qué escuchamos?".
 - [x] **❓ Adivina la canción** con récords.
 - [x] **💌🎵 Carta con canción** (sorpresa hasta abrir la carta).
 

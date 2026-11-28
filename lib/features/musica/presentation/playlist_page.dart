@@ -150,7 +150,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   Widget build(BuildContext context) {
     if (!ConfigClubScope.of(context).playlist) {
       return Scaffold(
-        appBar: AppBar(title: const Text('📀 Nuestras canciones')),
+        appBar: AppBar(title: const Text('📀 Canciones favoritas')),
         body: const Center(child: Text('La playlist está desactivada')),
       );
     }
@@ -161,7 +161,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         final porCorazones = _orden == OrdenPlaylist.corazones;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('📀 Nuestras canciones'),
+            title: const Text('📀 Canciones favoritas'),
             actions: [
               if (canciones.isNotEmpty)
                 IconButton(

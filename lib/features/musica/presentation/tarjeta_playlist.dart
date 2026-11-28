@@ -7,7 +7,7 @@ import '../domain/musica_repository.dart';
 import 'playlist_page.dart';
 import 'widgets_musica.dart';
 
-/// Tarjeta "📀 Nuestras canciones" en el inicio. Se oculta si la bandera
+/// Tarjeta "📀 Canciones favoritas" en el inicio. Se oculta si la bandera
 /// `playlist` de config/app es false.
 class TarjetaPlaylist extends StatefulWidget {
   const TarjetaPlaylist({super.key, required this.repository});
@@ -45,7 +45,7 @@ class _TarjetaPlaylistState extends State<TarjetaPlaylist> {
         return MosaicoInicio(
           key: const Key('tarjeta-playlist'),
           emoji: '📀',
-          titulo: 'Nuestras canciones',
+          titulo: 'Canciones favoritas',
           subtitulo: subtitulo,
           extra: canciones.isEmpty
               ? null

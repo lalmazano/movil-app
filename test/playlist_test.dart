@@ -129,14 +129,14 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('Nuestras canciones'),
+      find.text('Canciones favoritas'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Agreguen su primera canción 🎶'), findsOneWidget);
-    await tester.tap(find.text('Nuestras canciones'));
+    await tester.tap(find.text('Canciones favoritas'));
     await tester.pumpAndSettle();
-    expect(find.text('📀 Nuestras canciones'), findsOneWidget);
+    expect(find.text('📀 Canciones favoritas'), findsOneWidget);
     expect(find.text('Agregar canción'), findsOneWidget);
 
     await tester.pumpWidget(
@@ -151,7 +151,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.drag(find.byType(Scrollable).first, const Offset(0, -5000));
     await tester.pumpAndSettle();
-    expect(find.text('Nuestras canciones'), findsNothing);
+    expect(find.text('Canciones favoritas'), findsNothing);
     expect(find.text('Agreguen su primera canción 🎶'), findsNothing);
   });
 
