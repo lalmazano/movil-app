@@ -456,7 +456,7 @@ class _Cifra extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 72)),
+          emojiOGatito(emoji, 72),
           const SizedBox(height: 16),
           Text(
             titulo,
@@ -564,7 +564,7 @@ class _Mensaje extends StatelessWidget {
   Widget build(BuildContext context) => Center(
     child: Padding(
       padding: const EdgeInsets.all(24),
-      child: Text(
+      child: TextoConGatito(
         texto,
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.titleMedium,

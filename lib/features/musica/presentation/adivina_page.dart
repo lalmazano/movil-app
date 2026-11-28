@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../../listas/presentation/config_scope.dart';
@@ -357,7 +358,11 @@ class _AdivinaPageState extends State<AdivinaPage>
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-        Text(mensaje, textAlign: TextAlign.center, style: textTheme.bodyLarge),
+        TextoConGatito(
+          mensaje,
+          textAlign: TextAlign.center,
+          style: textTheme.bodyLarge,
+        ),
         const SizedBox(height: 24),
         Wrap(
           alignment: WrapAlignment.center,

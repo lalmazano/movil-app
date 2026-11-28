@@ -60,9 +60,15 @@ void main() {
     expect(find.text('Hechos 0'), findsOneWidget);
 
     await otraVez(tester);
-    expect(find.text('¡Otra vez! Ya van 1 🫘'), findsOneWidget);
+    expect(
+      find.text('¡Otra vez! Ya van 1 \uFFFC', findRichText: true),
+      findsOneWidget,
+    );
     await otraVez(tester);
-    expect(find.text('¡Otra vez! Ya van 2 🫘'), findsOneWidget);
+    expect(
+      find.text('¡Otra vez! Ya van 2 \uFFFC', findRichText: true),
+      findsOneWidget,
+    );
 
     final item = (await repo.watch(TipoLista.planes).first).single;
     expect(item.repetible, isTrue);

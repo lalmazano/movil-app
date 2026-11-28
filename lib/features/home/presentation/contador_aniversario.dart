@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/club_logo.dart';
 import '../domain/aniversario.dart';
 
 /// Tarjetita con el tiempo que llevamos juntos. Al tocarla alterna entre la
@@ -35,7 +36,7 @@ class _ContadorAniversarioState extends State<ContadorAniversario> {
         onTap: () => setState(() => _soloDias = !_soloDias),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          child: Text(
+          child: TextoConGatito(
             texto,
             style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: scheme.onPrimaryContainer),

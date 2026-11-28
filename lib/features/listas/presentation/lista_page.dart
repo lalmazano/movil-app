@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../data/catalogo_disney.dart';
@@ -151,7 +152,7 @@ class _ListaPageState extends State<ListaPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(
+            content: TextoConGatito(
               '¡${item.titulo}: ${_tipo.accionHecho.toLowerCase()}! 🫘',
             ),
             action: SnackBarAction(
@@ -183,7 +184,9 @@ class _ListaPageState extends State<ListaPage> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text('¡Otra vez! Ya van ${item.veces + 1} 🫘')),
+        SnackBar(
+          content: TextoConGatito('¡Otra vez! Ya van ${item.veces + 1} 🫘'),
+        ),
       );
     // Con sesión iniciada, pregunta qué tal estuvo (en modo local no).
     if (widget.repository.autorActual != null &&
@@ -577,7 +580,7 @@ class _Mensaje extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 64)),
+            emojiOGatito(emoji, 64),
             const SizedBox(height: 12),
             Text(
               texto,

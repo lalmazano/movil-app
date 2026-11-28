@@ -100,7 +100,7 @@ class _Aviso extends StatelessWidget {
               children: [
                 const ClubLogo(radio: 64),
                 const SizedBox(height: 24),
-                Text(
+                TextoConGatito(
                   texto,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleMedium,

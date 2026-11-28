@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                 if (visibles.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Text(
+                    child: TextoConGatito(
                       'No hay listas visibles por ahora 🫘',
                       textAlign: TextAlign.center,
                       style: textTheme.titleMedium,

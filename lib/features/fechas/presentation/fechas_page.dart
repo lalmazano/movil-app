@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/iconos_club.dart';
 import '../../../core/widgets/paw_background.dart';
 import '../domain/fechas_repository.dart';
@@ -86,7 +87,7 @@ class _FechasPageState extends State<FechasPage> {
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(32),
-                  child: Text(
+                  child: TextoConGatito(
                     'Aún no hay fechas.\n¡Agreguen cumpleaños, aniversarios '
                     'y viajes para contar los días! 🫘',
                     textAlign: TextAlign.center,

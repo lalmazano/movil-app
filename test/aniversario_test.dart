@@ -177,14 +177,20 @@ void main() {
       );
       await tester.pump();
       expect(
-        find.text('Llevamos 1 año, 3 meses y 12 días juntos 🫘'),
+        find.text(
+          'Llevamos 1 año, 3 meses y 12 días juntos \uFFFC',
+          findRichText: true,
+        ),
         findsOneWidget,
       );
       expect(find.text('Películas'), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('contador-aniversario')));
       await tester.pump();
-      expect(find.text('467 días juntos 🫘'), findsOneWidget);
+      expect(
+        find.text('467 días juntos \uFFFC', findRichText: true),
+        findsOneWidget,
+      );
 
       await tester.tap(find.byKey(const Key('contador-aniversario')));
       await tester.pump();

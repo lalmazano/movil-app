@@ -64,3 +64,61 @@ class LogotipoClub extends StatelessWidget {
     ],
   );
 }
+
+/// Texto donde cada 🫘 se dibuja como el gatito del logo en miniatura (la
+/// mascota del club), del tamaño de la letra.
+class TextoConGatito extends StatelessWidget {
+  const TextoConGatito(
+    this.texto, {
+    super.key,
+    this.style,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+  });
+
+  final String texto;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!texto.contains('🫘')) {
+      return Text(
+        texto,
+        style: style,
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: overflow,
+      );
+    }
+    final efectivo = DefaultTextStyle.of(context).style.merge(style);
+    final radio = (efectivo.fontSize ?? 14) * 0.62;
+    final partes = texto.split('🫘');
+    return Text.rich(
+      TextSpan(
+        children: [
+          for (final (i, p) in partes.indexed) ...[
+            if (i > 0)
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: ClubLogo(radio: radio),
+              ),
+            TextSpan(text: p),
+          ],
+        ],
+      ),
+      style: style,
+      textAlign: textAlign,
+      maxLines: maxLines,
+      overflow: overflow,
+    );
+  }
+}
+
+/// Emoji grande de los mensajes vacíos; el 🫘 se dibuja como el gatito.
+Widget emojiOGatito(String emoji, double tamano) => emoji == '🫘'
+    ? ClubLogo(radio: tamano * 0.55)
+    : Text(emoji, style: TextStyle(fontSize: tamano));

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/club_logo.dart';
 import '../../../core/widgets/iconos_club.dart';
 import '../../listas/domain/item_lista.dart';
 import '../../listas/presentation/widgets/huellitas.dart';
@@ -304,7 +305,7 @@ class _Aviso extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Text(
+    child: TextoConGatito(
       texto,
       style: Theme.of(context).textTheme.bodyMedium
           ?.copyWith(fontStyle: FontStyle.italic),
