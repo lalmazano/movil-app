@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="widget_titulo">🫘 El Club del Frijol</string>
-    <string name="widget_descripcion">Cuántos días llevan juntos, la próxima película y el próximo plan del club.</string>
+    <string name="widget_descripcion">Cuántos días llevan juntos, la próxima película, el próximo plan y la próxima fecha importante del club.</string>
     <string name="widget_ejemplo_aniversario">💛 467 días juntos</string>
     <string name="widget_ejemplo_pelicula">🎬 Próxima película: Enredados</string>
     <string name="widget_ejemplo_plan">🧺 Próximo plan: Hacer un picnic</string>
+    <string name="widget_ejemplo_fecha">📆 Cumpleaños de Ana · Faltan 12 días</string>
     <string name="widget_cargando">Abre la app para ver lo pendiente 🫘</string>
 </resources>

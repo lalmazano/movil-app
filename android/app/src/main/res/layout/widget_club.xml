@@ -53,4 +53,15 @@
         android:textColor="@color/widget_texto"
         android:textSize="13sp"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_fecha"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/widget_texto"
+        android:textSize="13sp"
+        android:visibility="gone" />
 </LinearLayout>

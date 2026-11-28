@@ -44,4 +44,13 @@
         android:text="@string/widget_ejemplo_plan"
         android:textColor="@color/widget_texto"
         android:textSize="13sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:maxLines="2"
+        android:text="@string/widget_ejemplo_fecha"
+        android:textColor="@color/widget_texto"
+        android:textSize="13sp" />
 </LinearLayout>
