@@ -35,8 +35,11 @@ class MemoriaMusicaRepository implements MusicaRepository {
 
   @override
   Future<bool> agregar(Cancion cancion) async {
-    final id = '${cancion.itunesId}';
-    if (_playlist.containsKey(id)) return false;
+    final id = cancion.clave;
+    if (_playlist.containsKey(id) ||
+        _playlist.values.any((c) => c.cancion.huella == cancion.huella)) {
+      return false;
+    }
     _playlist[id] = CancionPlaylist(
       id: id,
       cancion: cancion,

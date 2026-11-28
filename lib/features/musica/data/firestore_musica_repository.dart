@@ -47,7 +47,14 @@ class FirestoreMusicaRepository implements MusicaRepository {
   Future<bool> agregar(Cancion cancion) async {
     final yo = autor();
     if (yo == null) throw StateError('Inicia sesión para agregar canciones.');
-    final ref = _club.collection('playlist').doc('${cancion.itunesId}');
+    // La misma canción pudo encontrarse en el otro catálogo.
+    final actuales = await _club.collection('playlist').get();
+    if (actuales.docs.any(
+      (d) => Cancion.fromMap(d.data()['cancion'])?.huella == cancion.huella,
+    )) {
+      return false;
+    }
+    final ref = _club.collection('playlist').doc(cancion.clave);
     return db.runTransaction((tx) async {
       if ((await tx.get(ref)).exists) return false;
       tx.set(ref, {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../data/buscador_musica.dart';
 import '../data/itunes_client.dart';
 import '../domain/cancion.dart';
 import 'reproductor.dart';
@@ -55,7 +56,7 @@ class BotonPreview extends StatelessWidget {
       builder: (context, _) {
         final esta = r.actual == cancion;
         return IconButton(
-          key: ValueKey('preview-${cancion.itunesId}'),
+          key: ValueKey('preview-${cancion.clave}'),
           tooltip: esta ? 'Detener' : 'Escuchar muestra',
           iconSize: tamano,
           visualDensity: VisualDensity.compact,
@@ -140,6 +141,12 @@ Future<void> mostrarAbrirCancion(BuildContext context, Cancion cancion) =>
                 title: const Text('Escuchar en YouTube Music'),
                 onTap: () => abrir(cancion.youtubeMusicUrl),
               ),
+              if (cancion.deezerUrl case final deezer?)
+                ListTile(
+                  leading: const Text('🟣', style: TextStyle(fontSize: 22)),
+                  title: const Text('Escuchar en Deezer'),
+                  onTap: () => abrir(deezer),
+                ),
               if (cancion.appleUrl case final apple?)
                 ListTile(
                   leading: const Text('🍎', style: TextStyle(fontSize: 22)),
@@ -179,7 +186,6 @@ class _BuscadorCanciones extends StatefulWidget {
 
 class _BuscadorCancionesState extends State<_BuscadorCanciones> {
   final _texto = TextEditingController();
-  final _cliente = ItunesClient.fabrica();
   Timer? _espera;
   List<Cancion>? _resultados;
   String? _error;
@@ -210,7 +216,7 @@ class _BuscadorCancionesState extends State<_BuscadorCanciones> {
     }
     setState(() => _buscando = true);
     try {
-      final r = await _cliente.buscar(termino);
+      final r = await buscarEnAmbas(termino);
       if (!mounted || n != _consulta) return;
       setState(() {
         _resultados = r;
@@ -272,7 +278,7 @@ class _BuscadorCancionesState extends State<_BuscadorCanciones> {
               child: resultados == null
                   ? Center(
                       child: Text(
-                        'Escribe para buscar en iTunes 🎶',
+                        'Escribe para buscar en iTunes y Deezer 🎶',
                         style: textTheme.bodyMedium,
                       ),
                     )
@@ -289,8 +295,11 @@ class _BuscadorCancionesState extends State<_BuscadorCanciones> {
                       ),
                       itemCount: resultados.length,
                       itemBuilder: (context, i) => FilaCancion(
-                        key: ValueKey('resultado-${resultados[i].itunesId}'),
+                        key: ValueKey('resultado-${resultados[i].clave}'),
                         cancion: resultados[i],
+                        subtitulo:
+                            '${resultados[i].artista} · '
+                            '${resultados[i].esDeezer ? 'Deezer' : 'iTunes'}',
                         onTap: () => Navigator.pop(context, resultados[i]),
                       ),
                     ),

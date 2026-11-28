@@ -3,7 +3,7 @@ import 'cancion.dart';
 
 export 'cancion.dart';
 
-/// Canción en la playlist del club (`clubs/{club}/playlist/{itunesId}`).
+/// Canción en la playlist del club (`clubs/{club}/playlist/{clave}`).
 class CancionPlaylist {
   const CancionPlaylist({
     required this.id,

@@ -190,7 +190,8 @@ service cloud.firestore {
       allow delete: if esMiembro() && resource.data.autor.uid == request.auth.uid;
     }
 
-    // 📀 Playlist del club: id = itunesId (no se repiten canciones). Cada quien
+    // 📀 Playlist del club: id = itunesId, o "dz" + deezerId para canciones
+    // de Deezer (no se repiten canciones). Cada quien
     // agrega a su nombre, solo cambia su propio ❤️ y solo borra lo suyo.
     // El juego "Adivina la canción" también la lee.
     match /clubs/{clubId}/playlist/{id} {
@@ -198,7 +199,9 @@ service cloud.firestore {
       allow create: if esMiembro() && activa('playlist')
         && request.resource.data.agregadaPor.uid == request.auth.uid
         && request.resource.data.cancion.titulo is string
-        && id == string(request.resource.data.cancion.itunesId);
+        && (id == string(request.resource.data.cancion.get('itunesId', -1))
+            || (request.resource.data.cancion.get('fuente', '') == 'deezer'
+                && id == 'dz' + string(request.resource.data.cancion.get('deezerId', -1))));
       allow update: if esMiembro() && activa('playlist')
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['corazones'])

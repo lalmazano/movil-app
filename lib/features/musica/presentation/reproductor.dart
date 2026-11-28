@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
+import '../data/deezer_client.dart';
 import '../domain/cancion.dart';
 
 /// Reproduce las muestras de 30 s de iTunes. Una sola a la vez en toda la
@@ -73,11 +74,16 @@ class ReproductorJustAudio extends Reproductor {
     Duration? hasta,
   }) async {
     if (_actual == cancion) return detener();
-    final url = cancion.previewUrl;
-    if (url == null) return;
+    if (cancion.previewUrl == null) return;
     _actual = cancion;
     _avance = 0;
     notifyListeners();
+    // Los enlaces de Deezer caducan: se pide uno vigente antes de sonar.
+    final url = cancion.esDeezer
+        ? await DeezerClient.fabrica().previewFresco(cancion.itunesId) ??
+              cancion.previewUrl!
+        : cancion.previewUrl!;
+    if (_actual != cancion) return;
     try {
       await _p.setAudioSource(
         ClippingAudioSource(

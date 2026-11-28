@@ -1,8 +1,12 @@
-/// Una canción encontrada en iTunes (Apple). Se guarda en Firestore como mapa
-/// dentro de la playlist o de una carta.
+/// De qué catálogo salió una canción.
+enum FuenteMusica { itunes, deezer }
+
+/// Una canción encontrada en iTunes (Apple) o en Deezer. Se guarda en
+/// Firestore como mapa dentro de la playlist o de una carta.
 class Cancion {
   const Cancion({
     required this.itunesId,
+    this.fuente = FuenteMusica.itunes,
     required this.titulo,
     required this.artista,
     this.album,
@@ -12,7 +16,19 @@ class Cancion {
     this.duracionMs,
   });
 
+  /// Id de la canción en su catálogo ([fuente]): iTunes o Deezer.
   final int itunesId;
+  final FuenteMusica fuente;
+
+  bool get esDeezer => fuente == FuenteMusica.deezer;
+
+  /// Identificador único entre catálogos (id del documento en la playlist):
+  /// `123` para iTunes y `dz123` para Deezer.
+  String get clave => esDeezer ? 'dz$itunesId' : '$itunesId';
+
+  /// Página de la canción en Deezer.
+  Uri? get deezerUrl =>
+      esDeezer ? Uri.https('www.deezer.com', '/track/$itunesId') : null;
   final String titulo;
   final String artista;
   final String? album;
@@ -20,7 +36,8 @@ class Cancion {
   /// Portada (300×300).
   final String? portadaUrl;
 
-  /// Muestra de 30 segundos (m4a). Puede faltar en algunas canciones.
+  /// Muestra de 30 segundos. Puede faltar en algunas canciones. En Deezer el
+  /// enlace caduca en unas horas: se pide uno nuevo antes de reproducir.
   final String? previewUrl;
 
   /// Página de la canción en Apple Music.
@@ -38,7 +55,11 @@ class Cancion {
       Uri.https('music.youtube.com', '/search', {'q': busqueda});
 
   Map<String, Object?> toMap() => {
-    'itunesId': itunesId,
+    if (esDeezer) ...{
+      'fuente': 'deezer',
+      'deezerId': itunesId,
+    } else
+      'itunesId': itunesId,
     'titulo': titulo,
     'artista': artista,
     'album': album,
@@ -49,11 +70,13 @@ class Cancion {
   };
 
   static Cancion? fromMap(Object? map) {
-    if (map is! Map || map['itunesId'] is! num || map['titulo'] is! String) {
-      return null;
-    }
+    if (map is! Map || map['titulo'] is! String) return null;
+    final deezer = map['fuente'] == 'deezer';
+    final id = map[deezer ? 'deezerId' : 'itunesId'];
+    if (id is! num) return null;
     return Cancion(
-      itunesId: (map['itunesId'] as num).toInt(),
+      itunesId: id.toInt(),
+      fuente: deezer ? FuenteMusica.deezer : FuenteMusica.itunes,
       titulo: map['titulo'] as String,
       artista: (map['artista'] as String?) ?? '',
       album: map['album'] as String?,
@@ -82,10 +105,43 @@ class Cancion {
     );
   }
 
-  @override
-  bool operator ==(Object other) =>
-      other is Cancion && other.itunesId == itunesId;
+  /// Desde un resultado de la API de búsqueda de Deezer.
+  static Cancion? fromDeezer(Map<String, Object?> r) {
+    final id = r['id'];
+    final titulo = r['title'];
+    if (id is! num || titulo is! String) return null;
+    final artista = r['artist'] is Map ? (r['artist'] as Map)['name'] : null;
+    final album = r['album'] is Map ? r['album'] as Map : const {};
+    return Cancion(
+      itunesId: id.toInt(),
+      fuente: FuenteMusica.deezer,
+      titulo: titulo,
+      artista: artista is String ? artista : '',
+      album: album['title'] as String?,
+      portadaUrl: (album['cover_medium'] ?? album['cover_big']) as String?,
+      previewUrl: (r['preview'] as String?)?.isEmpty ?? true
+          ? null
+          : r['preview'] as String?,
+      duracionMs: (r['duration'] as num?) == null
+          ? null
+          : (r['duration'] as num).toInt() * 1000,
+    );
+  }
+
+  /// Título y artista simplificados, para no repetir la misma canción
+  /// encontrada en los dos catálogos.
+  String get huella {
+    String limpio(String t) => t
+        .toLowerCase()
+        .replaceAll(RegExp(r'\(.*?\)|\[.*?\]'), '')
+        .replaceAll(RegExp(r'[^a-z0-9áéíóúüñ]+'), ' ')
+        .trim();
+    return '${limpio(titulo)}|${limpio(artista.split(RegExp(r'[,&]')).first)}';
+  }
 
   @override
-  int get hashCode => itunesId.hashCode;
+  bool operator ==(Object other) => other is Cancion && other.clave == clave;
+
+  @override
+  int get hashCode => clave.hashCode;
 }

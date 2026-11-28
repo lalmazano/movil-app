@@ -27,13 +27,13 @@ abstract final class AdivinaJuego {
   /// Canciones que se pueden usar: con muestra, sin repetidas (por id) y sin
   /// títulos repetidos (para que no haya dos opciones iguales).
   static List<Cancion> jugables(Iterable<Cancion> canciones) {
-    final ids = <int>{};
+    final ids = <String>{};
     final titulos = <String>{};
     final r = <Cancion>[];
     for (final c in canciones) {
       final url = c.previewUrl;
       if (url == null || url.isEmpty) continue;
-      if (!ids.add(c.itunesId)) continue;
+      if (!ids.add(c.clave)) continue;
       if (!titulos.add(_clave(c.titulo))) continue;
       r.add(c);
     }
@@ -78,7 +78,7 @@ abstract final class AdivinaJuego {
   ) {
     final otras = [
       for (final c in todas)
-        if (c.itunesId != respuesta.itunesId) c,
+        if (c.clave != respuesta.clave) c,
     ]..shuffle(azar);
     final opciones = [
       respuesta.titulo,
