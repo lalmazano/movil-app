@@ -42,9 +42,6 @@ enum FuentePregunta {
   /// Propuesta por alguien del club.
   club,
 
-  /// De la API pública de internet (traducción al español).
-  internet,
-
   /// Del banco que viene con la app.
   app,
 }
@@ -72,39 +69,16 @@ PreguntaPropuesta? siguientePropuesta(Iterable<PreguntaPropuesta> banco) {
   return pendientes.firstOrNull;
 }
 
-/// Si sin propuestas pendientes ese día toca pregunta de internet: se
-/// alterna un día sí y uno no con el banco de la app.
-bool tocaInternet(DateTime fecha) {
-  final dias = DateTime.utc(
-    fecha.year,
-    fecha.month,
-    fecha.day,
-  ).difference(DateTime.utc(2024)).inDays;
-  return dias.isOdd;
-}
-
-/// Decide la pregunta de [fecha]: primero las propuestas del club; si no hay,
-/// en días alternos la de internet ([deInternet], si se pudo obtener); si no,
-/// la del banco de la app.
+/// Decide la pregunta de [fecha]: primero la propuesta del club más antigua
+/// en espera; si no hay, la del banco de la app.
 ({String pregunta, FuentePregunta fuente, PreguntaPropuesta? propuesta})
-elegirPregunta(
-  DateTime fecha, {
-  Iterable<PreguntaPropuesta> banco = const [],
-  String? deInternet,
-}) {
+elegirPregunta(DateTime fecha, {Iterable<PreguntaPropuesta> banco = const []}) {
   final propuesta = siguientePropuesta(banco);
   if (propuesta != null) {
     return (
       pregunta: propuesta.texto,
       fuente: FuentePregunta.club,
       propuesta: propuesta,
-    );
-  }
-  if (deInternet != null && deInternet.trim().isNotEmpty) {
-    return (
-      pregunta: deInternet.trim(),
-      fuente: FuentePregunta.internet,
-      propuesta: null,
     );
   }
   return (

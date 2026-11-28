@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../listas/presentation/config_scope.dart';
 import '../../listas/presentation/widgets/huellitas.dart';
 import '../domain/banco_preguntas.dart';
 import '../domain/preguntas_repository.dart';
 import 'pregunta_page.dart' show fechaLegible;
 
 /// Preguntas propuestas por el club: se pueden agregar desde aquí y salen
-/// como pregunta del día antes que las de la app o las de internet.
+/// como pregunta del día antes que las de la app.
 class BancoPreguntasPage extends StatefulWidget {
   const BancoPreguntasPage({super.key, required this.repository});
 
@@ -73,7 +72,6 @@ class _BancoPreguntasPageState extends State<BancoPreguntasPage> {
 
   @override
   Widget build(BuildContext context) {
-    final config = ConfigClubScope.of(context);
     final textTheme = Theme.of(context).textTheme;
     final yo = widget.repository.autorActual?.uid;
     return Scaffold(
@@ -102,9 +100,7 @@ class _BancoPreguntasPageState extends State<BancoPreguntasPage> {
                   child: Text(
                     'Las preguntas que propongan salen primero, en orden. '
                     'Cuando no hay propuestas, la app usa sus '
-                    '${bancoTamano()} preguntas'
-                    '${config.preguntasInternet ? ' y, un día sí y uno no, '
-                              'preguntas de internet en español' : ''}.',
+                    '${bancoTamano()} preguntas.',
                     style: textTheme.bodySmall,
                   ),
                 ),

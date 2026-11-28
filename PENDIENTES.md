@@ -18,6 +18,10 @@ Funciones elegidas para hacer más adelante. Cada una tendrá su bandera en
   juntos") y contar cuántas veces lo han hecho.
 
 ## Otras ideas (sin decidir)
+- 🌐 Preguntas de internet en la pregunta del día: API gratuita de Truth or
+  Dare Bot (`api.truthordarebot.xyz`, trae traducción al español; estilo de
+  juego de fiesta, traducción automática). Ya se probó y funciona; se quitó
+  por ahora a pedido.
 - 📅 Fecha planeada en planes y películas ("Próximo: sábado 30").
 - 🔔 Recordatorios locales (sin servidor).
 - 📸 "Hoy hace un año…" con foto y calificación.

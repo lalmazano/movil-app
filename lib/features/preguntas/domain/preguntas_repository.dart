@@ -120,9 +120,8 @@ abstract interface class PreguntasRepository {
   Autor? get autorActual;
 
   /// Crea el documento de hoy con su pregunta si todavía no existe: primero
-  /// una propuesta del club; si no hay y [usarInternet], en días alternos una
-  /// de internet; si no, la del banco de la app.
-  Future<void> asegurarHoy({bool usarInternet = false});
+  /// una propuesta del club; si no hay, la del banco de la app.
+  Future<void> asegurarHoy();
 
   /// Preguntas propuestas por el club (en espera primero).
   Stream<List<PreguntaPropuesta>> watchPropuestas();

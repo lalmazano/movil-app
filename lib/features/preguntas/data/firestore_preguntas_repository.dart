@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../listas/domain/detalles.dart';
 import '../domain/preguntas_repository.dart';
-import 'preguntas_internet.dart';
 
 /// Preguntas en Firestore: `clubs/{clubId}/preguntas/{aaaa-mm-dd}` con
 /// `{pregunta}` y cada respuesta en `respuestas/{uid}`.
@@ -55,14 +54,14 @@ class FirestorePreguntasRepository implements PreguntasRepository {
       doc.exists ? Respuesta.fromMap(_fechas(doc.data())) : null;
 
   @override
-  Future<void> asegurarHoy({bool usarInternet = false}) async {
+  Future<void> asegurarHoy() async {
     final dia = hoy;
     final fecha = fechaDeClave(dia)!;
     final ref = _col.doc(dia);
     if ((await ref.get()).exists) return;
 
-    // Lo que tarda (leer propuestas, pedir a internet) va fuera de la
-    // transacción; dentro solo se confirma.
+    // Leer las propuestas va fuera de la transacción; dentro solo se
+    // confirma.
     var banco = const <PreguntaPropuesta>[];
     try {
       banco = [
@@ -75,11 +74,7 @@ class FirestorePreguntasRepository implements PreguntasRepository {
     } on FirebaseException catch (_) {
       // Sin permiso o sin conexión: se sigue sin propuestas.
     }
-    final deInternet =
-        siguientePropuesta(banco) == null && usarInternet && tocaInternet(fecha)
-        ? await PreguntasInternet.fabrica().preguntaPara(fecha)
-        : null;
-    final elegida = elegirPregunta(fecha, banco: banco, deInternet: deInternet);
+    final elegida = elegirPregunta(fecha, banco: banco);
 
     // Transacción: solo el primero que abre la pregunta la crea.
     await db.runTransaction((tx) async {

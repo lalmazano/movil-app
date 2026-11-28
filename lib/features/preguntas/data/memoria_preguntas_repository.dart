@@ -6,14 +6,8 @@ import '../domain/preguntas_repository.dart';
 /// Preguntas en memoria, para pruebas y modo local. Aplica la misma regla que
 /// Firestore: las respuestas de los demás solo se ven después de responder.
 class MemoriaPreguntasRepository implements PreguntasRepository {
-  MemoriaPreguntasRepository({
-    required this.autor,
-    DateTime Function()? reloj,
-    this.internet,
-  }) : reloj = reloj ?? DateTime.now;
-
-  /// Para pruebas: simula la pregunta de internet de un día.
-  final Future<String?> Function(DateTime fecha)? internet;
+  MemoriaPreguntasRepository({required this.autor, DateTime Function()? reloj})
+    : reloj = reloj ?? DateTime.now;
 
   final _propuestas = <PreguntaPropuesta>[];
   var _siguienteId = 0;
@@ -42,22 +36,10 @@ class MemoriaPreguntasRepository implements PreguntasRepository {
   }
 
   @override
-  Future<void> asegurarHoy({bool usarInternet = false}) async {
+  Future<void> asegurarHoy() async {
     final dia = hoy;
     if (_preguntas.containsKey(dia)) return;
-    final fecha = fechaDeClave(dia)!;
-    final deInternet =
-        siguientePropuesta(_propuestas) == null &&
-            usarInternet &&
-            tocaInternet(fecha)
-        ? await internet?.call(fecha)
-        : null;
-    final elegida = elegirPregunta(
-      fecha,
-      banco: _propuestas,
-      deInternet: deInternet,
-    );
-    if (_preguntas.containsKey(dia)) return;
+    final elegida = elegirPregunta(fechaDeClave(dia)!, banco: _propuestas);
     if (elegida.propuesta case final p?) {
       final i = _propuestas.indexWhere((x) => x.id == p.id);
       _propuestas[i] = PreguntaPropuesta(

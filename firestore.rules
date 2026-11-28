@@ -53,8 +53,7 @@ service cloud.firestore {
       return ['peliculas', 'deseos', 'planes', 'registroAbierto',
               'calificaciones', 'autores', 'ruleta', 'buscar', 'fotos',
               'posters', 'contador', 'widget', 'actualizaciones', 'cartas',
-              'resumen', 'fechas', 'preguntas', 'sugerencias', 'repetibles',
-              'preguntasInternet'];
+              'resumen', 'fechas', 'preguntas', 'sugerencias', 'repetibles'];
     }
 
     // Cada bandera que no existía en [antes] debe agregarse en true.
@@ -72,8 +71,7 @@ service cloud.firestore {
         && nuevaEnTrue(antes, 'actualizaciones') && nuevaEnTrue(antes, 'cartas')
         && nuevaEnTrue(antes, 'resumen') && nuevaEnTrue(antes, 'fechas')
         && nuevaEnTrue(antes, 'preguntas') && nuevaEnTrue(antes, 'sugerencias')
-        && nuevaEnTrue(antes, 'repetibles')
-        && nuevaEnTrue(antes, 'preguntasInternet');
+        && nuevaEnTrue(antes, 'repetibles');
     }
 
     function listaVisible(lista) {
