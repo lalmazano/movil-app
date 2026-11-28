@@ -1,4 +1,5 @@
 import '../../listas/domain/detalles.dart';
+import '../../musica/domain/cancion.dart';
 
 /// Largo máximo del título (lo exige también `firestore.rules`).
 const maxTituloCarta = 120;
@@ -66,6 +67,27 @@ class Carta {
   );
 }
 
+/// Lo que va dentro del sobre: el texto y, si quien la escribió quiso, una
+/// canción. Las dos cosas viven en el documento protegido
+/// (`contenido/texto`) para que la canción también sea sorpresa.
+class ContenidoCarta {
+  const ContenidoCarta({required this.texto, this.cancion});
+
+  final String texto;
+  final Cancion? cancion;
+
+  /// Convierte el mapa de `contenido/texto`.
+  static ContenidoCarta fromMap(Map<String, Object?>? map) => ContenidoCarta(
+    texto: map?['texto'] as String? ?? '',
+    cancion: Cancion.fromMap(map?['cancion']),
+  );
+
+  Map<String, Object?> toMap() => {
+    'texto': texto,
+    if (cancion != null) 'cancion': cancion!.toMap(),
+  };
+}
+
 /// Error con un mensaje amable para mostrar tal cual.
 class CartaError implements Exception {
   const CartaError(this.mensaje);
@@ -88,22 +110,31 @@ abstract interface class CartasRepository {
   /// Todas las cartas, de la más nueva a la más vieja.
   Stream<List<Carta>> watch();
 
-  /// Escribe una carta que se podrá abrir desde [abrirEn] (en el futuro).
-  /// Lanza [CartaError] si algo no es válido.
+  /// Escribe una carta que se podrá abrir desde [abrirEn] (en el futuro),
+  /// con una [cancion] opcional que se guarda junto al texto (no en el
+  /// sobre, para no arruinar la sorpresa). Lanza [CartaError] si algo no es
+  /// válido.
   Future<void> crear({
     required String titulo,
     required String texto,
     required DateTime abrirEn,
+    Cancion? cancion,
   });
 
-  /// Lee el texto. Lanza [CartaError] si todavía está cerrada.
-  Future<String> leer(Carta carta);
+  /// Lee el texto y la canción. Lanza [CartaError] si todavía está cerrada.
+  Future<ContenidoCarta> leerContenido(Carta carta);
 
   /// Marca la carta como abierta (solo si ya se puede y no es tuya).
   Future<void> marcarAbierta(Carta carta);
 
   /// Borra la carta y su texto (solo quien la escribió).
   Future<void> borrar(Carta carta);
+}
+
+/// Atajos de lectura.
+extension LeerCarta on CartasRepository {
+  /// Solo el texto. Lanza [CartaError] si todavía está cerrada.
+  Future<String> leer(Carta carta) async => (await leerContenido(carta)).texto;
 }
 
 /// Revisa los datos antes de guardar y devuelve el título limpio.
