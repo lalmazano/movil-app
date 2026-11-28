@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/buscador_musica.dart';
@@ -132,24 +133,36 @@ Future<void> mostrarAbrirCancion(BuildContext context, Cancion cancion) =>
               FilaCancion(cancion: cancion),
               const Divider(height: 1),
               ListTile(
-                leading: const Text('🟢', style: TextStyle(fontSize: 22)),
+                leading: const _LogoMarca(
+                  FontAwesomeIcons.spotify,
+                  Color(0xFF1DB954),
+                ),
                 title: const Text('Escuchar en Spotify'),
                 onTap: () => abrir(cancion.spotifyUrl),
               ),
               ListTile(
-                leading: const Text('🔴', style: TextStyle(fontSize: 22)),
+                leading: const _LogoMarca(
+                  FontAwesomeIcons.youtube,
+                  Color(0xFFFF0000),
+                ),
                 title: const Text('Escuchar en YouTube Music'),
                 onTap: () => abrir(cancion.youtubeMusicUrl),
               ),
               if (cancion.deezerUrl case final deezer?)
                 ListTile(
-                  leading: const Text('🟣', style: TextStyle(fontSize: 22)),
+                  leading: const _LogoMarca(
+                    FontAwesomeIcons.deezer,
+                    Color(0xFFA238FF),
+                  ),
                   title: const Text('Escuchar en Deezer'),
                   onTap: () => abrir(deezer),
                 ),
               if (cancion.appleUrl case final apple?)
                 ListTile(
-                  leading: const Text('🍎', style: TextStyle(fontSize: 22)),
+                  leading: const _LogoMarca(
+                    FontAwesomeIcons.apple,
+                    Color(0xFFFA243C),
+                  ),
                   title: const Text('Escuchar en Apple Music'),
                   onTap: () => abrir(Uri.parse(apple)),
                 ),
@@ -159,7 +172,21 @@ Future<void> mostrarAbrirCancion(BuildContext context, Cancion cancion) =>
       },
     );
 
-/// Buscador de canciones (iTunes). Devuelve la elegida o null.
+/// Logo de una app de música, con su color.
+class _LogoMarca extends StatelessWidget {
+  const _LogoMarca(this.icono, this.color);
+
+  final FaIconData icono;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 32,
+    child: Center(child: FaIcon(icono, color: color, size: 26)),
+  );
+}
+
+/// Buscador de canciones (iTunes y Deezer). Devuelve la elegida o null.
 Future<Cancion?> mostrarBuscadorCanciones(
   BuildContext context, {
   String titulo = '🎵 Buscar canción',
