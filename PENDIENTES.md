@@ -17,6 +17,17 @@ Funciones elegidas para hacer más adelante. Cada una tendrá su bandera en
 - [x] **🔁 Planes repetibles:** marcar un plan como repetible ("Desayunar
   juntos") y contar cuántas veces lo han hecho.
 
+## Hechas (música, v1.3.0)
+- [x] **📀 Playlist del club** con buscador de iTunes, ❤️ y "¿Qué escuchamos?".
+- [x] **❓ Adivina la canción** con récords.
+- [x] **💌🎵 Carta con canción** (sorpresa hasta abrir la carta).
+
+## Ideas de música (sin decidir)
+- 🎶 "Nuestra canción" en cada recuerdo (plan/película/deseo).
+- 🎧 Canción del día (se revela al poner la tuya).
+- 📅 Canción del mes y "banda sonora del año" en el resumen.
+- 📆 Canción para cada fecha importante.
+
 ## Otras ideas (sin decidir)
 - 🌐 Preguntas de internet en la pregunta del día: API gratuita de Truth or
   Dare Bot (`api.truthordarebot.xyz`, trae traducción al español; estilo de

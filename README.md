@@ -88,6 +88,9 @@ existen no se cambian:
 | `preguntas` | 🎲 Pregunta del día |
 | `sugerencias` | 🎬 Sugerencias de películas (TMDB) |
 | `repetibles` | 🔁 Planes que se pueden repetir |
+| `playlist` | 📀 Playlist del club (búsqueda en iTunes, muestras de 30 s) |
+| `adivina` | ❓ Juego "Adivina la canción" con la playlist |
+| `cartasMusica` | 💌🎵 Canción sorpresa dentro de las cartas |
 
 ## Icono (Gato con Botas)
 
