@@ -158,7 +158,7 @@ class _PreguntaPageState extends State<PreguntaPage> {
                 if (dia.cargando)
                   const SizedBox.shrink()
                 else if (mia == null)
-                  _Aviso('🔒 Responde para ver la de $otro')
+                  _Aviso('🔒 Responde para ver la respuesta de $otro')
                 else if (dia.otras.isEmpty)
                   _Aviso('⏳ Esperando a $otro…')
                 else

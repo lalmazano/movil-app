@@ -161,14 +161,17 @@ void main() {
       expect(find.text('🎲 Pregunta del día'), findsOneWidget);
       expect(find.text(preguntaDelDia(hoy)), findsOneWidget);
       expect(
-        find.text('✍️ Responde para ver la de tu frijolito'),
+        find.text('✍️ Responde para ver la respuesta de la otra persona'),
         findsOneWidget,
       );
 
       // Responder desde la página de la pregunta.
       await tester.tap(tarjeta());
       await tester.pumpAndSettle();
-      expect(find.text('🔒 Responde para ver la de tu frijolito'), findsOne);
+      expect(
+        find.text('🔒 Responde para ver la respuesta de la otra persona'),
+        findsOne,
+      );
       expect(find.text('Días anteriores'), findsOneWidget);
       await tester.enterText(
         find.byKey(const Key('campo-respuesta')),
@@ -177,11 +180,11 @@ void main() {
       await tester.tap(find.text('Responder'));
       await tester.pumpAndSettle();
       expect(find.text('Ver atardeceres contigo'), findsOneWidget);
-      expect(find.text('⏳ Esperando a tu frijolito…'), findsOneWidget);
+      expect(find.text('⏳ Esperando a la otra persona…'), findsOneWidget);
 
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
-      expect(find.text('⏳ Esperando a tu frijolito…'), findsOneWidget);
+      expect(find.text('⏳ Esperando a la otra persona…'), findsOneWidget);
 
       // Ana responde desde "su teléfono" (mismos datos, otra identidad).
       await (preguntas as MemoriaPreguntasRepository).responderComo(

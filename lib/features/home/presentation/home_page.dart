@@ -147,7 +147,8 @@ class _HomePageState extends State<HomePage> {
                   )
                 else
                   CuadriculaInicio(
-                    columnas: 3,
+                    // Con menos listas visibles, cada una ocupa más ancho.
+                    columnas: visibles.length,
                     hijos: [
                       for (final tipo in visibles)
                         _TarjetaLista(

@@ -93,7 +93,7 @@ class _TarjetaPreguntaState extends State<TarjetaPregunta> {
                     if (dia != null && !dia.cargando) ...[
                       const SizedBox(height: 4),
                       if (!dia.respondi)
-                        _Estado('✍️ Responde para ver la de $otro')
+                        _Estado('✍️ Responde para ver la respuesta de $otro')
                       else if (dia.otras.isEmpty)
                         _Estado('⏳ Esperando a $otro…')
                       else
@@ -113,7 +113,7 @@ class _TarjetaPreguntaState extends State<TarjetaPregunta> {
 /// Nombre corto de la otra persona, o uno cariñoso si aún no se conoce.
 String nombreOtro(Autor? otro) {
   final nombre = otro?.nombre?.trim() ?? '';
-  return nombre.isEmpty ? 'tu frijolito' : otro!.nombreCorto;
+  return nombre.isEmpty ? 'la otra persona' : otro!.nombreCorto;
 }
 
 class _Estado extends StatelessWidget {
