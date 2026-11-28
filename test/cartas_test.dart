@@ -198,6 +198,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Cartas'), findsOneWidget);
       expect(find.text('Escríbele una carta'), findsOneWidget);
+      await tester.ensureVisible(find.text('Cartas'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Cartas'));
       await tester.pumpAndSettle();
       expect(find.text('Escribir carta'), findsOneWidget);
