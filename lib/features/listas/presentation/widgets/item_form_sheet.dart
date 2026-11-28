@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/item_lista.dart';
+import '../config_scope.dart';
 import 'buscador_tmdb.dart';
 
 /// Lo que devuelve el formulario: el elemento y, en películas, los datos de
-/// TMDB vinculados (null si no tiene o se desvinculó).
-typedef FormularioItem = ({NuevoItem item, InfoPelicula? pelicula});
+/// TMDB vinculados (null si no tiene o se desvinculó), y si se puede repetir
+/// (🔁).
+typedef FormularioItem = ({
+  NuevoItem item,
+  InfoPelicula? pelicula,
+  bool repetible,
+});
 
 /// Hoja para crear o editar un elemento. Devuelve un [FormularioItem] o null.
 ///
@@ -66,6 +72,10 @@ class _ItemFormSheetState extends State<_ItemFormSheet> {
   /// Película de TMDB vinculada y el título con el que se mostró.
   late InfoPelicula? _pelicula = widget.inicial?.pelicula;
   late String _tituloTmdb = widget.inicial?.titulo ?? '';
+
+  /// Se puede hacer varias veces (🔁). Si la función está apagada se
+  /// conserva el valor que ya tenía.
+  late bool _repetible = widget.inicial?.repetible ?? false;
 
   @override
   void initState() {
@@ -133,6 +143,7 @@ class _ItemFormSheetState extends State<_ItemFormSheet> {
     final FormularioItem resultado = (
       item: (titulo: titulo, categoria: _categoria, nota: _nota.text.trim()),
       pelicula: _pelicula,
+      repetible: _repetible,
     );
     Navigator.of(context).pop(resultado);
   }
@@ -228,6 +239,19 @@ class _ItemFormSheetState extends State<_ItemFormSheet> {
                   isDense: true,
                 ),
               ),
+              if (ConfigClubScope.of(context).repetibles)
+                SwitchListTile(
+                  key: const Key('switch-repetible'),
+                  value: _repetible,
+                  onChanged: (v) => setState(() => _repetible = v),
+                  title: Text(
+                    '🔁 Se puede repetir',
+                    style: textTheme.bodyMedium,
+                  ),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                ),
               const SizedBox(height: 16),
               FilledButton.icon(
                 key: const Key('boton-guardar-item'),
